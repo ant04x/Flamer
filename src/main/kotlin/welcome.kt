@@ -36,7 +36,7 @@ class Welcome(props: RProps) : RComponent<RProps, WelcomeState>(props) {
 
         mThemeProvider(createMuiTheme(themeOptions)) {
 
-            themeContext.Consumer { theme ->
+            themeContext.Consumer { _ ->
                 styledDiv {
 
                     css { css { flexGrow = 1.0 } }
