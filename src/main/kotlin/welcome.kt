@@ -12,51 +12,56 @@ import styled.styledInput
 import com.ccfraser.muirwik.components.*
 import com.ccfraser.muirwik.components.button.mButton
 import com.ccfraser.muirwik.components.button.mIconButton
+import com.ccfraser.muirwik.components.styles.ThemeOptions
+import com.ccfraser.muirwik.components.styles.createMuiTheme
 
-external interface WelcomeProps : RProps {
-    var name: String
-}
 
 data class WelcomeState(val name: String) : RState
 
 @JsExport
-class Welcome(props: WelcomeProps) : RComponent<WelcomeProps, WelcomeState>(props) {
+class Welcome(props: RProps) : RComponent<RProps, WelcomeState>(props) {
 
     init {
-        state = WelcomeState(props.name)
-    }
-
-    val styles = CSSBuilder().apply {
-        body {
-            margin(0.px)
-            padding(0.px)
-        }
+        // state = WelcomeState(props.name)
     }
 
     override fun RBuilder.render() {
 
-        styledDiv {
+        mCssBaseline()
 
-            css { css { flexGrow = 1.0 } }
+        @Suppress("UnsafeCastFromDynamic")
+        val themeOptions: ThemeOptions = js("({palette: { type: 'placeholder', primary: {main: 'placeholder'}}})")
+        themeOptions.palette?.type = "light"
+        themeOptions.palette?.primary.main = Colors.BlueGrey.shade400.toString()
 
-            mAppBar(position = MAppBarPosition.static) {
+        mThemeProvider(createMuiTheme(themeOptions)) {
 
-                mToolbar {
+            themeContext.Consumer { theme ->
+                styledDiv {
 
-                    mIconButton("menu", color = MColor.inherit) {
+                    css { css { flexGrow = 1.0 } }
 
-                        css {
-                            marginLeft = (-12).px
-                            marginRight = 16.px
+                    mAppBar(position = MAppBarPosition.static) {
+
+                        mToolbar {
+
+                            mIconButton("menu", color = MColor.inherit) {
+
+                                css {
+                                    marginLeft = (-12).px
+                                    marginRight = 16.px
+                                }
+                            }
+
+                            mTypography("Flamer", variant = MTypographyVariant.h6, color = MTypographyColor.inherit) {
+                                css { flexGrow = 1.0 }
+                            }
+                            mIconButton ("account_circle", color = MColor.inherit)
                         }
                     }
-
-                    mTypography(state.name, variant = MTypographyVariant.h6, color = MTypographyColor.inherit) {
-                        css { flexGrow = 1.0 }
-                    }
-                    mIconButton ("account_circle", color = MColor.inherit)
                 }
             }
         }
     }
 }
+fun RBuilder.app() = child(Welcome::class) {}
