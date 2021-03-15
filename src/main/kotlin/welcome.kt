@@ -33,6 +33,7 @@ data class WelcomeState(val name: String) : RState
 class Welcome(props: RProps) : RComponent<RProps, WelcomeState>(props) {
 
     private var temporaryLeftOpen: Boolean = false
+    private var paginaSeleccionada: Any = 0
     private var drawerWidth = 21
     private var value1: Any = 0
 
@@ -47,7 +48,7 @@ class Welcome(props: RProps) : RComponent<RProps, WelcomeState>(props) {
         @Suppress("UnsafeCastFromDynamic")
         val themeOptions: ThemeOptions = js("({palette: { type: 'placeholder', primary: {main: 'placeholder'}}})")
         themeOptions.palette?.type = "light"
-        themeOptions.palette?.primary.main = Colors.Blue.accent400.toString()
+        themeOptions.palette?.primary.main = Colors.Indigo.accent400.toString()
 
         mThemeProvider(createMuiTheme(themeOptions)) {
 
@@ -63,6 +64,10 @@ class Welcome(props: RProps) : RComponent<RProps, WelcomeState>(props) {
                             css {
                                 color = Color.black
                                 backgroundColor = Color.white
+                                position = Position.fixed
+                                left = 0.px
+                                right = 0.px
+                                top = 0.px
                             }
 
                             mIconButton("menu", color = MColor.inherit, onClick = { setState { temporaryLeftOpen = true } }) {
@@ -82,7 +87,16 @@ class Welcome(props: RProps) : RComponent<RProps, WelcomeState>(props) {
                     mDrawer(temporaryLeftOpen, onClose = { setState { temporaryLeftOpen = false } }) {
                         mailPlaceholder(false)
                     }
-                    mBottomNavigation(value1, true, onChange = { onChange, indexValue -> setState { value1 = indexValue } }) {
+
+                    styledDiv {
+                        css {
+                            height = 60.em
+                            width = 100.pct
+                            backgroundColor = Color.green
+                        }
+                    }
+
+                    mBottomNavigation(value1, true, onChange = { _, indexValue -> setState { value1 = indexValue } }) {
 
                         css {
 
@@ -97,10 +111,9 @@ class Welcome(props: RProps) : RComponent<RProps, WelcomeState>(props) {
                             bottom = 0.px
                         }
 
-                        mBottomNavigationAction("Recents", mIcon("restore", addAsChild = false))
+                        mBottomNavigationAction("Tareas", mIcon("home", addAsChild = false))
                         mFab("add", MColor.primary, size = MButtonSize.large) { css { marginTop = (-28).px } }
-                        mBottomNavigationAction("Nearby", mIcon("location_on", addAsChild = false))
-
+                        mBottomNavigationAction("Archivo", mIcon("archive", addAsChild = false))
                     }
                 }
             }
@@ -140,6 +153,10 @@ class Welcome(props: RProps) : RComponent<RProps, WelcomeState>(props) {
                 mListItemWithIcon("settings", "Ajustes", divider = false)
             }
         }
+    }
+
+    private fun changeScreen() {
+        console.log("Pagina seleccionada -> $paginaSeleccionada")
     }
 }
 fun RBuilder.app() = child(Welcome::class) {}
