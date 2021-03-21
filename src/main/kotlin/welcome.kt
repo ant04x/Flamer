@@ -1,13 +1,10 @@
 import kotlinx.css.*
-import kotlinx.html.InputType
-import kotlinx.html.js.onChangeFunction
-import org.w3c.dom.HTMLInputElement
 import styled.css
 import styled.styledDiv
-import styled.styledInput
 import com.ccfraser.muirwik.components.*
 import com.ccfraser.muirwik.components.button.*
 import com.ccfraser.muirwik.components.dialog.mDialog
+import com.ccfraser.muirwik.components.form.MFormControlMargin
 import com.ccfraser.muirwik.components.list.*
 import com.ccfraser.muirwik.components.styles.*
 import com.ccfraser.muirwik.components.transitions.MTransitionProps
@@ -15,17 +12,12 @@ import com.ccfraser.muirwik.components.transitions.SlideTransitionDirection
 import com.ccfraser.muirwik.components.transitions.mSlide
 import kotlinx.css.Color
 import kotlinx.css.properties.BoxShadow
-import kotlinx.css.properties.BoxShadows
 import kotlinx.html.js.onClickFunction
 import kotlinx.html.js.onKeyDownFunction
 import kotlinx.html.role
 import react.*
 import react.dom.div
-import react.dom.select
-import react.dom.span
-import react.dom.style
-import styled.cssifyDeclaration
-import kotlin.js.Console
+import styled.StyleSheet
 
 
 data class WelcomeState(val name: String) : RState
@@ -40,6 +32,7 @@ class Welcome(props: RProps) : RComponent<RProps, WelcomeState>(props) {
     private var paginaSeleccionada: Any = 0
     private var drawerWidth = 21
     private var value1: Any = 0
+    private var appBarHeight: LinearDimension = 0.px
 
     init {
         // state = WelcomeState(props.name)
@@ -72,6 +65,7 @@ class Welcome(props: RProps) : RComponent<RProps, WelcomeState>(props) {
                                 left = 0.px
                                 right = 0.px
                                 top = 0.px
+                                appBarHeight = height
                             }
 
                             mIconButton("menu", color = MColor.inherit, onClick = { setState { temporaryLeftOpen = true } }) {
@@ -91,7 +85,7 @@ class Welcome(props: RProps) : RComponent<RProps, WelcomeState>(props) {
                     mDrawer(temporaryLeftOpen, onClose = { setState { temporaryLeftOpen = false } }) {
                         mailPlaceholder(false)
                     }
-
+                    spacer()
                     mBottomNavigation(value1, true, onChange = { _, indexValue -> setState { value1 = indexValue } }) {
 
                         css {
@@ -138,8 +132,8 @@ class Welcome(props: RProps) : RComponent<RProps, WelcomeState>(props) {
         themeContext.Consumer { theme ->
             div {
                 attrs.role = "button"
-                attrs.onClickFunction = { setState { temporaryLeftOpen = false }}
-                attrs.onKeyDownFunction = { setState { temporaryLeftOpen = false }}
+                attrs.onClickFunction = { setState { temporaryLeftOpen = false } }
+                attrs.onKeyDownFunction = { setState { temporaryLeftOpen = false } }
             }
             mList {
                 css {
@@ -187,8 +181,12 @@ class Welcome(props: RProps) : RComponent<RProps, WelcomeState>(props) {
                             marginRight = 16.px
                         }
                     }
-                    // mToolbarTitle("Sound")
-                    // mButton("save", variant = MButtonVariant.text, color = MColor.inherit, onClick = { handleClose() })
+                    mTextField(label = "", placeholder = "Buscar", margin = MFormControlMargin.dense) {
+                        css {
+                            width = LinearDimension.fillAvailable
+                            marginRight = 16.px
+                        }
+                    }
                 }
             }
             // mListItem(primaryText = "Phone ringtone", secondaryText = "Titania", divider = true)
@@ -201,4 +199,21 @@ class Welcome(props: RProps) : RComponent<RProps, WelcomeState>(props) {
         }
     }
 }
+
+fun RBuilder.spacer() {
+    themeContext.Consumer { theme ->
+        val themeStyles = object : StyleSheet("ComponentStyles", isStatic = true) {
+            val toolbar by css {
+                toolbarJsCssToPartialCss(theme.mixins.toolbar)
+            }
+        }
+
+        // This puts in a spacer to get below the AppBar.
+        styledDiv {
+            css(themeStyles.toolbar)
+        }
+        mDivider {  }
+    }
+}
+
 fun RBuilder.app() = child(Welcome::class) {}
