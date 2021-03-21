@@ -6,12 +6,13 @@ import styled.css
 import styled.styledDiv
 import styled.styledInput
 import com.ccfraser.muirwik.components.*
-import com.ccfraser.muirwik.components.button.MButtonSize
-import com.ccfraser.muirwik.components.button.mButton
-import com.ccfraser.muirwik.components.button.mFab
-import com.ccfraser.muirwik.components.button.mIconButton
+import com.ccfraser.muirwik.components.button.*
+import com.ccfraser.muirwik.components.dialog.mDialog
 import com.ccfraser.muirwik.components.list.*
 import com.ccfraser.muirwik.components.styles.*
+import com.ccfraser.muirwik.components.transitions.MTransitionProps
+import com.ccfraser.muirwik.components.transitions.SlideTransitionDirection
+import com.ccfraser.muirwik.components.transitions.mSlide
 import kotlinx.css.Color
 import kotlinx.css.properties.BoxShadow
 import kotlinx.css.properties.BoxShadows
@@ -33,6 +34,9 @@ data class WelcomeState(val name: String) : RState
 class Welcome(props: RProps) : RComponent<RProps, WelcomeState>(props) {
 
     private var temporaryLeftOpen: Boolean = false
+    private var fullScreenDialogOpen: Boolean = false
+    private var slow = false
+    private val slowTransitionProps: MTransitionProps = js("({timeout: 1000})")
     private var paginaSeleccionada: Any = 0
     private var drawerWidth = 21
     private var value1: Any = 0
@@ -81,7 +85,7 @@ class Welcome(props: RProps) : RComponent<RProps, WelcomeState>(props) {
                             mTypography("Flamer", variant = MTypographyVariant.h6, color = MTypographyColor.inherit) {
                                 css { flexGrow = 1.0 }
                             }
-                            mIconButton ("search", color = MColor.inherit)
+                            mIconButton ("search", color = MColor.inherit, onClick = { setState { fullScreenDialogOpen = true } } )
                         }
                     }
                     mDrawer(temporaryLeftOpen, onClose = { setState { temporaryLeftOpen = false } }) {
@@ -124,6 +128,7 @@ class Welcome(props: RProps) : RComponent<RProps, WelcomeState>(props) {
                             }
                         }
                     }
+                    fullScreenDialog(fullScreenDialogOpen)
                 }
             }
         }
@@ -164,8 +169,36 @@ class Welcome(props: RProps) : RComponent<RProps, WelcomeState>(props) {
         }
     }
 
-    private fun changeScreen() {
-        console.log("Pagina seleccionada -> $paginaSeleccionada")
+    private fun RBuilder.fullScreenDialog(open: Boolean) {
+        fun handleClose() {
+            setState { fullScreenDialogOpen = false }
+        }
+        mDialog(open, fullScreen = true, transitionComponent = SlideUpTransitionComponent::class, transitionProps = if (slow) slowTransitionProps else null, onClose = { _, _ -> handleClose() }) {
+            mAppBar {
+                css {
+                    color = Color.black
+                    backgroundColor = Color.white
+                    position = Position.relative
+                }
+                mToolbar {
+                    mIconButton(iconName = "arrow_back", color = MColor.inherit, iconColor = MIconColor.inherit, onClick = { handleClose() }) {
+                        css {
+                            marginLeft = (-12).px
+                            marginRight = 16.px
+                        }
+                    }
+                    // mToolbarTitle("Sound")
+                    // mButton("save", variant = MButtonVariant.text, color = MColor.inherit, onClick = { handleClose() })
+                }
+            }
+            // mListItem(primaryText = "Phone ringtone", secondaryText = "Titania", divider = true)
+        }
+    }
+
+    class SlideUpTransitionComponent(props: MTransitionProps) : RComponent<MTransitionProps, RState>(props) {
+        override fun RBuilder.render() {
+            childList.add(cloneElement(mSlide(direction = SlideTransitionDirection.down, addAsChild = false), props))
+        }
     }
 }
 fun RBuilder.app() = child(Welcome::class) {}
