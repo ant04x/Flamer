@@ -88,14 +88,6 @@ class Welcome(props: RProps) : RComponent<RProps, WelcomeState>(props) {
                         mailPlaceholder(false)
                     }
 
-                    styledDiv {
-                        css {
-                            height = 60.em
-                            width = 100.pct
-                            backgroundColor = Color.green
-                        }
-                    }
-
                     mBottomNavigation(value1, true, onChange = { _, indexValue -> setState { value1 = indexValue } }) {
 
                         css {
@@ -114,6 +106,23 @@ class Welcome(props: RProps) : RComponent<RProps, WelcomeState>(props) {
                         mBottomNavigationAction("Tareas", mIcon("home", addAsChild = false))
                         mFab("add", MColor.primary, size = MButtonSize.large) { css { marginTop = (-28).px } }
                         mBottomNavigationAction("Archivo", mIcon("archive", addAsChild = false))
+                    }
+                    if (value1 == 0) {
+                        styledDiv {
+                            css {
+                                height = 60.em
+                                width = 100.pct
+                                backgroundColor = Color.green
+                            }
+                        }
+                    } else if (value1 == 2) {
+                        styledDiv {
+                            css {
+                                height = 60.em
+                                width = 100.pct
+                                backgroundColor = Color.red
+                            }
+                        }
                     }
                 }
             }
