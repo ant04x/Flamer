@@ -1,8 +1,9 @@
+package mainFrame
+
 import kotlinx.css.*
 import styled.StyleSheet
-import styled.css
 
-object WelcomeStyles : StyleSheet("WelcomeStyles", isStatic = true) {
+object MainFrameStyles : StyleSheet("mainFrame.MainFrameStyles", isStatic = true) {
 
     private val styles = CSSBuilder().apply {
         body {
