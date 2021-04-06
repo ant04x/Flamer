@@ -1,29 +1,36 @@
 package mainFrame
 
 import kotlinx.css.*
-import styled.css
-import styled.styledDiv
 import com.ccfraser.muirwik.components.*
 import com.ccfraser.muirwik.components.button.*
-import com.ccfraser.muirwik.components.dialog.mDialog
+import com.ccfraser.muirwik.components.dialog.*
 import com.ccfraser.muirwik.components.form.MFormControlMargin
+import com.ccfraser.muirwik.components.form.MFormControlVariant
+import com.ccfraser.muirwik.components.form.mFormControl
+import com.ccfraser.muirwik.components.input.mFilledInput
+import com.ccfraser.muirwik.components.input.mInputAdornment
+import com.ccfraser.muirwik.components.input.mInputLabel
 import com.ccfraser.muirwik.components.list.*
+import com.ccfraser.muirwik.components.menu.mMenuItem
 import com.ccfraser.muirwik.components.styles.*
 import com.ccfraser.muirwik.components.transitions.MTransitionProps
-import com.ccfraser.muirwik.components.transitions.SlideTransitionDirection
-import com.ccfraser.muirwik.components.transitions.mSlide
 import kotlinx.css.Color
 import kotlinx.css.properties.BoxShadow
+import kotlinx.html.InputType
 import kotlinx.html.js.onClickFunction
 import kotlinx.html.js.onKeyDownFunction
 import kotlinx.html.role
-import mainFrame.mainMenu.MainMenuState
-import mainFrame.mainMenu.mainMenu
+import org.w3c.dom.events.Event
+import org.w3c.notifications.Notification
+import org.w3c.notifications.Notification.Companion.permission
 import react.*
 import react.dom.div
-import styled.StyleSheet
+import react.dom.p
+import react.dom.span
+import styled.*
 import transitions.SlideRightTransitionComponent
 import transitions.SlideUpTransitionComponent
+import kotlin.reflect.KClass
 
 
 data class MainFrameState(val name: String) : RState
@@ -32,14 +39,24 @@ data class MainFrameState(val name: String) : RState
 class MainFrame(props: RProps) : RComponent<RProps, MainFrameState>(props) {
 
     // private var temporaryLeftOpen: Boolean = false
-    private var fullScreenDialogOpen: Boolean = false
+    private var theme = "Light"
+    private var selTagIcon = "sell"
+    private var fullScreenSearchOpen: Boolean = false
     private var fullScreenSettingsOpen: Boolean = false
+    private var fullScreenTaskOpen: Boolean = false
+    private var createTagDialogOpen: Boolean = false
+    private var alertDialogOpen: Boolean = false
+    private var alertTransition: KClass<out RComponent<MTransitionProps, RState>>? = null
+    private var temaDialogValue: String = theme
+    private var temaDialogSelectedValue: String = theme
+    private var temaDialogOpen: Boolean = false
     private var slow = false
     private val slowTransitionProps: MTransitionProps = js("({timeout: 1000})")
     private var value1: Any = 0
     private var appBarHeight: LinearDimension = 0.px
     private var drawerWidth = 21
     private var temporaryLeftOpen = false
+    private var checked = Array(5) { false }
 
     init {
         // state = WelcomeState(props.name)
@@ -50,9 +67,10 @@ class MainFrame(props: RProps) : RComponent<RProps, MainFrameState>(props) {
         mCssBaseline()
 
         @Suppress("UnsafeCastFromDynamic")
-        val themeOptions: ThemeOptions = js("({palette: { type: 'placeholder', primary: {main: 'placeholder'}}})")
-        themeOptions.palette?.type = "light"
-        themeOptions.palette?.primary.main = Colors.Indigo.accent400.toString()
+        val themeOptions: ThemeOptions = js("({palette: { type: 'placeholder', primary: {main: 'placeholder'}, secondary: {main: 'placeholder'}}})")
+        themeOptions.palette?.type = theme.decapitalize()
+        themeOptions.palette?.primary.main = Colors.Pink.shade900.toString()
+        themeOptions.palette?.secondary.main = Colors.DeepOrange.accent400.toString()
 
         mThemeProvider(createMuiTheme(themeOptions)) {
 
@@ -62,18 +80,13 @@ class MainFrame(props: RProps) : RComponent<RProps, MainFrameState>(props) {
                     css { css { flexGrow = 1.0 } }
 
                     styledDiv {
-                        mAppBar(position = MAppBarPosition.static) {
+                        mAppBar(position = MAppBarPosition.fixed) {
 
                             mToolbar {
 
                                 css {
-                                    color = Color.black
-                                    backgroundColor = Color.white
-                                    position = Position.fixed
-                                    left = 0.px
-                                    right = 0.px
-                                    top = 0.px
-                                    appBarHeight = height
+                                    // color = Color.black
+                                    // backgroundColor = Color.white
                                 }
 
                                 mIconButton("menu", color = MColor.inherit, onClick = { setState { temporaryLeftOpen = true } }) {
@@ -84,17 +97,17 @@ class MainFrame(props: RProps) : RComponent<RProps, MainFrameState>(props) {
                                     }
                                 }
 
-                                mTypography("Flamer", variant = MTypographyVariant.h6, color = MTypographyColor.inherit) {
+                                mTypography("Tareas", variant = MTypographyVariant.h6, color = MTypographyColor.inherit) {
                                     css { flexGrow = 1.0 }
                                 }
-                                mIconButton ("search", color = MColor.inherit, onClick = { setState { fullScreenDialogOpen = true } } )
+                                mIconButton ("search", color = MColor.inherit, onClick = { setState { fullScreenSearchOpen = true } } )
                             }
                         }
                         mDrawer(temporaryLeftOpen, onClose = { setState { temporaryLeftOpen = false } }) {
                             drawerMenu(false)
                         }
                         spacer()
-                        mBottomNavigation(value1, true, onChange = { _, indexValue -> setState { value1 = indexValue } }) {
+                        mBottomNavigation(value1,true, onChange = { _, indexValue -> setState { value1 = indexValue } }) {
 
                             css {
 
@@ -103,6 +116,7 @@ class MainFrame(props: RProps) : RComponent<RProps, MainFrameState>(props) {
                                 boxShadow.plusAssign(BoxShadow(color = rgba(0, 0, 0, 14.0), inset = false , offsetX = 0.px, offsetY = 4.px, blurRadius = 5.px, spreadRadius = 0.px)) // 2
                                 boxShadow.plusAssign(BoxShadow(color = rgba(0, 0, 0, 20.0), inset = false , offsetX = 0.px, offsetY = 2.px, blurRadius = 4.px, spreadRadius = (-1).px)) // 1
 
+                                zIndex = 1
                                 position = Position.fixed
                                 left = 0.px
                                 right = 0.px
@@ -116,24 +130,46 @@ class MainFrame(props: RProps) : RComponent<RProps, MainFrameState>(props) {
                     }
 
                     if (value1 == 0) {
-                        styledDiv {
-                            css {
-                                height = 60.em
-                                width = 100.pct
-                                backgroundColor = Color.green
+                        mList {
+                            mListItem(button = true, divider = true) {
+                                mListItemText("Tarea 1")
+                                mListItemSecondaryAction {
+                                    mCheckbox(checked[0], onChange = {_, _ -> setState {checked[0] = !checked[0]} })
+                                }
+                            }
+                            mListItem(button = true, divider = true) {
+                                mListItemText("Tarea 2")
+                                mListItemSecondaryAction {
+                                    mCheckbox(checked[1], onChange = {_, _ -> setState {checked[1] = !checked[1]} })
+                                }
+                            }
+                            mListItem(button = true, divider = true) {
+                                mListItemText("Tarea 3")
+                                mListItemSecondaryAction {
+                                    mCheckbox(checked[2], onChange = {_, _ -> setState {checked[2] = !checked[2]} })
+                                }
                             }
                         }
                     } else if (value1 == 2) {
-                        styledDiv {
-                            css {
-                                height = 60.em
-                                width = 100.pct
-                                backgroundColor = Color.red
+                        mList {
+                            mListItem(button = true, divider = true) {
+                                mListItemText("Tarea 4")
+                                mListItemSecondaryAction {
+                                    mCheckbox(checked[3], onChange = {_, _ -> setState {checked[3] = !checked[3]} })
+                                }
+                            }
+                            mListItem(button = true, divider = true) {
+                                mListItemText("Tarea 5")
+                                mListItemSecondaryAction {
+                                    mCheckbox(checked[4], onChange = {_, _ -> setState {checked[4] = !checked[4]} })
+                                }
                             }
                         }
                     }
-                    fullScreenDialog(fullScreenDialogOpen)
+                    fullScreenSearch(fullScreenSearchOpen)
                     fullScreenSettings(fullScreenSettingsOpen)
+                    createTagDialog(createTagDialogOpen)
+                    alertDialog(alertDialogOpen)
                 }
             }
         }
@@ -156,9 +192,11 @@ class MainFrame(props: RProps) : RComponent<RProps, MainFrameState>(props) {
                     "/img/profile.jpeg",
                     "Antonio Izquierdo",
                     "ant04x@gmail.com",
-                    alignItems = MListItemAlignItems.flexStart
+                    alignItems = MListItemAlignItems.flexStart,
+                    onClick = { setState { alertDialogOpen = true; alertTransition = null; temporaryLeftOpen = false } }
                 )
                 mListSubheader("Etiquetas", disableSticky = true)
+                mListItemWithIcon("all_inbox", "Tareas", divider = false)
                 mListItemWithIcon("lightbulb", "PSP", divider = false)
                 mListItemWithIcon("vpn_key", "ADA", divider = false)
                 mListItemWithIcon("desktop_windows", "PMDM", divider = false)
@@ -168,15 +206,42 @@ class MainFrame(props: RProps) : RComponent<RProps, MainFrameState>(props) {
 
                 mDivider()
                 mListSubheader("Acciones", disableSticky = true)
-                mListItemWithIcon("sell", "Crear Etiqueta", divider = false)
-                mListItemWithIcon("settings", "Ajustes", divider = false, onClick = { setState { temporaryLeftOpen = false } })
+                mListItemWithIcon("sell", "Crear Etiqueta", divider = false, onClick = { setState { temporaryLeftOpen = false; createTagDialogOpen = true } })
+                mListItemWithIcon("settings", "Ajustes", divider = false, onClick = { setState { temporaryLeftOpen = false; fullScreenSettingsOpen = true } })
             }
         }
     }
 
-    private fun RBuilder.fullScreenDialog(open: Boolean) {
+    private fun RBuilder.fullScreenTask(open: Boolean) {
         fun handleClose() {
-            setState { fullScreenDialogOpen = false }
+            setState { fullScreenTaskOpen = false }
+        }
+        mDialog(open, fullScreen = true, transitionComponent = SlideRightTransitionComponent::class, transitionProps = if (slow) slowTransitionProps else null, onClose = { _, _ -> handleClose() }) {
+            mAppBar {
+                css {
+                    color = Color.black
+                    backgroundColor = Color.white
+                    position = Position.relative
+                }
+                mToolbar {
+                    mIconButton(iconName = "arrow_back", color = MColor.inherit, iconColor = MIconColor.inherit, onClick = { handleClose() }) {
+                        css {
+                            marginLeft = (-12).px
+                            marginRight = 16.px
+                        }
+                    }
+                    mTypography("Tarea X", variant = MTypographyVariant.h6, color = MTypographyColor.inherit) {
+                        css { flexGrow = 1.0 }
+                    }
+                }
+            }
+
+        }
+    }
+
+    private fun RBuilder.fullScreenSearch(open: Boolean) {
+        fun handleClose() {
+            setState { fullScreenSearchOpen = false }
         }
         mDialog(open, fullScreen = true, transitionComponent = SlideUpTransitionComponent::class, transitionProps = if (slow) slowTransitionProps else null, onClose = { _, _ -> handleClose() }) {
             mAppBar {
@@ -211,8 +276,6 @@ class MainFrame(props: RProps) : RComponent<RProps, MainFrameState>(props) {
         mDialog(open, fullScreen = true, transitionComponent = SlideRightTransitionComponent::class, transitionProps = if (slow) slowTransitionProps else null, onClose = { _, _ -> handleClose() }) {
             mAppBar {
                 css {
-                    color = Color.black
-                    backgroundColor = Color.white
                     position = Position.relative
                 }
                 mToolbar {
@@ -227,10 +290,120 @@ class MainFrame(props: RProps) : RComponent<RProps, MainFrameState>(props) {
                     }
                 }
             }
-            // mListItem(primaryText = "Phone ringtone", secondaryText = "Titania", divider = true)
+            mList {
+                mListItemWithIcon("lock", "Permisos", onClick = { requestPermissions() })
+                mListItemWithIcon("brightness_medium", "Tema", secondaryText = temaDialogSelectedValue, onClick = { setState { temaDialogOpen = true } })
+                mListItemWithIcon("info", "Acerca de", hRefOptions = HRefOptions("https://github.com/ant04x/Flamer"))
+            }
+            themeDialog(temaDialogOpen)
+        }
+    }
+
+    private fun requestPermissions() {
+        Notification.requestPermission().then()
+    }
+
+    private fun RBuilder.themeDialog(open: Boolean, scroll: DialogScroll = DialogScroll.paper) {
+
+        mDialog(open, scroll = scroll, transitionProps = if (slow) slowTransitionProps else null, fullWidth = true, maxWidth = Breakpoint.md) {
+
+            attrs.disableEscapeKeyDown = true
+            mDialogTitle("Tema")
+
+            mDialogContent(scroll == DialogScroll.paper) {
+                mRadioGroup(value = temaDialogValue, onChange = {_, value -> setState { temaDialogValue = value }} ) {
+                    mRadioWithLabel("Light", value = "Light")
+                    mRadioWithLabel("Dark", value = "Dark")
+                    mRadioWithLabel("Auto", value = "Auto")
+                }
+            }
+            mDialogActions {
+                mButton("Cancelar", color = MColor.primary, onClick = { setState {
+                    temaDialogValue = temaDialogSelectedValue
+                    temaDialogOpen = false
+                }})
+                mButton("Ok", color = MColor.primary, onClick = { setState {
+                    temaDialogSelectedValue = temaDialogValue
+                    temaDialogOpen = false
+                }})
+            }
+        }
+    }
+
+    private fun RBuilder.alertDialog(open: Boolean) {
+        fun closeAlertDialog() {
+            setState { alertDialogOpen = false }
+        }
+
+        mDialog(open, onClose = { _, _ ->  closeAlertDialog() }, transitionComponent = alertTransition, transitionProps = if (slow) slowTransitionProps else null) {
+            mDialogTitle("Cerrar Sesión")
+            mDialogContent {
+                mDialogContentText("Al cerrar sesión no podrás administrar tus tareas de Flamer pero tus datos seguirán guardados en la nube. Podrás iniciar sesión con la misma cuenta u otra después de cerrar sesión.")
+            }
+            mDialogActions {
+                mButton("Cancelar", MColor.primary, onClick = { closeAlertDialog() })
+                mButton("Aceptar", MColor.primary, onClick = { closeAlertDialog() })
+            }
+        }
+    }
+
+    private fun RBuilder.createTagDialog(open: Boolean) {
+        fun handleClose() {
+            setState { createTagDialogOpen = false}
+        }
+        var selectValue = "Item 2"
+        mDialog(open, onClose =  { _, _ -> handleClose() }, transitionProps = if (slow) slowTransitionProps else null) {
+            mDialogTitle("Crear Etiqueta")
+            mDialogContent {
+                styledDiv {
+                    css {
+                        display = Display.flex
+                    }
+                    styledForm {
+                        mFormControl(variant = MFormControlVariant.outlined) {
+                            mInputLabel("", variant = MFormControlVariant.outlined)
+                            mSelect(selTagIcon, input = mFilledInput(id = "test", addAsChild = false), onChange = { event, _ -> run { setState { selTagIcon = event.targetValue as String } } }) {
+                                mMenuItem(value = "lightbulb") {
+                                    mIcon(iconName = "lightbulb") { css { marginRight = 10.px; fontSize = 15.px } }
+                                }
+                                mMenuItem(value = "vpn_key") {
+                                    mIcon(iconName = "vpn_key") { css { marginRight = 10.px; fontSize = 15.px } }
+                                }
+                                mMenuItem(value = "desktop_windows") {
+                                    mIcon(iconName = "desktop_windows") { css { marginRight = 10.px; fontSize = 15.px } }
+                                }
+                                mMenuItem(value = "sell") {
+                                    mIcon(iconName = "sell") { css { marginRight = 10.px; fontSize = 15.px } }
+                                }
+                                mMenuItem(value = "book") {
+                                    mIcon(iconName = "book") { css { marginRight = 10.px; fontSize = 15.px } }
+                                }
+                                mMenuItem(value = "web_asset") {
+                                    mIcon(iconName = "web_asset") { css { marginRight = 10.px; fontSize = 15.px } }
+                                }
+                                mMenuItem(value = "location_city") {
+                                    mIcon(iconName = "location_city") { css { marginRight = 10.px; fontSize = 15.px } }
+                                }
+                            }
+                        }
+                    }
+                    mTextField(label = "Título", variant = MFormControlVariant.filled, autoFocus = true, fullWidth = true) {
+                        css {
+                            marginTop = 0.px
+                            marginLeft = 1.25.em
+                        }
+                    }
+                }
+            }
+            mDialogActions {
+                mButton("Cancelar", color = MColor.primary, onClick = { handleClose() }, variant = MButtonVariant.text)
+                mButton("Siguiente", color = MColor.primary, onClick = { handleClose() }, variant = MButtonVariant.text)
+            }
         }
     }
 }
+
+private fun Any.then() {}
 
 fun RBuilder.spacer() {
     themeContext.Consumer { theme ->
