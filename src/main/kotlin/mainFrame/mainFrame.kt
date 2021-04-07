@@ -8,7 +8,7 @@ import com.ccfraser.muirwik.components.form.MFormControlMargin
 import com.ccfraser.muirwik.components.form.MFormControlVariant
 import com.ccfraser.muirwik.components.form.mFormControl
 import com.ccfraser.muirwik.components.input.mFilledInput
-import com.ccfraser.muirwik.components.input.mInputAdornment
+import com.ccfraser.muirwik.components.input.mInput
 import com.ccfraser.muirwik.components.input.mInputLabel
 import com.ccfraser.muirwik.components.list.*
 import com.ccfraser.muirwik.components.menu.mMenuItem
@@ -22,11 +22,8 @@ import kotlinx.html.js.onKeyDownFunction
 import kotlinx.html.role
 import org.w3c.dom.events.Event
 import org.w3c.notifications.Notification
-import org.w3c.notifications.Notification.Companion.permission
 import react.*
 import react.dom.div
-import react.dom.p
-import react.dom.span
 import styled.*
 import transitions.SlideRightTransitionComponent
 import transitions.SlideUpTransitionComponent
@@ -58,7 +55,15 @@ class MainFrame(props: RProps) : RComponent<RProps, MainFrameState>(props) {
     private var appBarHeight: LinearDimension = 0.px
     private var drawerWidth = 21
     private var temporaryLeftOpen = false
+    private var temporaryBottomOpen = false
+    private var selectedNames: Any = arrayOf<String>()
+    private var selectedTasks: Any = arrayOf<String>()
+    private var age: Any = 10
     private var checked = Array(5) { false }
+
+    private var tags = arrayListOf(
+        "ADA"
+    )
 
     @Suppress("UnsafeCastFromDynamic")
     val themeOptions: ThemeOptions = js("({palette: { type: 'placeholder', primary: {main: 'placeholder'}, secondary: {main: 'placeholder'}}})")
@@ -106,6 +111,9 @@ class MainFrame(props: RProps) : RComponent<RProps, MainFrameState>(props) {
                                 mIconButton ("search", color = MColor.inherit, onClick = { setState { fullScreenSearchOpen = true } } )
                             }
                         }
+                        mDrawer(temporaryBottomOpen, MDrawerAnchor.bottom, onClose = { setState { temporaryBottomOpen = false } }) {
+                            taskMenu()
+                        }
                         mDrawer(temporaryLeftOpen, onClose = { setState { temporaryLeftOpen = false } }) {
                             drawerMenu(false)
                         }
@@ -127,26 +135,26 @@ class MainFrame(props: RProps) : RComponent<RProps, MainFrameState>(props) {
                             }
 
                             mBottomNavigationAction("Tareas", mIcon("home", addAsChild = false))
-                            mFab("add", MColor.primary, size = MButtonSize.large) { css { marginTop = (-28).px } }
+                            mFab("add", MColor.primary, size = MButtonSize.large, onClick = { setState { temporaryBottomOpen = true } }) { css { marginTop = (-28).px } }
                             mBottomNavigationAction("Archivo", mIcon("archive", addAsChild = false))
                         }
                     }
 
                     if (value1 == 0) {
                         mList {
-                            mListItem(button = true, divider = true) {
+                            mListItem(button = true, divider = true, onClick = { setState { temporaryBottomOpen = true } }) {
                                 mListItemText("Tarea 1")
                                 mListItemSecondaryAction {
                                     mCheckbox(checked[0], onChange = {_, _ -> setState {checked[0] = !checked[0]} })
                                 }
                             }
-                            mListItem(button = true, divider = true) {
+                            mListItem(button = true, divider = true, onClick = { setState { temporaryBottomOpen = true } }) {
                                 mListItemText("Tarea 2")
                                 mListItemSecondaryAction {
                                     mCheckbox(checked[1], onChange = {_, _ -> setState {checked[1] = !checked[1]} })
                                 }
                             }
-                            mListItem(button = true, divider = true) {
+                            mListItem(button = true, divider = true, onClick = { setState { temporaryBottomOpen = true } }) {
                                 mListItemText("Tarea 3")
                                 mListItemSecondaryAction {
                                     mCheckbox(checked[2], onChange = {_, _ -> setState {checked[2] = !checked[2]} })
@@ -155,13 +163,13 @@ class MainFrame(props: RProps) : RComponent<RProps, MainFrameState>(props) {
                         }
                     } else if (value1 == 2) {
                         mList {
-                            mListItem(button = true, divider = true) {
+                            mListItem(button = true, divider = true, onClick = { setState { temporaryBottomOpen = true } }) {
                                 mListItemText("Tarea 4")
                                 mListItemSecondaryAction {
                                     mCheckbox(checked[3], onChange = {_, _ -> setState {checked[3] = !checked[3]} })
                                 }
                             }
-                            mListItem(button = true, divider = true) {
+                            mListItem(button = true, divider = true, onClick = { setState { temporaryBottomOpen = true } }) {
                                 mListItemText("Tarea 5")
                                 mListItemSecondaryAction {
                                     mCheckbox(checked[4], onChange = {_, _ -> setState {checked[4] = !checked[4]} })
@@ -177,6 +185,84 @@ class MainFrame(props: RProps) : RComponent<RProps, MainFrameState>(props) {
                 }
             }
         }
+    }
+
+    private fun RBuilder.taskMenu() {
+        themeContext.Consumer { theme ->
+            div {
+                attrs.role = "button"
+                attrs.onClickFunction = { setState { temporaryLeftOpen = false }}
+                attrs.onKeyDownFunction = { setState { temporaryLeftOpen = false }}
+            }
+            mPaper {
+                css {
+                    backgroundColor = Color(theme.palette.background.paper)
+                    width = LinearDimension.auto
+                    padding(0.px, 1.em)
+                }
+                mTextField(label = "Título", variant = MFormControlVariant.filled, fullWidth = true) {
+                    css { }
+                }
+                mFormControl(fullWidth = true) {
+                    css {
+                        marginTop = 1.em
+                        marginBottom = 1.em
+                    }
+                    mInputLabel("Etiquetas", htmlFor = "select-multiple-chip")
+                    mSelect(selectedNames, multiple = true, input = mInput(id = "select-multiple-chip", addAsChild = false),
+                        onChange = { event, _ -> handleMultipleChange(event) }) {
+                        attrs.renderValue = { value: Any ->
+                            styledDiv {
+                                css { }
+                                (value as Array<String>).forEach {
+                                    mChip(it, key = it, avatar = mAvatar(addAsChild = false) { mIcon(it) })
+                                }
+                            }
+                        }
+                        mMenuItem(key = "PSP", value = "lightbulb", primaryText = "PSP")
+                        mMenuItem(key = "ADA", value = "vpn_key", primaryText = "ADA")
+                        mMenuItem(key = "PMDM", value = "desktop_windows", primaryText = "PMDM")
+                        mMenuItem(key = "SGE", value = "book", primaryText = "SGE")
+                        mMenuItem(key = "DIN", value = "web_asset", primaryText = "DIN")
+                        mMenuItem(key = "ING", value = "location_city", primaryText = "ING")
+                    }
+                }
+                mFormControl(fullWidth = true) {
+                    css {
+                        marginBottom = 1.em
+                    }
+                    mInputLabel("Tareas a finalizar para autocompletar", htmlFor = "select-multiple")
+                    mSelect(selectedTasks, multiple = true, input = mInput(id = "select-multiple", addAsChild = false),
+                        onChange = { event, _ -> handleMultipleTaskChange(event) }) {
+                        mMenuItem("None", value = "")
+                        mMenuItem("Tarea 1", value = "Tarea 1")
+                        mMenuItem("Tarea 2", value = "Tarea 2")
+                        mMenuItem("Tarea 3", value = "Tarea 3")
+                    }
+                }
+                mButton("Guardar", MColor.primary, variant = MButtonVariant.contained, onClick = { setState { temporaryBottomOpen = false } }) {
+                    css {
+                        width = 100.pct
+                        marginBottom = 1.em
+                    }
+                }
+            }
+        }
+    }
+
+    private fun handleMultipleChange(event: Event) {
+        val value = event.targetValue
+        setState { selectedNames = value }
+    }
+
+    private fun handleMultipleTaskChange(event: Event) {
+        val value = event.targetValue
+        setState { selectedTasks = value }
+    }
+
+    private fun handleAgeChange(event: Event) {
+        val value = event.targetValue
+        setState { age = value }
     }
 
     private fun RBuilder.drawerMenu(fullWidth: Boolean) {
