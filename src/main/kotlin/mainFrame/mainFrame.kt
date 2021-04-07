@@ -30,6 +30,7 @@ import react.dom.span
 import styled.*
 import transitions.SlideRightTransitionComponent
 import transitions.SlideUpTransitionComponent
+import transitions.SlideLeftTransitionComponent
 import kotlin.reflect.KClass
 
 
@@ -41,6 +42,7 @@ class MainFrame(props: RProps) : RComponent<RProps, MainFrameState>(props) {
     // private var temporaryLeftOpen: Boolean = false
     private var theme = "Light"
     private var selTagIcon = "sell"
+    private var fullScreenLoginOpen: Boolean = true
     private var fullScreenSearchOpen: Boolean = false
     private var fullScreenSettingsOpen: Boolean = false
     private var fullScreenTaskOpen: Boolean = false
@@ -58,6 +60,9 @@ class MainFrame(props: RProps) : RComponent<RProps, MainFrameState>(props) {
     private var temporaryLeftOpen = false
     private var checked = Array(5) { false }
 
+    @Suppress("UnsafeCastFromDynamic")
+    val themeOptions: ThemeOptions = js("({palette: { type: 'placeholder', primary: {main: 'placeholder'}, secondary: {main: 'placeholder'}}})")
+
     init {
         // state = WelcomeState(props.name)
     }
@@ -66,8 +71,6 @@ class MainFrame(props: RProps) : RComponent<RProps, MainFrameState>(props) {
 
         mCssBaseline()
 
-        @Suppress("UnsafeCastFromDynamic")
-        val themeOptions: ThemeOptions = js("({palette: { type: 'placeholder', primary: {main: 'placeholder'}, secondary: {main: 'placeholder'}}})")
         themeOptions.palette?.type = theme.decapitalize()
         themeOptions.palette?.primary.main = Colors.Pink.shade900.toString()
         themeOptions.palette?.secondary.main = Colors.DeepOrange.accent400.toString()
@@ -168,6 +171,7 @@ class MainFrame(props: RProps) : RComponent<RProps, MainFrameState>(props) {
                     }
                     fullScreenSearch(fullScreenSearchOpen)
                     fullScreenSettings(fullScreenSettingsOpen)
+                    fullScreenLogin(fullScreenLoginOpen)
                     createTagDialog(createTagDialogOpen)
                     alertDialog(alertDialogOpen)
                 }
@@ -176,38 +180,45 @@ class MainFrame(props: RProps) : RComponent<RProps, MainFrameState>(props) {
     }
 
     private fun RBuilder.drawerMenu(fullWidth: Boolean) {
-        themeContext.Consumer { theme ->
-            div {
-                attrs.role = "button"
-                attrs.onClickFunction = { setState { temporaryLeftOpen = false } }
-                attrs.onKeyDownFunction = { setState { temporaryLeftOpen = false } }
-            }
-            mList {
-                css {
-                    backgroundColor = Color(theme.palette.background.paper)
-                    width = if (fullWidth) LinearDimension.auto else drawerWidth.em
-//                style = js { width = if (fullWidth) "auto" else drawerWidth; backgroundColor = "white" }
-                }
-                mListItemWithAvatar(
-                    "/img/profile.jpeg",
-                    "Antonio Izquierdo",
-                    "ant04x@gmail.com",
-                    alignItems = MListItemAlignItems.flexStart,
-                    onClick = { setState { alertDialogOpen = true; alertTransition = null; temporaryLeftOpen = false } }
-                )
-                mListSubheader("Etiquetas", disableSticky = true)
-                mListItemWithIcon("all_inbox", "Tareas", divider = false)
-                mListItemWithIcon("lightbulb", "PSP", divider = false)
-                mListItemWithIcon("vpn_key", "ADA", divider = false)
-                mListItemWithIcon("desktop_windows", "PMDM", divider = false)
-                mListItemWithIcon("book", "SGE", divider = false)
-                mListItemWithIcon("web_asset", "DIN", divider = false)
-                mListItemWithIcon("location_city", "ING", divider = false)
 
-                mDivider()
-                mListSubheader("Acciones", disableSticky = true)
-                mListItemWithIcon("sell", "Crear Etiqueta", divider = false, onClick = { setState { temporaryLeftOpen = false; createTagDialogOpen = true } })
-                mListItemWithIcon("settings", "Ajustes", divider = false, onClick = { setState { temporaryLeftOpen = false; fullScreenSettingsOpen = true } })
+        themeOptions.palette?.type = theme.decapitalize()
+        themeOptions.palette?.primary.main = Colors.Pink.shade900.toString()
+        themeOptions.palette?.secondary.main = Colors.DeepOrange.accent400.toString()
+
+        mThemeProvider(createMuiTheme(themeOptions)) {
+            themeContext.Consumer { theme ->
+                div {
+                    attrs.role = "button"
+                    attrs.onClickFunction = { setState { temporaryLeftOpen = false } }
+                    attrs.onKeyDownFunction = { setState { temporaryLeftOpen = false } }
+                }
+                mList {
+                    css {
+                        backgroundColor = Color(theme.palette.background.paper)
+                        width = if (fullWidth) LinearDimension.auto else drawerWidth.em
+//                style = js { width = if (fullWidth) "auto" else drawerWidth; backgroundColor = "white" }
+                    }
+                    mListItemWithAvatar(
+                        "/img/profile.jpeg",
+                        "Antonio Izquierdo",
+                        "ant04x@gmail.com",
+                        alignItems = MListItemAlignItems.flexStart,
+                        onClick = { setState { alertDialogOpen = true; alertTransition = null; temporaryLeftOpen = false } }
+                    )
+                    mListSubheader("Etiquetas", disableSticky = true)
+                    mListItemWithIcon("all_inbox", "Tareas", divider = false)
+                    mListItemWithIcon("lightbulb", "PSP", divider = false)
+                    mListItemWithIcon("vpn_key", "ADA", divider = false)
+                    mListItemWithIcon("desktop_windows", "PMDM", divider = false)
+                    mListItemWithIcon("book", "SGE", divider = false)
+                    mListItemWithIcon("web_asset", "DIN", divider = false)
+                    mListItemWithIcon("location_city", "ING", divider = false)
+
+                    mDivider()
+                    mListSubheader("Acciones", disableSticky = true)
+                    mListItemWithIcon("sell", "Crear Etiqueta", divider = false, onClick = { setState { temporaryLeftOpen = false; createTagDialogOpen = true } })
+                    mListItemWithIcon("settings", "Ajustes", divider = false, onClick = { setState { temporaryLeftOpen = false; fullScreenSettingsOpen = true } })
+                }
             }
         }
     }
@@ -268,6 +279,70 @@ class MainFrame(props: RProps) : RComponent<RProps, MainFrameState>(props) {
             // mListItem(primaryText = "Phone ringtone", secondaryText = "Titania", divider = true)
         }
     }
+
+    private fun RBuilder.fullScreenLogin(open: Boolean) {
+
+        themeOptions.palette?.type = theme.decapitalize()
+        themeOptions.palette?.primary.main = Colors.Pink.shade900.toString()
+        themeOptions.palette?.secondary.main = Colors.DeepOrange.accent400.toString()
+
+        mThemeProvider(createMuiTheme(themeOptions)) {
+            themeContext.Consumer { theme ->
+
+                fun handleClose() {
+                    setState { fullScreenLoginOpen = false }
+                }
+                mDialog(open, fullScreen = true, transitionComponent = SlideLeftTransitionComponent::class, transitionProps = if (slow) slowTransitionProps else null) {
+
+                    styledDiv {
+                        css {
+                            display = Display.flex
+                            height = 100.pct
+                            width = 100.pct
+                            backgroundColor = Color("#560027")
+                        }
+                        mPaper {
+                            css {
+                                marginLeft = LinearDimension.auto
+                                marginRight = LinearDimension.auto
+                                marginTop = LinearDimension.auto
+                                marginBottom = LinearDimension.auto
+                                height = 20.em
+                                right = 20.em
+                                padding(1.em)
+                            }
+
+                            styledImg(src = "/android-chrome-512x512.png") {
+                                css {
+                                    display = Display.flex
+                                    height = 4.em
+                                    margin(0.px, LinearDimension.auto)
+                                }
+                            }
+
+                            mTextField(label = "Correo", type = InputType.email, autoComplete = "email", variant = MFormControlVariant.filled, autoFocus = true) {
+                                css {
+                                    display = Display.flex
+                                }
+                            }
+                            mTextField(label = "Contraseña", type = InputType.password, autoComplete = "current-password", variant = MFormControlVariant.filled) {
+                                css {
+                                    display = Display.flex
+                                }
+                            }
+                            mButton("Entrar", MColor.primary, variant = MButtonVariant.contained, onClick = { handleClose() }) {
+                                css {
+                                    display = Display.flex
+                                    marginTop = 1.em
+                                    marginLeft = LinearDimension.auto
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+   }
 
     private fun RBuilder.fullScreenSettings(open: Boolean) {
         fun handleClose() {
@@ -342,7 +417,7 @@ class MainFrame(props: RProps) : RComponent<RProps, MainFrameState>(props) {
             }
             mDialogActions {
                 mButton("Cancelar", MColor.primary, onClick = { closeAlertDialog() })
-                mButton("Aceptar", MColor.primary, onClick = { closeAlertDialog() })
+                mButton("Aceptar", MColor.primary, onClick = { closeAlertDialog(); setState { fullScreenLoginOpen = true } })
             }
         }
     }
