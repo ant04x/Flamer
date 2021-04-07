@@ -198,17 +198,14 @@ class MainFrame(props: RProps) : RComponent<RProps, MainFrameState>(props) {
                 css {
                     backgroundColor = Color(theme.palette.background.paper)
                     width = LinearDimension.auto
-                    padding(0.px, 1.em)
+                    padding(2.em, 2.em)
                 }
-                mTextField(label = "Título", variant = MFormControlVariant.filled, fullWidth = true) {
-                    css { }
-                }
+                mTextField(label = "Título", variant = MFormControlVariant.standard, fullWidth = true)
                 mFormControl(fullWidth = true) {
                     css {
-                        marginTop = 1.em
-                        marginBottom = 1.em
+                        marginTop = 8.px + 2.em
                     }
-                    mInputLabel("Etiquetas", htmlFor = "select-multiple-chip")
+                    mInputLabel("Etiquetas", htmlFor = "select-multiple-chip", variant = MFormControlVariant.standard)
                     mSelect(selectedNames, multiple = true, input = mInput(id = "select-multiple-chip", addAsChild = false),
                         onChange = { event, _ -> handleMultipleChange(event) }) {
                         attrs.renderValue = { value: Any ->
@@ -229,9 +226,9 @@ class MainFrame(props: RProps) : RComponent<RProps, MainFrameState>(props) {
                 }
                 mFormControl(fullWidth = true) {
                     css {
-                        marginBottom = 1.em
+                        marginTop = 8.px + 2.em
                     }
-                    mInputLabel("Tareas a finalizar para autocompletar", htmlFor = "select-multiple")
+                    mInputLabel("Tareas a finalizar para autocompletar", htmlFor = "select-multiple", variant = MFormControlVariant.standard)
                     mSelect(selectedTasks, multiple = true, input = mInput(id = "select-multiple", addAsChild = false),
                         onChange = { event, _ -> handleMultipleTaskChange(event) }) {
                         mMenuItem("None", value = "")
@@ -242,8 +239,8 @@ class MainFrame(props: RProps) : RComponent<RProps, MainFrameState>(props) {
                 }
                 mButton("Guardar", MColor.primary, variant = MButtonVariant.contained, onClick = { setState { temporaryBottomOpen = false } }) {
                     css {
+                        marginTop = 16.px + 2.em
                         width = 100.pct
-                        marginBottom = 1.em
                     }
                 }
             }
@@ -285,7 +282,7 @@ class MainFrame(props: RProps) : RComponent<RProps, MainFrameState>(props) {
 //                style = js { width = if (fullWidth) "auto" else drawerWidth; backgroundColor = "white" }
                     }
                     mListItemWithAvatar(
-                        "/img/profile.jpeg",
+                        "img/profile.jpeg",
                         "Antonio Izquierdo",
                         "ant04x@gmail.com",
                         alignItems = MListItemAlignItems.flexStart,
@@ -362,7 +359,38 @@ class MainFrame(props: RProps) : RComponent<RProps, MainFrameState>(props) {
                     }
                 }
             }
-            // mListItem(primaryText = "Phone ringtone", secondaryText = "Titania", divider = true)
+            mList {
+                mListItem(button = true, divider = true, onClick = { setState { temporaryBottomOpen = true } }) {
+                    mListItemText("Tarea 1")
+                    mListItemSecondaryAction {
+                        mCheckbox(checked[0], onChange = {_, _ -> setState {checked[0] = !checked[0]} })
+                    }
+                }
+                mListItem(button = true, divider = true, onClick = { setState { temporaryBottomOpen = true } }) {
+                    mListItemText("Tarea 2")
+                    mListItemSecondaryAction {
+                        mCheckbox(checked[1], onChange = {_, _ -> setState {checked[1] = !checked[1]} })
+                    }
+                }
+                mListItem(button = true, divider = true, onClick = { setState { temporaryBottomOpen = true } }) {
+                    mListItemText("Tarea 3")
+                    mListItemSecondaryAction {
+                        mCheckbox(checked[2], onChange = {_, _ -> setState {checked[2] = !checked[2]} })
+                    }
+                }
+                mListItem(button = true, divider = true, onClick = { setState { temporaryBottomOpen = true } }) {
+                    mListItemText("Tarea 4")
+                    mListItemSecondaryAction {
+                        mCheckbox(checked[3], onChange = {_, _ -> setState {checked[3] = !checked[3]} })
+                    }
+                }
+                mListItem(button = true, divider = true, onClick = { setState { temporaryBottomOpen = true } }) {
+                    mListItemText("Tarea 5")
+                    mListItemSecondaryAction {
+                        mCheckbox(checked[4], onChange = {_, _ -> setState {checked[4] = !checked[4]} })
+                    }
+                }
+            }
         }
     }
 
@@ -398,7 +426,7 @@ class MainFrame(props: RProps) : RComponent<RProps, MainFrameState>(props) {
                                 padding(1.em)
                             }
 
-                            styledImg(src = "/android-chrome-512x512.png") {
+                            styledImg(src = "android-chrome-512x512.png") {
                                 css {
                                     display = Display.flex
                                     height = 4.em
