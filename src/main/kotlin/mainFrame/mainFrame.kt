@@ -29,7 +29,6 @@ import kotlin.reflect.KClass
 
 data class MainFrameState(val name: String) : RState
 
-@JsExport
 class MainFrame(props: RProps) : RComponent<RProps, MainFrameState>(props) {
 
     private var theme = "Light"
@@ -40,11 +39,11 @@ class MainFrame(props: RProps) : RComponent<RProps, MainFrameState>(props) {
     private var createTagDialogOpen: Boolean = false
     private var alertDialogOpen: Boolean = false
     private var alertTransition: KClass<out RComponent<MTransitionProps, RState>>? = null
-    private var temaDialogValue: String = theme
-    private var temaDialogSelectedValue: String = theme
-    private var temaDialogOpen: Boolean = false
+    private var themeDialogValue: String = theme
+    private var themeDialogSelectedValue: String = theme
+    private var themeDialogOpen: Boolean = false
     private var slow = false
-    private val slowTransitionProps: MTransitionProps = js("({timeout: 1000})")
+    private val slowTransitionProps = js("({timeout: 1000})")
     private var value1: Any = 0
     private var temporaryLeftOpen = false
     private var temporaryBottomOpen = false
@@ -324,10 +323,10 @@ class MainFrame(props: RProps) : RComponent<RProps, MainFrameState>(props) {
             }
             mList {
                 mListItemWithIcon("lock", "Permisos", onClick = { Notification.requestPermission() })
-                mListItemWithIcon("brightness_medium", "Tema", secondaryText = temaDialogSelectedValue, onClick = { setState { temaDialogOpen = true } })
+                mListItemWithIcon("brightness_medium", "Tema", secondaryText = themeDialogSelectedValue, onClick = { setState { themeDialogOpen = true } })
                 mListItemWithIcon("info", "Acerca de", hRefOptions = HRefOptions("https://github.com/ant04x/Flamer"))
             }
-            themeDialog(temaDialogOpen)
+            themeDialog(themeDialogOpen)
         }
     }
 
@@ -340,7 +339,7 @@ class MainFrame(props: RProps) : RComponent<RProps, MainFrameState>(props) {
             mDialogTitle("Tema")
 
             mDialogContent(scroll == DialogScroll.paper) {
-                mRadioGroup(value = temaDialogValue, onChange = {_, value -> setState { temaDialogValue = value }} ) {
+                mRadioGroup(value = themeDialogValue, onChange = { _, value -> setState { themeDialogValue = value }} ) {
                     mRadioWithLabel("Light", value = "Light")
                     mRadioWithLabel("Dark", value = "Dark")
                     mRadioWithLabel("Auto", value = "Auto")
@@ -348,12 +347,12 @@ class MainFrame(props: RProps) : RComponent<RProps, MainFrameState>(props) {
             }
             mDialogActions {
                 mButton("Cancelar", color = MColor.primary, onClick = { setState {
-                    temaDialogValue = temaDialogSelectedValue
-                    temaDialogOpen = false
+                    themeDialogValue = themeDialogSelectedValue
+                    themeDialogOpen = false
                 }})
                 mButton("Ok", color = MColor.primary, onClick = { setState {
-                    temaDialogSelectedValue = temaDialogValue
-                    temaDialogOpen = false
+                    themeDialogSelectedValue = themeDialogValue
+                    themeDialogOpen = false
                 }})
             }
         }
@@ -382,7 +381,7 @@ class MainFrame(props: RProps) : RComponent<RProps, MainFrameState>(props) {
         fun handleClose() {
             setState { createTagDialogOpen = false}
         }
-        var selectValue = "Item 2"
+        // var selectValue = "Item 2"
         mDialog(open, onClose =  { _, _ -> handleClose() }, transitionProps = if (slow) slowTransitionProps else null) {
             mDialogTitle("Crear Etiqueta")
             mDialogContent {
@@ -450,4 +449,5 @@ fun RBuilder.spacer() {
     }
 }
 
+@ExperimentalJsExport
 fun RBuilder.mainFrame() = child(MainFrame::class) {}

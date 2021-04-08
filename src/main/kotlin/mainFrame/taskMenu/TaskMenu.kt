@@ -53,8 +53,8 @@ class TaskMenu : RComponent<TaskMenuProps, RState>() {
                             attrs.renderValue = { value: Any ->
                                 styledDiv {
                                     css { }
-                                    (value as Array<String>).forEach {
-                                        mChip(it, key = it, avatar = mAvatar(addAsChild = false) { mIcon(it) })
+                                    (value as Array<*>).forEach {
+                                        mChip(it as String, key = it, avatar = mAvatar(addAsChild = false) { mIcon(it) })
                                     }
                                 }
                             }
