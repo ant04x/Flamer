@@ -20,6 +20,8 @@ import kotlinx.html.InputType
 import kotlinx.html.js.onClickFunction
 import kotlinx.html.js.onKeyDownFunction
 import kotlinx.html.role
+import mainFrame.drawerMenu.xDrawerMenu
+import mainFrame.taskMenu.xTaskMenu
 import org.w3c.dom.events.Event
 import org.w3c.notifications.Notification
 import react.*
@@ -36,13 +38,11 @@ data class MainFrameState(val name: String) : RState
 @JsExport
 class MainFrame(props: RProps) : RComponent<RProps, MainFrameState>(props) {
 
-    // private var temporaryLeftOpen: Boolean = false
     private var theme = "Light"
     private var selTagIcon = "sell"
     private var fullScreenLoginOpen: Boolean = true
     private var fullScreenSearchOpen: Boolean = false
     private var fullScreenSettingsOpen: Boolean = false
-    private var fullScreenTaskOpen: Boolean = false
     private var createTagDialogOpen: Boolean = false
     private var alertDialogOpen: Boolean = false
     private var alertTransition: KClass<out RComponent<MTransitionProps, RState>>? = null
@@ -52,25 +52,12 @@ class MainFrame(props: RProps) : RComponent<RProps, MainFrameState>(props) {
     private var slow = false
     private val slowTransitionProps: MTransitionProps = js("({timeout: 1000})")
     private var value1: Any = 0
-    private var appBarHeight: LinearDimension = 0.px
-    private var drawerWidth = 21
     private var temporaryLeftOpen = false
     private var temporaryBottomOpen = false
-    private var selectedNames: Any = arrayOf<String>()
-    private var selectedTasks: Any = arrayOf<String>()
-    private var age: Any = 10
     private var checked = Array(5) { false }
-
-    private var tags = arrayListOf(
-        "ADA"
-    )
 
     @Suppress("UnsafeCastFromDynamic")
     val themeOptions: ThemeOptions = js("({palette: { type: 'placeholder', primary: {main: 'placeholder'}, secondary: {main: 'placeholder'}}})")
-
-    init {
-        // state = WelcomeState(props.name)
-    }
 
     override fun RBuilder.render() {
 
@@ -111,12 +98,17 @@ class MainFrame(props: RProps) : RComponent<RProps, MainFrameState>(props) {
                                 mIconButton ("search", color = MColor.inherit, onClick = { setState { fullScreenSearchOpen = true } } )
                             }
                         }
-                        mDrawer(temporaryBottomOpen, MDrawerAnchor.bottom, onClose = { setState { temporaryBottomOpen = false } }) {
-                            taskMenu()
-                        }
-                        mDrawer(temporaryLeftOpen, onClose = { setState { temporaryLeftOpen = false } }) {
-                            drawerMenu(false)
-                        }
+                        xTaskMenu(temporaryBottomOpen, onClose = { setState { temporaryBottomOpen = false } })
+                        xDrawerMenu(
+                            temporaryLeftOpen,
+                            fullWidth = false,
+                            themeOptions = themeOptions,
+                            theme = theme,
+                            alertDialogOpen = alertDialogOpen,
+                            alertTransition = alertTransition,
+                            createTagDialogOpen = createTagDialogOpen,
+                            fullScreenSettingsOpen = fullScreenSettingsOpen
+                        )
                         spacer()
                         mBottomNavigation(value1,true, onChange = { _, indexValue -> setState { value1 = indexValue } }) {
 
@@ -187,152 +179,7 @@ class MainFrame(props: RProps) : RComponent<RProps, MainFrameState>(props) {
         }
     }
 
-    private fun RBuilder.taskMenu() {
-        themeContext.Consumer { theme ->
-            div {
-                attrs.role = "button"
-                attrs.onClickFunction = { setState { temporaryLeftOpen = false }}
-                attrs.onKeyDownFunction = { setState { temporaryLeftOpen = false }}
-            }
-            mPaper {
-                css {
-                    backgroundColor = Color(theme.palette.background.paper)
-                    width = LinearDimension.auto
-                    padding(2.em, 2.em)
-                }
-                mTextField(label = "Título", variant = MFormControlVariant.standard, fullWidth = true)
-                mFormControl(fullWidth = true) {
-                    css {
-                        marginTop = 8.px + 2.em
-                    }
-                    mInputLabel("Etiquetas", htmlFor = "select-multiple-chip", variant = MFormControlVariant.standard)
-                    mSelect(selectedNames, multiple = true, input = mInput(id = "select-multiple-chip", addAsChild = false),
-                        onChange = { event, _ -> handleMultipleChange(event) }) {
-                        attrs.renderValue = { value: Any ->
-                            styledDiv {
-                                css { }
-                                (value as Array<String>).forEach {
-                                    mChip(it, key = it, avatar = mAvatar(addAsChild = false) { mIcon(it) })
-                                }
-                            }
-                        }
-                        mMenuItem(key = "PSP", value = "lightbulb", primaryText = "PSP")
-                        mMenuItem(key = "ADA", value = "vpn_key", primaryText = "ADA")
-                        mMenuItem(key = "PMDM", value = "desktop_windows", primaryText = "PMDM")
-                        mMenuItem(key = "SGE", value = "book", primaryText = "SGE")
-                        mMenuItem(key = "DIN", value = "web_asset", primaryText = "DIN")
-                        mMenuItem(key = "ING", value = "location_city", primaryText = "ING")
-                    }
-                }
-                mFormControl(fullWidth = true) {
-                    css {
-                        marginTop = 8.px + 2.em
-                    }
-                    mInputLabel("Tareas a finalizar para autocompletar", htmlFor = "select-multiple", variant = MFormControlVariant.standard)
-                    mSelect(selectedTasks, multiple = true, input = mInput(id = "select-multiple", addAsChild = false),
-                        onChange = { event, _ -> handleMultipleTaskChange(event) }) {
-                        mMenuItem("None", value = "")
-                        mMenuItem("Tarea 1", value = "Tarea 1")
-                        mMenuItem("Tarea 2", value = "Tarea 2")
-                        mMenuItem("Tarea 3", value = "Tarea 3")
-                    }
-                }
-                mButton("Guardar", MColor.primary, variant = MButtonVariant.contained, onClick = { setState { temporaryBottomOpen = false } }) {
-                    css {
-                        marginTop = 16.px + 2.em
-                        width = 100.pct
-                    }
-                }
-            }
-        }
-    }
-
-    private fun handleMultipleChange(event: Event) {
-        val value = event.targetValue
-        setState { selectedNames = value }
-    }
-
-    private fun handleMultipleTaskChange(event: Event) {
-        val value = event.targetValue
-        setState { selectedTasks = value }
-    }
-
-    private fun handleAgeChange(event: Event) {
-        val value = event.targetValue
-        setState { age = value }
-    }
-
-    private fun RBuilder.drawerMenu(fullWidth: Boolean) {
-
-        themeOptions.palette?.type = theme.decapitalize()
-        themeOptions.palette?.primary.main = Colors.Pink.shade900.toString()
-        themeOptions.palette?.secondary.main = Colors.DeepOrange.accent400.toString()
-
-        mThemeProvider(createMuiTheme(themeOptions)) {
-            themeContext.Consumer { theme ->
-                div {
-                    attrs.role = "button"
-                    attrs.onClickFunction = { setState { temporaryLeftOpen = false } }
-                    attrs.onKeyDownFunction = { setState { temporaryLeftOpen = false } }
-                }
-                mList {
-                    css {
-                        backgroundColor = Color(theme.palette.background.paper)
-                        width = if (fullWidth) LinearDimension.auto else drawerWidth.em
-//                style = js { width = if (fullWidth) "auto" else drawerWidth; backgroundColor = "white" }
-                    }
-                    mListItemWithAvatar(
-                        "img/profile.jpeg",
-                        "Antonio Izquierdo",
-                        "ant04x@gmail.com",
-                        alignItems = MListItemAlignItems.flexStart,
-                        onClick = { setState { alertDialogOpen = true; alertTransition = null; temporaryLeftOpen = false } }
-                    )
-                    mListSubheader("Etiquetas", disableSticky = true)
-                    mListItemWithIcon("all_inbox", "Tareas", divider = false)
-                    mListItemWithIcon("lightbulb", "PSP", divider = false)
-                    mListItemWithIcon("vpn_key", "ADA", divider = false)
-                    mListItemWithIcon("desktop_windows", "PMDM", divider = false)
-                    mListItemWithIcon("book", "SGE", divider = false)
-                    mListItemWithIcon("web_asset", "DIN", divider = false)
-                    mListItemWithIcon("location_city", "ING", divider = false)
-
-                    mDivider()
-                    mListSubheader("Acciones", disableSticky = true)
-                    mListItemWithIcon("sell", "Crear Etiqueta", divider = false, onClick = { setState { temporaryLeftOpen = false; createTagDialogOpen = true } })
-                    mListItemWithIcon("settings", "Ajustes", divider = false, onClick = { setState { temporaryLeftOpen = false; fullScreenSettingsOpen = true } })
-                }
-            }
-        }
-    }
-
-    private fun RBuilder.fullScreenTask(open: Boolean) {
-        fun handleClose() {
-            setState { fullScreenTaskOpen = false }
-        }
-        mDialog(open, fullScreen = true, transitionComponent = SlideRightTransitionComponent::class, transitionProps = if (slow) slowTransitionProps else null, onClose = { _, _ -> handleClose() }) {
-            mAppBar {
-                css {
-                    color = Color.black
-                    backgroundColor = Color.white
-                    position = Position.relative
-                }
-                mToolbar {
-                    mIconButton(iconName = "arrow_back", color = MColor.inherit, iconColor = MIconColor.inherit, onClick = { handleClose() }) {
-                        css {
-                            marginLeft = (-12).px
-                            marginRight = 16.px
-                        }
-                    }
-                    mTypography("Tarea X", variant = MTypographyVariant.h6, color = MTypographyColor.inherit) {
-                        css { flexGrow = 1.0 }
-                    }
-                }
-            }
-
-        }
-    }
-
+    // COMPONENTE 3 => Menú de búsqueda
     private fun RBuilder.fullScreenSearch(open: Boolean) {
         fun handleClose() {
             setState { fullScreenSearchOpen = false }
@@ -394,6 +241,7 @@ class MainFrame(props: RProps) : RComponent<RProps, MainFrameState>(props) {
         }
     }
 
+    // COMPONENTE 4 => Menú de Login
     private fun RBuilder.fullScreenLogin(open: Boolean) {
 
         themeOptions.palette?.type = theme.decapitalize()
@@ -458,6 +306,7 @@ class MainFrame(props: RProps) : RComponent<RProps, MainFrameState>(props) {
         }
    }
 
+    // COMPONENTE 5 => Menú de Configuración
     private fun RBuilder.fullScreenSettings(open: Boolean) {
         fun handleClose() {
             setState { fullScreenSettingsOpen = false }
@@ -480,7 +329,7 @@ class MainFrame(props: RProps) : RComponent<RProps, MainFrameState>(props) {
                 }
             }
             mList {
-                mListItemWithIcon("lock", "Permisos", onClick = { requestPermissions() })
+                mListItemWithIcon("lock", "Permisos", onClick = { Notification.requestPermission() })
                 mListItemWithIcon("brightness_medium", "Tema", secondaryText = temaDialogSelectedValue, onClick = { setState { temaDialogOpen = true } })
                 mListItemWithIcon("info", "Acerca de", hRefOptions = HRefOptions("https://github.com/ant04x/Flamer"))
             }
@@ -488,10 +337,7 @@ class MainFrame(props: RProps) : RComponent<RProps, MainFrameState>(props) {
         }
     }
 
-    private fun requestPermissions() {
-        Notification.requestPermission().then()
-    }
-
+    // COMPONENTE 6 => Diálogo de configuración de temas.
     private fun RBuilder.themeDialog(open: Boolean, scroll: DialogScroll = DialogScroll.paper) {
 
         mDialog(open, scroll = scroll, transitionProps = if (slow) slowTransitionProps else null, fullWidth = true, maxWidth = Breakpoint.md) {
@@ -519,6 +365,7 @@ class MainFrame(props: RProps) : RComponent<RProps, MainFrameState>(props) {
         }
     }
 
+    // COMPONENTE 7 => Diálogo de cerrar sesión.
     private fun RBuilder.alertDialog(open: Boolean) {
         fun closeAlertDialog() {
             setState { alertDialogOpen = false }
@@ -536,6 +383,7 @@ class MainFrame(props: RProps) : RComponent<RProps, MainFrameState>(props) {
         }
     }
 
+    // COMPONENTE 8 => Diálogo para crear etiquetas.
     private fun RBuilder.createTagDialog(open: Boolean) {
         fun handleClose() {
             setState { createTagDialogOpen = false}
@@ -591,8 +439,6 @@ class MainFrame(props: RProps) : RComponent<RProps, MainFrameState>(props) {
         }
     }
 }
-
-private fun Any.then() {}
 
 fun RBuilder.spacer() {
     themeContext.Consumer { theme ->
