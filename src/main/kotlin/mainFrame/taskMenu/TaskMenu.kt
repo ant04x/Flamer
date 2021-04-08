@@ -14,14 +14,13 @@ import kotlinx.html.js.onKeyDownFunction
 import kotlinx.html.role
 import org.w3c.dom.events.Event
 import react.*
-import react.dom.button
 import react.dom.div
 import styled.css
 import styled.styledDiv
 
 external interface TaskMenuProps : RProps {
     var open: Boolean
-    var onClose: ((Event) -> Unit)?
+    var onClose: ((Event) -> Unit)
 }
 
 class TaskMenu : RComponent<TaskMenuProps, RState>() {
@@ -31,11 +30,11 @@ class TaskMenu : RComponent<TaskMenuProps, RState>() {
 
     override fun RBuilder.render() {
         themeContext.Consumer { theme ->
-            mDrawer(props.open, MDrawerAnchor.bottom, onClose = { setState { props.onClose?.let { it = props.onClose } } }) {
+            mDrawer(props.open, MDrawerAnchor.bottom, onClose = props.onClose ) {
                 div {
                     attrs.role = "button"
-                    attrs.onClickFunction = { setState { props.open = false }}
-                    attrs.onKeyDownFunction = { setState { props.open = false }}
+                    attrs.onClickFunction = props.onClose
+                    attrs.onKeyDownFunction = props.onClose
                 }
                 mPaper {
                     css {
@@ -80,7 +79,7 @@ class TaskMenu : RComponent<TaskMenuProps, RState>() {
                             mMenuItem("Tarea 3", value = "Tarea 3")
                         }
                     }
-                    mButton("Guardar", MColor.primary, variant = MButtonVariant.contained, onClick = { setState { props.open = false } }) {
+                    mButton("Guardar", MColor.primary, variant = MButtonVariant.contained, onClick = props.onClose) {
                         css {
                             marginTop = 16.px + 2.em
                             width = 100.pct
@@ -102,7 +101,7 @@ class TaskMenu : RComponent<TaskMenuProps, RState>() {
     }
 }
 
-fun RBuilder.xTaskMenu(open: Boolean = false, onClose: ((Event) -> Unit)?) = child(TaskMenu::class) {
+fun RBuilder.xTaskMenu(open: Boolean = false, onClose: ((Event) -> Unit)) = child(TaskMenu::class) {
     attrs.open = open
     attrs.onClose = onClose
 }

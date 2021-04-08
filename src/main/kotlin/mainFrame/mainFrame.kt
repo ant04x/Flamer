@@ -8,7 +8,6 @@ import com.ccfraser.muirwik.components.form.MFormControlMargin
 import com.ccfraser.muirwik.components.form.MFormControlVariant
 import com.ccfraser.muirwik.components.form.mFormControl
 import com.ccfraser.muirwik.components.input.mFilledInput
-import com.ccfraser.muirwik.components.input.mInput
 import com.ccfraser.muirwik.components.input.mInputLabel
 import com.ccfraser.muirwik.components.list.*
 import com.ccfraser.muirwik.components.menu.mMenuItem
@@ -17,15 +16,10 @@ import com.ccfraser.muirwik.components.transitions.MTransitionProps
 import kotlinx.css.Color
 import kotlinx.css.properties.BoxShadow
 import kotlinx.html.InputType
-import kotlinx.html.js.onClickFunction
-import kotlinx.html.js.onKeyDownFunction
-import kotlinx.html.role
 import mainFrame.drawerMenu.xDrawerMenu
 import mainFrame.taskMenu.xTaskMenu
-import org.w3c.dom.events.Event
 import org.w3c.notifications.Notification
 import react.*
-import react.dom.div
 import styled.*
 import transitions.SlideRightTransitionComponent
 import transitions.SlideUpTransitionComponent
@@ -104,10 +98,10 @@ class MainFrame(props: RProps) : RComponent<RProps, MainFrameState>(props) {
                             fullWidth = false,
                             themeOptions = themeOptions,
                             theme = theme,
-                            alertDialogOpen = alertDialogOpen,
-                            alertTransition = alertTransition,
-                            createTagDialogOpen = createTagDialogOpen,
-                            fullScreenSettingsOpen = fullScreenSettingsOpen
+                            onClose = { setState { temporaryLeftOpen = false } },
+                            onAvatarClick = { setState { alertDialogOpen = true; alertTransition = null; temporaryLeftOpen = false } },
+                            onTagClick = { setState { temporaryLeftOpen = false; createTagDialogOpen = true } },
+                            onSettingsClick = { setState { temporaryLeftOpen = false; fullScreenSettingsOpen = true } }
                         )
                         spacer()
                         mBottomNavigation(value1,true, onChange = { _, indexValue -> setState { value1 = indexValue } }) {

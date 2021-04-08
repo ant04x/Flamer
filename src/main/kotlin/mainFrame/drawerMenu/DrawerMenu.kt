@@ -4,25 +4,24 @@ import com.ccfraser.muirwik.components.*
 import com.ccfraser.muirwik.components.list.*
 import com.ccfraser.muirwik.components.styles.ThemeOptions
 import com.ccfraser.muirwik.components.styles.createMuiTheme
-import com.ccfraser.muirwik.components.transitions.MTransitionProps
 import kotlinx.css.*
 import kotlinx.html.js.onClickFunction
 import kotlinx.html.js.onKeyDownFunction
 import kotlinx.html.role
+import org.w3c.dom.events.Event
 import react.*
 import react.dom.div
 import styled.css
-import kotlin.reflect.KClass
 
 external interface DrawerMenuProps : RProps {
-    var drawerOpen: Boolean
+    var open: Boolean
     var fullWidth: Boolean
     var themeOptions: ThemeOptions
     var theme: String
-    var alertDialogOpen: Boolean
-    var alertTransition: KClass<out RComponent<MTransitionProps, RState>>?
-    var createTagDialogOpen: Boolean
-    var fullScreenSettingsOpen: Boolean
+    var onClose: ((Event) -> Unit)
+    var onAvatarClick: ((Event) -> Unit)
+    var onTagClick: ((Event) -> Unit)
+    var onSettingsClick: ((Event) -> Unit)
 }
 
 class DrawerMenu : RComponent<DrawerMenuProps, RState>() {
@@ -36,11 +35,11 @@ class DrawerMenu : RComponent<DrawerMenuProps, RState>() {
 
         mThemeProvider(createMuiTheme(props.themeOptions)) {
             themeContext.Consumer { theme ->
-                mDrawer(props.drawerOpen, onClose = { setState { props.drawerOpen = false } }) {
+                mDrawer(props.open, onClose = props.onClose) {
                     div {
                         attrs.role = "button"
-                        attrs.onClickFunction = { setState { props.drawerOpen = false } }
-                        attrs.onKeyDownFunction = { setState { props.drawerOpen = false } }
+                        attrs.onClickFunction = props.onClose
+                        attrs.onKeyDownFunction = props.onClose
                     }
                     mList {
                         css {
@@ -52,7 +51,7 @@ class DrawerMenu : RComponent<DrawerMenuProps, RState>() {
                             "Antonio Izquierdo",
                             "ant04x@gmail.com",
                             alignItems = MListItemAlignItems.flexStart,
-                            onClick = { setState { props.alertDialogOpen = true; props.alertTransition = null; props.drawerOpen = false } }
+                            onClick = props.onAvatarClick // onAvatarClick
                         )
                         mListSubheader("Etiquetas", disableSticky = true)
                         mListItemWithIcon("all_inbox", "Tareas", divider = false)
@@ -65,8 +64,8 @@ class DrawerMenu : RComponent<DrawerMenuProps, RState>() {
 
                         mDivider()
                         mListSubheader("Acciones", disableSticky = true)
-                        mListItemWithIcon("sell", "Crear Etiqueta", divider = false, onClick = { setState { props.drawerOpen = false; props.createTagDialogOpen = true } })
-                        mListItemWithIcon("settings", "Ajustes", divider = false, onClick = { setState { props.drawerOpen = false; props.fullScreenSettingsOpen = true } })
+                        mListItemWithIcon("sell", "Crear Etiqueta", divider = false, onClick = props.onTagClick)
+                        mListItemWithIcon("settings", "Ajustes", divider = false, onClick = props.onSettingsClick)
                     }
                 }
             }
@@ -74,13 +73,22 @@ class DrawerMenu : RComponent<DrawerMenuProps, RState>() {
     }
 }
 
-fun RBuilder.xDrawerMenu(drawerOpen: Boolean = false, fullWidth: Boolean, themeOptions: ThemeOptions, theme: String = "Light", alertDialogOpen: Boolean, alertTransition: KClass<out RComponent<MTransitionProps, RState>>?, createTagDialogOpen: Boolean, fullScreenSettingsOpen: Boolean) = child(DrawerMenu::class) {
-    attrs.drawerOpen = drawerOpen
+fun RBuilder.xDrawerMenu(
+    open: Boolean = false,
+    fullWidth: Boolean,
+    themeOptions: ThemeOptions,
+    theme: String = "Light",
+    onClose: ((Event) -> Unit),
+    onAvatarClick: ((Event) -> Unit),
+    onTagClick: ((Event) -> Unit),
+    onSettingsClick: ((Event) -> Unit)
+) = child(DrawerMenu::class) {
+    attrs.open = open
     attrs.fullWidth = fullWidth
     attrs.themeOptions = themeOptions
     attrs.theme = theme
-    attrs.alertDialogOpen = alertDialogOpen
-    attrs.alertTransition = alertTransition
-    attrs.createTagDialogOpen = createTagDialogOpen
-    attrs.fullScreenSettingsOpen = fullScreenSettingsOpen
+    attrs.onClose = onClose
+    attrs.onAvatarClick = onAvatarClick
+    attrs.onTagClick = onTagClick
+    attrs.onSettingsClick = onSettingsClick
 }
