@@ -9,7 +9,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: 'Flamer',
       theme: ThemeData(
         // This is the theme of your application.
         //
@@ -20,9 +20,9 @@ class MyApp extends StatelessWidget {
         // or simply save your changes to "hot reload" in a Flutter IDE).
         // Notice that the counter didn't reset back to zero; the application
         // is not restarted.
-        primarySwatch: Colors.blue,
+        primarySwatch: Colors.pink,
       ),
-      home: MyHomePage(title: 'Flutter Demo Home Page'),
+      home: MyHomePage(title: 'Tareas'),
     );
   }
 }
@@ -47,6 +47,9 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   int _counter = 0;
+  bool _task1 = false;
+  bool _task2 = false;
+  bool _task3 = false;
 
   void _incrementCounter() {
     setState(() {
@@ -67,47 +70,128 @@ class _MyHomePageState extends State<MyHomePage> {
     // The Flutter framework has been optimized to make rerunning build methods
     // fast, so that you can just rebuild anything that needs updating rather
     // than having to individually change instances of widgets.
-    return Scaffold(
-      appBar: AppBar(
-        // Here we take the value from the MyHomePage object that was created by
-        // the App.build method, and use it to set our appbar title.
-        title: Text(widget.title),
-      ),
-      body: Center(
-        // Center is a layout widget. It takes a single child and positions it
-        // in the middle of the parent.
-        child: Column(
-          // Column is also a layout widget. It takes a list of children and
-          // arranges them vertically. By default, it sizes itself to fit its
-          // children horizontally, and tries to be as tall as its parent.
-          //
-          // Invoke "debug painting" (press "p" in the console, choose the
-          // "Toggle Debug Paint" action from the Flutter Inspector in Android
-          // Studio, or the "Toggle Debug Paint" command in Visual Studio Code)
-          // to see the wireframe for each widget.
-          //
-          // Column has various properties to control how it sizes itself and
-          // how it positions its children. Here we use mainAxisAlignment to
-          // center the children vertically; the main axis here is the vertical
-          // axis because Columns are vertical (the cross axis would be
-          // horizontal).
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Text(
-              'You have pushed the button this many times:',
+    return DefaultTabController(
+      length: 3,
+      child: Scaffold(
+        appBar: AppBar(
+          leading: Icon(Icons.menu),
+          actions: [
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 16),
+              child: Icon(Icons.search),
             ),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headline4,
+          ],
+          title: Text('Tareas'),
+          automaticallyImplyLeading: false,
+          backgroundColor: Colors.pink.shade900,
+          bottom: TabBar(
+            indicatorColor: Colors.white,
+            tabs: [
+              Tab(text: 'TODO', icon: Icon(Icons.list_alt)),
+              Tab(text: 'PENDIENTE', icon: Icon(Icons.access_time)),
+              Tab(text: 'HECHO', icon: Icon(Icons.done_all)),
+            ],
+          ),
+        ),
+        body: TabBarView(
+          children: [
+            ListView(
+              children: [
+                ListTile(
+                  title: Text('Tarea 1'),
+                  trailing: Checkbox(
+                    value: _task1,
+                    onChanged: (value) {
+                      setState(() {
+                        _task1 = value;
+                      });
+                    },
+                  ),
+                ),
+                Divider(),
+                ListTile(
+                  title: Text('Tarea 2'),
+                  trailing: Checkbox(
+                    value: _task2,
+                    onChanged: (value) {
+                      setState(() {
+                        _task2 = value;
+                      });
+                    },
+                  ),
+                ),
+                Divider(),
+                ListTile(
+                  title: Text('Tarea 3'),
+                  trailing: Checkbox(
+                    value: _task3,
+                    onChanged: (value) {
+                      setState(() {
+                        _task3 = value;
+                      });
+                    },
+                  ),
+                ),
+                Divider(),
+              ],
+            ),
+            ListView(
+              children: [
+                ListTile(
+                  title: Text('Tarea 3'),
+                  trailing: Checkbox(
+                    value: _task3,
+                    onChanged: (value) {
+                      setState(() {
+                        _task3 = value;
+                      });
+                    },
+                  ),
+                ),
+                Divider(),
+              ],
+            ),
+            ListView(
+              children: [
+                ListTile(
+                  title: Text('Tarea 1'),
+                  trailing: Checkbox(
+                    value: _task1,
+                    onChanged: (value) {
+                      setState(() {
+                        _task1 = value;
+                      });
+                    },
+                  ),
+                ),
+                Divider(),
+                ListTile(
+                  title: Text('Tarea 2'),
+                  trailing: Checkbox(
+                    value: _task2,
+                    onChanged: (value) {
+                      setState(() {
+                        _task2 = value;
+                      });
+                    },
+                  ),
+                ),
+                Divider(),
+              ],
             ),
           ],
         ),
+        floatingActionButton: FloatingActionButton.extended(
+          backgroundColor: Colors.pink.shade900,
+          foregroundColor: Colors.white,
+          onPressed: () {
+            // Respond to button press
+          },
+          icon: Icon(Icons.add),
+          label: Text('TAREA'),
+        ),
+        floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: Icon(Icons.add),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
     );
   }
 }
