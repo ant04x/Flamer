@@ -1,3 +1,4 @@
+import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:flutter/material.dart';
 
 void main() {
@@ -20,7 +21,7 @@ class MyApp extends StatelessWidget {
         // or simply save your changes to "hot reload" in a Flutter IDE).
         // Notice that the counter didn't reset back to zero; the application
         // is not restarted.
-        primarySwatch: Colors.pink,
+        primarySwatch: Colors.deepOrange,
       ),
       home: MyHomePage(title: 'Tareas'),
     );
@@ -50,6 +51,7 @@ class _MyHomePageState extends State<MyHomePage> {
   bool _task1 = false;
   bool _task2 = false;
   bool _task3 = false;
+  int _selectedDestination = 0;
 
   void _incrementCounter() {
     setState(() {
@@ -70,11 +72,21 @@ class _MyHomePageState extends State<MyHomePage> {
     // The Flutter framework has been optimized to make rerunning build methods
     // fast, so that you can just rebuild anything that needs updating rather
     // than having to individually change instances of widgets.
+    final theme = Theme.of(context);
+    final textTheme = theme.textTheme;
     return DefaultTabController(
       length: 3,
       child: Scaffold(
         appBar: AppBar(
-          leading: Icon(Icons.menu),
+          leading: Builder(
+            builder: (BuildContext context) {
+              return IconButton(
+                icon: const Icon(Icons.menu),
+                onPressed: () { Scaffold.of(context).openDrawer(); },
+                tooltip: MaterialLocalizations.of(context).openAppDrawerTooltip,
+              );
+            },
+          ),
           actions: [
             Padding(
               padding: EdgeInsets.symmetric(horizontal: 16),
@@ -181,6 +193,94 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
           ],
         ),
+        drawer: Drawer(
+          child: SafeArea(
+            child: ListView(
+              // Important: Remove any padding from the ListView.
+              padding: EdgeInsets.all(0.0),
+              children: <Widget>[
+                UserAccountsDrawerHeader(
+                    decoration: BoxDecoration(color: theme.scaffoldBackgroundColor),
+                    accountName: Text('Antonio Izquierdo', style: textTheme.headline6),
+                    accountEmail: Text('ant04x@gmail.com', style: textTheme.caption),
+                    currentAccountPicture: CircleAvatar(
+                      backgroundImage: AssetImage("assets/profile.jpg"),
+                    ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Text(
+                    'Etiquetas',
+                  ),
+                ),
+                ListTile(
+                  leading: Icon(Icons.all_inbox),
+                  title: Text('Tareas'),
+                  selected: _selectedDestination == 0,
+                  onTap: () => selectDestination(0),
+                ),
+                ListTile(
+                  leading: Icon(Icons.lightbulb),
+                  title: Text('PSP'),
+                  selected: _selectedDestination == 1,
+                  onTap: () => selectDestination(1),
+                ),
+                ListTile(
+                  leading: Icon(Icons.vpn_key),
+                  title: Text('ADA'),
+                  selected: _selectedDestination == 2,
+                  onTap: () => selectDestination(2),
+                ),
+                ListTile(
+                  leading: Icon(Icons.desktop_windows),
+                  title: Text('PMDM'),
+                  selected: _selectedDestination == 3,
+                  onTap: () => selectDestination(3),
+                ),
+                ListTile(
+                  leading: Icon(Icons.book),
+                  title: Text('SGE'),
+                  selected: _selectedDestination == 4,
+                  onTap: () => selectDestination(4),
+                ),
+                ListTile(
+                  leading: Icon(Icons.web_asset),
+                  title: Text('DIN'),
+                  selected: _selectedDestination == 5,
+                  onTap: () => selectDestination(5),
+                ),
+                ListTile(
+                  leading: Icon(Icons.location_city),
+                  title: Text('ING'),
+                  selected: _selectedDestination == 6,
+                  onTap: () => selectDestination(6),
+                ),
+                Divider(
+                  height: 1,
+                  thickness: 1,
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Text(
+                    'Acciones',
+                  ),
+                ),
+                ListTile(
+                  leading: Icon(MdiIcons.tag),
+                  title: Text('Crear Etiqueta'),
+                  selected: false,
+                  onTap: () {},
+                ),
+                ListTile(
+                  leading: Icon(Icons.settings),
+                  title: Text('Ajustes'),
+                  selected: false,
+                  onTap: () {},
+                ),
+              ],
+            ),
+          ),
+        ),
         floatingActionButton: FloatingActionButton.extended(
           backgroundColor: Colors.pink.shade900,
           foregroundColor: Colors.white,
@@ -193,5 +293,12 @@ class _MyHomePageState extends State<MyHomePage> {
         floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
       ),
     );
+  }
+
+  void selectDestination(int index) {
+    setState(() {
+      _selectedDestination = index;
+    });
+    Navigator.pop(context);
   }
 }
