@@ -1,5 +1,6 @@
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 void main() {
   runApp(MyApp());
@@ -90,7 +91,15 @@ class _MyHomePageState extends State<MyHomePage> {
           actions: [
             Padding(
               padding: EdgeInsets.symmetric(horizontal: 16),
-              child: Icon(Icons.search),
+              child: IconButton(
+                icon: const Icon(Icons.search),
+                onPressed: () {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => SearchDialog())
+                  );
+                },
+              ),
             ),
           ],
           title: Text('Tareas'),
@@ -269,13 +278,28 @@ class _MyHomePageState extends State<MyHomePage> {
                   leading: Icon(MdiIcons.tag),
                   title: Text('Crear Etiqueta'),
                   selected: false,
-                  onTap: () {},
+                  onTap: () {
+                    Navigator.pop(context);
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute<void>(
+                        builder: (BuildContext context) => CreateTagDialog(),
+                        fullscreenDialog: true,
+                      ),
+                    );
+                  },
                 ),
                 ListTile(
                   leading: Icon(Icons.settings),
                   title: Text('Ajustes'),
                   selected: false,
-                  onTap: () {},
+                  onTap: () {
+                    Navigator.pop(context);
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => SecondRoute())
+                    );
+                  }
                 ),
               ],
             ),
@@ -300,5 +324,407 @@ class _MyHomePageState extends State<MyHomePage> {
       _selectedDestination = index;
     });
     Navigator.pop(context);
+  }
+}
+
+class SecondRoute extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text("Ajustes"),
+        backgroundColor: Colors.pink.shade900,
+      ),
+      body: ListView(
+        children: [
+          ListTile(
+            title: Text('Tema'),
+            subtitle: Text('Claro'),
+            leading: Icon(Icons.brightness_6),
+          ),
+          Divider(),
+          ListTile(
+            title: Text('Acerca de'),
+            leading: Icon(Icons.info),
+            onTap: () async {
+              await launch("https://github.com/ant04x/Flamer");
+            },
+          ),
+          Divider(),
+        ],
+      ),
+    );
+  }
+}
+
+class SearchDialog extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        iconTheme: IconThemeData(color: Colors.black),
+        title: Row(
+          children: <Widget>[
+            Expanded(
+              child: Padding(
+                padding: EdgeInsets.only(right: 22),
+                child: TextField(
+                    autofocus: true,
+                    decoration: InputDecoration(
+                      hintText: 'Buscar',
+                      enabledBorder: UnderlineInputBorder(
+                        borderSide: BorderSide(color: Colors.pink.shade900),
+                      ),
+                      focusedBorder: UnderlineInputBorder(
+                        borderSide: BorderSide(color: Colors.pink.shade900),
+                      ),
+                      border: UnderlineInputBorder(
+                        borderSide: BorderSide(color: Colors.pink.shade900),
+                      ),
+                    )
+                ),
+              )
+            ),
+          ],
+        ),
+        backgroundColor: Colors.white,
+      ),
+    );
+  }
+}
+
+class CreateTagDialog extends StatelessWidget {
+
+  int _iconValue = 0;
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Colors.pink.shade900,
+        title: Text('Crear Etiqueta'),
+        actions: [
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: 16),
+            child: TextButton(
+              style: TextButton.styleFrom(primary: Colors.white),
+              onPressed: () {
+                // Respond to button press
+              },
+              child: Text("GUARDAR"),
+            ),
+          ),
+        ],
+      ),
+      body: Padding(
+        padding: EdgeInsets.only(right: 16, left: 4, top: 16, bottom: 16),
+        child: Row(
+          children: <Widget>[
+            IconButton(
+              padding: EdgeInsets.only(left: 0),
+              icon: const Icon(Icons.tag_faces),
+              onPressed: () {
+                return showDialog(
+                    context: context,
+                    builder: (BuildContext context) {
+                      return  AlertDialog(
+                        title: Text('Icono'),
+                        titlePadding: EdgeInsets.all(20.0),
+                        contentPadding: EdgeInsets.symmetric(horizontal: 0),
+                        content: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Divider(
+                              height: 1.0,
+                              color: Colors.grey,
+                            ),
+                            Expanded(
+                              child: SingleChildScrollView(
+                                child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.start,
+                                    children: [
+                                      ListBody(
+                                        children: [
+                                          ListTile(
+                                            title: Text('List item 1'),
+                                            leading: Icon(Icons.label),
+                                            trailing: Radio(
+                                              value: 1,
+                                              groupValue: _iconValue,
+                                              onChanged: (value) {
+                                                setState() {
+                                                  _iconValue = value;
+                                                }
+                                              },
+                                            ),
+                                          ),
+                                          ListTile(
+                                            title: Text('List item 1'),
+                                            leading: Icon(Icons.label),
+                                            trailing: Radio(
+                                              value: 1,
+                                              groupValue: _iconValue,
+                                              onChanged: (value) {
+                                                setState() {
+                                                  _iconValue = value;
+                                                }
+                                              },
+                                            ),
+                                          ),
+                                          ListTile(
+                                            title: Text('List item 1'),
+                                            leading: Icon(Icons.label),
+                                            trailing: Radio(
+                                              value: 1,
+                                              groupValue: _iconValue,
+                                              onChanged: (value) {
+                                                setState() {
+                                                  _iconValue = value;
+                                                }
+                                              },
+                                            ),
+                                          ),
+                                          ListTile(
+                                            title: Text('List item 1'),
+                                            leading: Icon(Icons.label),
+                                            trailing: Radio(
+                                              value: 1,
+                                              groupValue: _iconValue,
+                                              onChanged: (value) {
+                                                setState() {
+                                                  _iconValue = value;
+                                                }
+                                              },
+                                            ),
+                                          ),
+                                          ListTile(
+                                            title: Text('List item 1'),
+                                            leading: Icon(Icons.label),
+                                            trailing: Radio(
+                                              value: 1,
+                                              groupValue: _iconValue,
+                                              onChanged: (value) {
+                                                setState() {
+                                                  _iconValue = value;
+                                                }
+                                              },
+                                            ),
+                                          ),
+                                          ListTile(
+                                            title: Text('List item 1'),
+                                            leading: Icon(Icons.label),
+                                            trailing: Radio(
+                                              value: 1,
+                                              groupValue: _iconValue,
+                                              onChanged: (value) {
+                                                setState() {
+                                                  _iconValue = value;
+                                                }
+                                              },
+                                            ),
+                                          ),
+                                          ListTile(
+                                            title: Text('List item 1'),
+                                            leading: Icon(Icons.label),
+                                            trailing: Radio(
+                                              value: 1,
+                                              groupValue: _iconValue,
+                                              onChanged: (value) {
+                                                setState() {
+                                                  _iconValue = value;
+                                                }
+                                              },
+                                            ),
+                                          ),
+                                          ListTile(
+                                            title: Text('List item 1'),
+                                            leading: Icon(Icons.label),
+                                            trailing: Radio(
+                                              value: 1,
+                                              groupValue: _iconValue,
+                                              onChanged: (value) {
+                                                setState() {
+                                                  _iconValue = value;
+                                                }
+                                              },
+                                            ),
+                                          ),
+                                          ListTile(
+                                            title: Text('List item 1'),
+                                            leading: Icon(Icons.label),
+                                            trailing: Radio(
+                                              value: 1,
+                                              groupValue: _iconValue,
+                                              onChanged: (value) {
+                                                setState() {
+                                                  _iconValue = value;
+                                                }
+                                              },
+                                            ),
+                                          ),
+                                          ListTile(
+                                            title: Text('List item 1'),
+                                            leading: Icon(Icons.label),
+                                            trailing: Radio(
+                                              value: 1,
+                                              groupValue: _iconValue,
+                                              onChanged: (value) {
+                                                setState() {
+                                                  _iconValue = value;
+                                                }
+                                              },
+                                            ),
+                                          ),
+                                          ListTile(
+                                            title: Text('List item 1'),
+                                            leading: Icon(Icons.label),
+                                            trailing: Radio(
+                                              value: 1,
+                                              groupValue: _iconValue,
+                                              onChanged: (value) {
+                                                setState() {
+                                                  _iconValue = value;
+                                                }
+                                              },
+                                            ),
+                                          ),
+                                          ListTile(
+                                            title: Text('List item 1'),
+                                            leading: Icon(Icons.label),
+                                            trailing: Radio(
+                                              value: 1,
+                                              groupValue: _iconValue,
+                                              onChanged: (value) {
+                                                setState() {
+                                                  _iconValue = value;
+                                                }
+                                              },
+                                            ),
+                                          ),
+                                          ListTile(
+                                            title: Text('List item 1'),
+                                            leading: Icon(Icons.label),
+                                            trailing: Radio(
+                                              value: 1,
+                                              groupValue: _iconValue,
+                                              onChanged: (value) {
+                                                setState() {
+                                                  _iconValue = value;
+                                                }
+                                              },
+                                            ),
+                                          ),
+                                          ListTile(
+                                            title: Text('List item 1'),
+                                            leading: Icon(Icons.label),
+                                            trailing: Radio(
+                                              value: 1,
+                                              groupValue: _iconValue,
+                                              onChanged: (value) {
+                                                setState() {
+                                                  _iconValue = value;
+                                                }
+                                              },
+                                            ),
+                                          ),
+                                          ListTile(
+                                            title: Text('List item 1'),
+                                            leading: Icon(Icons.label),
+                                            trailing: Radio(
+                                              value: 1,
+                                              groupValue: _iconValue,
+                                              onChanged: (value) {
+                                                setState() {
+                                                  _iconValue = value;
+                                                }
+                                              },
+                                            ),
+                                          ),
+                                          ListTile(
+                                            title: Text('List item 1'),
+                                            leading: Icon(Icons.label),
+                                            trailing: Radio(
+                                              value: 1,
+                                              groupValue: _iconValue,
+                                              onChanged: (value) {
+                                                setState() {
+                                                  _iconValue = value;
+                                                }
+                                              },
+                                            ),
+                                          ),
+                                          ListTile(
+                                            title: Text('List item 1'),
+                                            leading: Icon(Icons.label),
+                                            trailing: Radio(
+                                              value: 1,
+                                              groupValue: _iconValue,
+                                              onChanged: (value) {
+                                                setState() {
+                                                  _iconValue = value;
+                                                }
+                                              },
+                                            ),
+                                          ),
+                                          ListTile(
+                                            title: Text('List item 1'),
+                                            leading: Icon(Icons.label),
+                                            trailing: Radio(
+                                              value: 1,
+                                              groupValue: _iconValue,
+                                              onChanged: (value) {
+                                                setState() {
+                                                  _iconValue = value;
+                                                }
+                                              },
+                                            ),
+                                          ),
+                                        ],
+                                      )
+                                    ]
+                                ),
+                              ),
+                            ),
+                            Divider(
+                              color: Colors.grey,
+                              height: 1.0,
+                            ),
+                          ],
+                        ),
+                        actions: [
+                          Divider(),
+                          TextButton(
+                            onPressed: () { Navigator.of(context).pop(); },
+                            child: Text('CANCELAR'),
+                          ),
+                          TextButton(
+                            onPressed: () { Navigator.of(context).pop(); },
+                            child: Text('ACEPTAR'),
+                          ),
+                        ],
+                      );
+                    }
+                );
+              },
+            ),
+            Expanded(
+              child: TextFormField(
+                autofocus: true,
+                decoration: InputDecoration(
+                  filled: true,
+                  labelText: 'Título',
+                  labelStyle: TextStyle(
+                    color: Colors.deepOrange,
+                  ),
+                  enabledBorder: UnderlineInputBorder(
+                    borderSide: BorderSide(color: Colors.deepOrange),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }
