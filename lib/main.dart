@@ -353,7 +353,14 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 }
 
-class SecondRoute extends StatelessWidget {
+class SecondRoute extends StatefulWidget {
+  @override
+  _SecondRouteState createState() => _SecondRouteState();
+}
+
+class _SecondRouteState extends State<SecondRoute> {
+  int _themeValue = 2;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -367,6 +374,92 @@ class SecondRoute extends StatelessWidget {
             title: Text('Tema'),
             subtitle: Text('Claro'),
             leading: Icon(Icons.brightness_6),
+            onTap: () {
+              return showDialog(
+                  context: context,
+                  builder: (BuildContext context) {
+                    return  AlertDialog(
+                      title: Text('Tema'),
+                      titlePadding: EdgeInsets.all(20.0),
+                      contentPadding: EdgeInsets.symmetric(horizontal: 0),
+                      content: StatefulBuilder(
+                        builder: (BuildContext context, StateSetter setState) {
+                          return Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Divider(
+                                height: 1.0,
+                                color: Colors.grey,
+                              ),
+                              ListBody(
+                                children: [
+                                  ListTile(
+                                    title: Text(
+                                      'Auto',
+                                    ),
+                                    leading: Radio(
+                                      value: 1,
+                                      groupValue: _themeValue,
+                                      onChanged: (int value) {
+                                        setState(() {
+                                          _themeValue = value;
+                                        });
+                                      },
+                                    ),
+                                  ),
+                                  ListTile(
+                                    title: Text(
+                                      'Claro',
+                                    ),
+                                    leading: Radio(
+                                      value: 2,
+                                      groupValue: _themeValue,
+                                      onChanged: (int value) {
+                                        setState(() {
+                                          _themeValue = value;
+                                        });
+                                      },
+                                    ),
+                                  ),
+                                  ListTile(
+                                    title: Text(
+                                      'Oscuro',
+                                    ),
+                                    leading: Radio(
+                                      value: 3,
+                                      groupValue: _themeValue,
+                                      onChanged: (int value) {
+                                        setState(() {
+                                          _themeValue = value;
+                                        });
+                                      },
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              Divider(
+                                color: Colors.grey,
+                                height: 1.0,
+                              ),
+                            ],
+                          );
+                        }
+                      ),
+                      actions: [
+                        Divider(),
+                        TextButton(
+                          onPressed: () { Navigator.of(context).pop(); },
+                          child: Text('CANCELAR'),
+                        ),
+                        TextButton(
+                          onPressed: () { Navigator.of(context).pop(); },
+                          child: Text('ACEPTAR'),
+                        ),
+                      ],
+                    );
+                  }
+              );
+            },
           ),
           Divider(),
           ListTile(
@@ -488,6 +581,7 @@ class _CreateTagDialogState extends State<CreateTagDialog> {
                       return  AlertDialog(
                         title: Text('Icono'),
                         titlePadding: EdgeInsets.all(20.0),
+                        insetPadding: EdgeInsets.symmetric(vertical: 200),
                         contentPadding: EdgeInsets.symmetric(horizontal: 0),
                         content: Column(
                           mainAxisSize: MainAxisSize.min,
