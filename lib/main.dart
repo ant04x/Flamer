@@ -309,7 +309,10 @@ class _MyHomePageState extends State<MyHomePage> {
           backgroundColor: Colors.pink.shade900,
           foregroundColor: Colors.white,
           onPressed: () {
-            // Respond to button press
+            Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => TaskScreen())
+            );
           },
           icon: Icon(Icons.add),
           label: Text('TAREA'),
@@ -357,7 +360,18 @@ class SecondRoute extends StatelessWidget {
   }
 }
 
-class SearchDialog extends StatelessWidget {
+class SearchDialog extends StatefulWidget {
+  @override
+  _SearchDialogState createState() => _SearchDialogState();
+}
+
+class _SearchDialogState extends State<SearchDialog> {
+  bool _task1 = false;
+
+  bool _task2 = false;
+
+  bool _task3 = false;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -389,12 +403,33 @@ class SearchDialog extends StatelessWidget {
         ),
         backgroundColor: Colors.white,
       ),
+      body: ListView(
+        children: [
+          ListTile(
+            title: Text('Tarea 1'),
+            trailing: Checkbox(
+              value: _task1,
+              onChanged: (value) {
+                 setState(() {
+                   _task1 = value;
+                 });
+              },
+            ),
+          ),
+          Divider(),
+        ],
+      ),
     );
   }
 }
 
-class CreateTagDialog extends StatelessWidget {
+class CreateTagDialog extends StatefulWidget {
 
+  @override
+  _CreateTagDialogState createState() => _CreateTagDialogState();
+}
+
+class _CreateTagDialogState extends State<CreateTagDialog> {
   int _iconValue = 0;
 
   @override
@@ -724,6 +759,91 @@ class CreateTagDialog extends StatelessWidget {
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class TaskScreen extends StatefulWidget {
+  @override
+  _TaskScreenState createState() => _TaskScreenState();
+}
+
+class _TaskScreenState extends State<TaskScreen> {
+
+  bool done = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text("Tarea"),
+        backgroundColor: Colors.pink.shade900,
+      ),
+      body: ListView(
+        children: [
+          Padding(
+            padding: EdgeInsets.only(right: 16, left: 16, top: 16, bottom: 16),
+            child: Row(
+              children: <Widget>[
+                Expanded(
+                  child: TextFormField(
+                    autofocus: true,
+                    decoration: InputDecoration(
+                      filled: true,
+                      labelText: 'Nombre de la Tarea',
+                      labelStyle: TextStyle(
+                        color: Colors.deepOrange,
+                      ),
+                      enabledBorder: UnderlineInputBorder(
+                        borderSide: BorderSide(color: Colors.deepOrange),
+                      ),
+                    ),
+                  ),
+                ),
+                Padding(
+                  padding: EdgeInsets.only(left: 15),
+                  child: Checkbox(
+                    onChanged: (bool value) {
+                      setState(() {
+                        done = value;
+                      });
+                    },
+                    value: done,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Divider(),
+          ListTile(
+            title: Text('Etiqueta'),
+            subtitle: Text('ADA'),
+            leading: Icon(MdiIcons.tag),
+          ),
+          Divider(),
+          ListTile(
+            title: Text('Repetir'),
+            subtitle: Text('Diariamente'),
+            leading: Icon(Icons.repeat),
+          ),
+          Divider(),
+          ListTile(
+            title: Text('Aviso'),
+            subtitle: Text('13 de Junio de 2021'),
+            leading: Icon(Icons.calendar_today),
+          ),
+          Divider(),
+        ],
+      ),
+      floatingActionButton: FloatingActionButton.extended(
+        backgroundColor: Colors.pink.shade900,
+        foregroundColor: Colors.white,
+        onPressed: () {
+          Navigator.pop(context);
+        },
+        icon: Icon(Icons.cloud_upload),
+        label: Text('GUARDAR'),
       ),
     );
   }
