@@ -210,11 +210,34 @@ class _MyHomePageState extends State<MyHomePage> {
               children: <Widget>[
                 UserAccountsDrawerHeader(
                     decoration: BoxDecoration(color: theme.scaffoldBackgroundColor),
+                    arrowColor: Colors.black,
                     accountName: Text('Antonio Izquierdo', style: textTheme.headline6),
                     accountEmail: Text('ant04x@gmail.com', style: textTheme.caption),
                     currentAccountPicture: CircleAvatar(
                       backgroundImage: AssetImage("assets/profile.jpg"),
                     ),
+                    onDetailsPressed: () {
+                      Navigator.pop(context);
+                      return showDialog(
+                        context: context,
+                        builder: (BuildContext context) {
+                          return  AlertDialog(
+                            title: Text('Cerrar Sesión'),
+                            content: Text('Para administrar de nuevo tus tareas deberás iniciar sesión después con esta u otra cuenta. ¿Estás seguro de que quieres cerrar sesión?'),
+                            actions: [
+                              TextButton(
+                                onPressed: () => Navigator.pop(context),
+                                child: Text('CANCELAR'),
+                              ),
+                              TextButton(
+                                onPressed: () { },
+                                child: Text('ACEPTAR'),
+                              ),
+                            ],
+                          );
+                        }
+                      );
+                    },
                 ),
                 Padding(
                   padding: const EdgeInsets.all(16.0),
