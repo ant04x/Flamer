@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "505657173480",
+    "project_id": "flamer-89f12",
+    "storage_bucket": "flamer-89f12.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:505657173480:android:6893034683641b2d2db05d",
+        "android_client_info": {
+          "package_name": "io.ant04x.flamer"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "505657173480-lm8snj1b1ple9r9qbp81fsav0pnfdrmi.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBE8uagoUr8-zdepnS1YUA--C5M0Oy76f8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "505657173480-lm8snj1b1ple9r9qbp81fsav0pnfdrmi.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

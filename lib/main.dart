@@ -1,12 +1,16 @@
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:firebase_core/firebase_core.dart';
 
-void main() {
+main() async {
+  WidgetsFlutterBinding.ensureInitialized();
   runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
+
+  final Future<FirebaseApp> _fbApp = Firebase.initializeApp();
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
@@ -24,10 +28,25 @@ class MyApp extends StatelessWidget {
         // is not restarted.
         primarySwatch: Colors.deepOrange,
       ),
-      home: MyHomePage(title: 'Tareas'),
+      home: FutureBuilder(
+        future: _fbApp,
+        builder: (context, snapshot) {
+          if (snapshot.hasError) {
+            print('ERROR INICIANDO FIREBASE ${snapshot.error.toString()}');
+            return ErrorScreen(error: snapshot.error);
+          } else if (snapshot.hasData) {
+            return MyHomePage(title: 'Tareas');
+          } else {
+            return Center(
+              child: CircularProgressIndicator(),
+            );
+          }
+        },
+      ),
     );
   }
 }
+
 
 class MyHomePage extends StatefulWidget {
   MyHomePage({Key key, this.title}) : super(key: key);
@@ -353,6 +372,7 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 }
 
+
 class SecondRoute extends StatefulWidget {
   @override
   _SecondRouteState createState() => _SecondRouteState();
@@ -476,6 +496,7 @@ class _SecondRouteState extends State<SecondRoute> {
   }
 }
 
+
 class SearchDialog extends StatefulWidget {
   @override
   _SearchDialogState createState() => _SearchDialogState();
@@ -538,6 +559,7 @@ class _SearchDialogState extends State<SearchDialog> {
     );
   }
 }
+
 
 class CreateTagDialog extends StatefulWidget {
 
@@ -881,6 +903,7 @@ class _CreateTagDialogState extends State<CreateTagDialog> {
   }
 }
 
+
 class TaskScreen extends StatefulWidget {
   @override
   _TaskScreenState createState() => _TaskScreenState();
@@ -961,6 +984,37 @@ class _TaskScreenState extends State<TaskScreen> {
         },
         icon: Icon(Icons.cloud_upload),
         label: Text('GUARDAR'),
+      ),
+    );
+  }
+}
+
+class ErrorScreen extends StatefulWidget {
+  ErrorScreen({Key key, this.error}) : super(key: key);
+
+  // This widget is the home page of your application. It is stateful, meaning
+  // that it has a State object (defined below) that contains fields that affect
+  // how it looks.
+
+  // This class is the configuration for the state. It holds the values (in this
+  // case the title) provided by the parent (in this case the App widget) and
+  // used by the build method of the State. Fields in a Widget subclass are
+  // always marked "final".
+
+  final Object error;
+  
+  @override
+  _ErrorScreenState createState() => _ErrorScreenState();
+}
+
+class _ErrorScreenState extends State<ErrorScreen> {
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Column(
+        children: [
+          Icon(Icons.error, color: Colors.red,)
+        ],
       ),
     );
   }
