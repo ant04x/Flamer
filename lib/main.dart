@@ -30,21 +30,7 @@ class MyApp extends StatelessWidget {
         // is not restarted.
         primarySwatch: Colors.deepOrange,
       ),
-      home: FutureBuilder(
-        future: Authentication.initializeFirebase(context: context),
-        builder: (context, snapshot) {
-          if (snapshot.hasError) {
-            print('ERROR INICIANDO FIREBASE ${snapshot.error.toString()}');
-            return ErrorScreen(error: snapshot.error);
-          } else if (snapshot.hasData) {
-            return SignInScreen();
-          } else {
-            return Center(
-              child: CircularProgressIndicator(),
-            );
-          }
-        },
-      ),
+      home: SignInScreen()
     );
   }
 }
@@ -79,7 +65,7 @@ class _SignInScreenState extends State<SignInScreen> {
                 ),
                 Text(
                   'Empieza a usar Flamer para que no se te olvide nada de la lista de la compra, del trabajo o de cualquier otra cosa.',
-                  style: textTheme.headline6,
+                  style: textTheme.headline6!.copyWith(height: 1.5),
                   textAlign: TextAlign.center,
                 ),
               ],
@@ -353,6 +339,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                   setState(() {
                                     _isSigningOut = false;
                                   });
+                                  Navigator.of(context).pop();
                                   Navigator.of(context).pushReplacement(
                                       PageRouteBuilder(
                                           pageBuilder: (context, animation, secondaryAnimation) => SignInScreen()
