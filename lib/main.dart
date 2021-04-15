@@ -49,7 +49,7 @@ class MyApp extends StatelessWidget {
 
 
 class MyHomePage extends StatefulWidget {
-  MyHomePage({Key key, this.title}) : super(key: key);
+  MyHomePage({Key? key, this.title}) : super(key: key);
 
   // This widget is the home page of your application. It is stateful, meaning
   // that it has a State object (defined below) that contains fields that affect
@@ -60,7 +60,7 @@ class MyHomePage extends StatefulWidget {
   // used by the build method of the State. Fields in a Widget subclass are
   // always marked "final".
 
-  final String title;
+  final String? title;
 
   @override
   _MyHomePageState createState() => _MyHomePageState();
@@ -68,9 +68,9 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   int _counter = 0;
-  bool _task1 = false;
-  bool _task2 = false;
-  bool _task3 = false;
+  bool? _task1 = false;
+  bool? _task2 = false;
+  bool? _task3 = false;
   int _selectedDestination = 0;
 
   void _incrementCounter() {
@@ -237,7 +237,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     ),
                     onDetailsPressed: () {
                       Navigator.pop(context);
-                      return showDialog(
+                      showDialog(
                         context: context,
                         builder: (BuildContext context) {
                           return  AlertDialog(
@@ -379,7 +379,7 @@ class SecondRoute extends StatefulWidget {
 }
 
 class _SecondRouteState extends State<SecondRoute> {
-  int _themeValue = 2;
+  int? _themeValue = 2;
 
   @override
   Widget build(BuildContext context) {
@@ -395,7 +395,7 @@ class _SecondRouteState extends State<SecondRoute> {
             subtitle: Text('Claro'),
             leading: Icon(Icons.brightness_6),
             onTap: () {
-              return showDialog(
+              showDialog(
                   context: context,
                   builder: (BuildContext context) {
                     return  AlertDialog(
@@ -420,7 +420,7 @@ class _SecondRouteState extends State<SecondRoute> {
                                     leading: Radio(
                                       value: 1,
                                       groupValue: _themeValue,
-                                      onChanged: (int value) {
+                                      onChanged: (int? value) {
                                         setState(() {
                                           _themeValue = value;
                                         });
@@ -434,7 +434,7 @@ class _SecondRouteState extends State<SecondRoute> {
                                     leading: Radio(
                                       value: 2,
                                       groupValue: _themeValue,
-                                      onChanged: (int value) {
+                                      onChanged: (int? value) {
                                         setState(() {
                                           _themeValue = value;
                                         });
@@ -448,7 +448,7 @@ class _SecondRouteState extends State<SecondRoute> {
                                     leading: Radio(
                                       value: 3,
                                       groupValue: _themeValue,
-                                      onChanged: (int value) {
+                                      onChanged: (int? value) {
                                         setState(() {
                                           _themeValue = value;
                                         });
@@ -503,7 +503,7 @@ class SearchDialog extends StatefulWidget {
 }
 
 class _SearchDialogState extends State<SearchDialog> {
-  bool _task1 = false;
+  bool? _task1 = false;
 
   bool _task2 = false;
 
@@ -568,7 +568,7 @@ class CreateTagDialog extends StatefulWidget {
 }
 
 class _CreateTagDialogState extends State<CreateTagDialog> {
-  int _iconValue = 0;
+  int? _iconValue = 0;
 
   @override
   Widget build(BuildContext context) {
@@ -597,7 +597,7 @@ class _CreateTagDialogState extends State<CreateTagDialog> {
               padding: EdgeInsets.only(left: 0),
               icon: const Icon(Icons.tag_faces),
               onPressed: () {
-                return showDialog(
+                showDialog(
                     context: context,
                     builder: (BuildContext context) {
                       return  AlertDialog(
@@ -625,7 +625,7 @@ class _CreateTagDialogState extends State<CreateTagDialog> {
                                             trailing: Radio(
                                               value: 1,
                                               groupValue: _iconValue,
-                                              onChanged: (value) {
+                                              onChanged: (dynamic value) {
                                                 setState() {
                                                   _iconValue = value;
                                                 }
@@ -638,7 +638,7 @@ class _CreateTagDialogState extends State<CreateTagDialog> {
                                             trailing: Radio(
                                               value: 1,
                                               groupValue: _iconValue,
-                                              onChanged: (value) {
+                                              onChanged: (dynamic value) {
                                                 setState() {
                                                   _iconValue = value;
                                                 }
@@ -651,7 +651,7 @@ class _CreateTagDialogState extends State<CreateTagDialog> {
                                             trailing: Radio(
                                               value: 1,
                                               groupValue: _iconValue,
-                                              onChanged: (value) {
+                                              onChanged: (dynamic value) {
                                                 setState() {
                                                   _iconValue = value;
                                                 }
@@ -664,7 +664,7 @@ class _CreateTagDialogState extends State<CreateTagDialog> {
                                             trailing: Radio(
                                               value: 1,
                                               groupValue: _iconValue,
-                                              onChanged: (value) {
+                                              onChanged: (dynamic value) {
                                                 setState() {
                                                   _iconValue = value;
                                                 }
@@ -677,7 +677,7 @@ class _CreateTagDialogState extends State<CreateTagDialog> {
                                             trailing: Radio(
                                               value: 1,
                                               groupValue: _iconValue,
-                                              onChanged: (value) {
+                                              onChanged: (dynamic value) {
                                                 setState() {
                                                   _iconValue = value;
                                                 }
@@ -690,7 +690,7 @@ class _CreateTagDialogState extends State<CreateTagDialog> {
                                             trailing: Radio(
                                               value: 1,
                                               groupValue: _iconValue,
-                                              onChanged: (value) {
+                                              onChanged: (dynamic value) {
                                                 setState() {
                                                   _iconValue = value;
                                                 }
@@ -703,7 +703,7 @@ class _CreateTagDialogState extends State<CreateTagDialog> {
                                             trailing: Radio(
                                               value: 1,
                                               groupValue: _iconValue,
-                                              onChanged: (value) {
+                                              onChanged: (dynamic value) {
                                                 setState() {
                                                   _iconValue = value;
                                                 }
@@ -716,7 +716,7 @@ class _CreateTagDialogState extends State<CreateTagDialog> {
                                             trailing: Radio(
                                               value: 1,
                                               groupValue: _iconValue,
-                                              onChanged: (value) {
+                                              onChanged: (dynamic value) {
                                                 setState() {
                                                   _iconValue = value;
                                                 }
@@ -729,7 +729,7 @@ class _CreateTagDialogState extends State<CreateTagDialog> {
                                             trailing: Radio(
                                               value: 1,
                                               groupValue: _iconValue,
-                                              onChanged: (value) {
+                                              onChanged: (dynamic value) {
                                                 setState() {
                                                   _iconValue = value;
                                                 }
@@ -742,7 +742,7 @@ class _CreateTagDialogState extends State<CreateTagDialog> {
                                             trailing: Radio(
                                               value: 1,
                                               groupValue: _iconValue,
-                                              onChanged: (value) {
+                                              onChanged: (dynamic value) {
                                                 setState() {
                                                   _iconValue = value;
                                                 }
@@ -755,7 +755,7 @@ class _CreateTagDialogState extends State<CreateTagDialog> {
                                             trailing: Radio(
                                               value: 1,
                                               groupValue: _iconValue,
-                                              onChanged: (value) {
+                                              onChanged: (dynamic value) {
                                                 setState() {
                                                   _iconValue = value;
                                                 }
@@ -768,7 +768,7 @@ class _CreateTagDialogState extends State<CreateTagDialog> {
                                             trailing: Radio(
                                               value: 1,
                                               groupValue: _iconValue,
-                                              onChanged: (value) {
+                                              onChanged: (dynamic value) {
                                                 setState() {
                                                   _iconValue = value;
                                                 }
@@ -781,7 +781,7 @@ class _CreateTagDialogState extends State<CreateTagDialog> {
                                             trailing: Radio(
                                               value: 1,
                                               groupValue: _iconValue,
-                                              onChanged: (value) {
+                                              onChanged: (dynamic value) {
                                                 setState() {
                                                   _iconValue = value;
                                                 }
@@ -794,7 +794,7 @@ class _CreateTagDialogState extends State<CreateTagDialog> {
                                             trailing: Radio(
                                               value: 1,
                                               groupValue: _iconValue,
-                                              onChanged: (value) {
+                                              onChanged: (dynamic value) {
                                                 setState() {
                                                   _iconValue = value;
                                                 }
@@ -807,7 +807,7 @@ class _CreateTagDialogState extends State<CreateTagDialog> {
                                             trailing: Radio(
                                               value: 1,
                                               groupValue: _iconValue,
-                                              onChanged: (value) {
+                                              onChanged: (dynamic value) {
                                                 setState() {
                                                   _iconValue = value;
                                                 }
@@ -820,7 +820,7 @@ class _CreateTagDialogState extends State<CreateTagDialog> {
                                             trailing: Radio(
                                               value: 1,
                                               groupValue: _iconValue,
-                                              onChanged: (value) {
+                                              onChanged: (dynamic value) {
                                                 setState() {
                                                   _iconValue = value;
                                                 }
@@ -833,7 +833,7 @@ class _CreateTagDialogState extends State<CreateTagDialog> {
                                             trailing: Radio(
                                               value: 1,
                                               groupValue: _iconValue,
-                                              onChanged: (value) {
+                                              onChanged: (dynamic value) {
                                                 setState() {
                                                   _iconValue = value;
                                                 }
@@ -846,7 +846,7 @@ class _CreateTagDialogState extends State<CreateTagDialog> {
                                             trailing: Radio(
                                               value: 1,
                                               groupValue: _iconValue,
-                                              onChanged: (value) {
+                                              onChanged: (dynamic value) {
                                                 setState() {
                                                   _iconValue = value;
                                                 }
@@ -911,7 +911,7 @@ class TaskScreen extends StatefulWidget {
 
 class _TaskScreenState extends State<TaskScreen> {
 
-  bool done = false;
+  bool? done = false;
 
   @override
   Widget build(BuildContext context) {
@@ -944,7 +944,7 @@ class _TaskScreenState extends State<TaskScreen> {
                 Padding(
                   padding: EdgeInsets.only(left: 15),
                   child: Checkbox(
-                    onChanged: (bool value) {
+                    onChanged: (bool? value) {
                       setState(() {
                         done = value;
                       });
@@ -990,7 +990,7 @@ class _TaskScreenState extends State<TaskScreen> {
 }
 
 class ErrorScreen extends StatefulWidget {
-  ErrorScreen({Key key, this.error}) : super(key: key);
+  ErrorScreen({Key? key, this.error}) : super(key: key);
 
   // This widget is the home page of your application. It is stateful, meaning
   // that it has a State object (defined below) that contains fields that affect
@@ -1001,7 +1001,7 @@ class ErrorScreen extends StatefulWidget {
   // used by the build method of the State. Fields in a Widget subclass are
   // always marked "final".
 
-  final Object error;
+  final Object? error;
   
   @override
   _ErrorScreenState createState() => _ErrorScreenState();
