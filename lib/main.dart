@@ -1,3 +1,6 @@
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -10,7 +13,6 @@ main() async {
 
 class MyApp extends StatelessWidget {
 
-  final Future<FirebaseApp> _fbApp = Firebase.initializeApp();
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
@@ -29,13 +31,13 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.deepOrange,
       ),
       home: FutureBuilder(
-        future: _fbApp,
+        future: Authentication.initializeFirebase(context: context),
         builder: (context, snapshot) {
           if (snapshot.hasError) {
             print('ERROR INICIANDO FIREBASE ${snapshot.error.toString()}');
             return ErrorScreen(error: snapshot.error);
           } else if (snapshot.hasData) {
-            return MyHomePage(title: 'Tareas');
+            return SignInScreen();
           } else {
             return Center(
               child: CircularProgressIndicator(),
@@ -47,9 +49,98 @@ class MyApp extends StatelessWidget {
   }
 }
 
+class SignInScreen extends StatefulWidget {
+  @override
+  _SignInScreenState createState() => _SignInScreenState();
+}
+
+class _SignInScreenState extends State<SignInScreen> {
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final textTheme = theme.textTheme;
+
+    return Scaffold(
+      backgroundColor: Colors.white,
+      body: SafeArea(
+        child: Center(
+          child: Padding(
+            padding: EdgeInsets.symmetric(vertical: 16, horizontal: 32),
+            child: Column(
+              mainAxisSize: MainAxisSize.max,
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                SvgPicture.asset(
+                  "assets/todo-draw.svg",
+                  fit: BoxFit.scaleDown,
+                  placeholderBuilder: (context) => Container(height: 500, child: Center(child: CircularProgressIndicator(),),),
+                  width: 500,
+                ),
+                Text(
+                  'Empieza a usar Flamer para que no se te olvide nada de la lista de la compra, del trabajo o de cualquier otra cosa.',
+                  style: textTheme.headline6,
+                  textAlign: TextAlign.center,
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+      floatingActionButton: FutureBuilder(
+        future: Authentication.initializeFirebase(context: context),
+        builder: (context, snapshot) {
+          if (snapshot.hasError) {
+            final GlobalKey<ScaffoldMessengerState> scaffoldMessengerKey = GlobalKey<ScaffoldMessengerState>();
+            scaffoldMessengerKey.currentState!.showSnackBar(
+                SnackBar(
+                  behavior: SnackBarBehavior.floating,
+                  content: Text('Error initializing Firebase'),
+                  action: SnackBarAction(
+                    label: 'OK',
+                    onPressed: () => scaffoldMessengerKey.currentState!.hideCurrentSnackBar(),
+                  ),
+                )
+            );
+            return CircularProgressIndicator();
+          } else if (snapshot.connectionState == ConnectionState.done) {
+            bool _isSigningIn = false;
+            return FloatingActionButton.extended(
+              backgroundColor: Colors.pink.shade900,
+              foregroundColor: Colors.white,
+              onPressed: () async {
+                setState(() => _isSigningIn = true);
+
+                User? user = await Authentication.signInWithGoogle(context: context);
+
+                setState(() => _isSigningIn = false);
+
+                if (user != null) {
+                  Navigator.of(context).pushReplacement(
+                    MaterialPageRoute(
+                      builder: (context) => MyHomePage(
+                        user: user,
+                        title: "Tareas",
+                      ),
+                    ),
+                  );
+                }
+              },
+              icon: Icon(MdiIcons.google),
+              label: Text('ACCEDER'),
+            );
+          }
+          return CircularProgressIndicator();
+        },
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+    );
+  }
+}
+
 
 class MyHomePage extends StatefulWidget {
-  MyHomePage({Key? key, this.title}) : super(key: key);
+  MyHomePage({Key? key, this.title, required User user}) : _user = user, super(key: key);
 
   // This widget is the home page of your application. It is stateful, meaning
   // that it has a State object (defined below) that contains fields that affect
@@ -60,6 +151,7 @@ class MyHomePage extends StatefulWidget {
   // used by the build method of the State. Fields in a Widget subclass are
   // always marked "final".
 
+  final User _user;
   final String? title;
 
   @override
@@ -67,21 +159,20 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  late User _user;
+  bool _isSigningOut = false;
+
   int _counter = 0;
   bool? _task1 = false;
   bool? _task2 = false;
   bool? _task3 = false;
   int _selectedDestination = 0;
 
-  void _incrementCounter() {
-    setState(() {
-      // This call to setState tells the Flutter framework that something has
-      // changed in this State, which causes it to rerun the build method below
-      // so that the display can reflect the updated values. If we changed
-      // _counter without calling setState(), then the build method would not be
-      // called again, and so nothing would appear to happen.
-      _counter++;
-    });
+  @override
+  void initState() {
+    _user = widget._user;
+
+    super.initState();
   }
 
   @override
@@ -230,10 +321,15 @@ class _MyHomePageState extends State<MyHomePage> {
                 UserAccountsDrawerHeader(
                     decoration: BoxDecoration(color: theme.scaffoldBackgroundColor),
                     arrowColor: Colors.black,
-                    accountName: Text('Antonio Izquierdo', style: textTheme.headline6),
-                    accountEmail: Text('ant04x@gmail.com', style: textTheme.caption),
-                    currentAccountPicture: CircleAvatar(
-                      backgroundImage: AssetImage("assets/profile.jpg"),
+                    accountName: Text(_user.displayName!, style: textTheme.headline6),
+                    accountEmail: Text(_user.email!, style: textTheme.caption),
+                    currentAccountPicture: _user.photoURL != null
+                    ? CircleAvatar(
+                      backgroundImage: NetworkImage(_user.photoURL!),
+                    )
+                    : CircleAvatar(
+                      child: Text(_nameToInitials(_user.displayName!)),
+                      backgroundColor: Colors.deepOrange,
                     ),
                     onDetailsPressed: () {
                       Navigator.pop(context);
@@ -249,7 +345,20 @@ class _MyHomePageState extends State<MyHomePage> {
                                 child: Text('CANCELAR'),
                               ),
                               TextButton(
-                                onPressed: () { },
+                                onPressed: () async {
+                                  setState(() {
+                                    _isSigningOut = true;
+                                  });
+                                  await Authentication.signOut(context: context);
+                                  setState(() {
+                                    _isSigningOut = false;
+                                  });
+                                  Navigator.of(context).pushReplacement(
+                                      PageRouteBuilder(
+                                          pageBuilder: (context, animation, secondaryAnimation) => SignInScreen()
+                                      )
+                                  );
+                                },
                                 child: Text('ACEPTAR'),
                               ),
                             ],
@@ -339,7 +448,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     Navigator.pop(context);
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => SecondRoute())
+                      MaterialPageRoute(builder: (context) => SettingsScreen())
                     );
                   }
                 ),
@@ -370,15 +479,22 @@ class _MyHomePageState extends State<MyHomePage> {
     });
     Navigator.pop(context);
   }
+
+  String _nameToInitials(String displayName) {
+    var names = displayName.split(' ').getRange(0, 2);
+    var result = '';
+    names.forEach((element) { result += String.fromCharCode(element.runes.first); });
+    return result.toUpperCase();
+  }
 }
 
 
-class SecondRoute extends StatefulWidget {
+class SettingsScreen extends StatefulWidget {
   @override
-  _SecondRouteState createState() => _SecondRouteState();
+  _SettingsScreenState createState() => _SettingsScreenState();
 }
 
-class _SecondRouteState extends State<SecondRoute> {
+class _SettingsScreenState extends State<SettingsScreen> {
   int? _themeValue = 2;
 
   @override
@@ -989,6 +1105,7 @@ class _TaskScreenState extends State<TaskScreen> {
   }
 }
 
+
 class ErrorScreen extends StatefulWidget {
   ErrorScreen({Key? key, this.error}) : super(key: key);
 
@@ -1017,5 +1134,117 @@ class _ErrorScreenState extends State<ErrorScreen> {
         ],
       ),
     );
+  }
+}
+
+
+class Authentication {
+
+  static Future<FirebaseApp> initializeFirebase({ required BuildContext context }) async {
+    FirebaseApp firebaseApp = await Firebase.initializeApp();
+
+    User? user = FirebaseAuth.instance.currentUser;
+
+    if (user != null) {
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(
+          builder: (context) => MyHomePage(
+            user: user,
+          ),
+        ),
+      );
+    }
+
+    return firebaseApp;
+  }
+
+  static Future<User?> signInWithGoogle({required BuildContext context}) async {
+    FirebaseAuth auth = FirebaseAuth.instance;
+    User? user;
+
+    final GoogleSignIn googleSignIn = GoogleSignIn();
+
+    final GoogleSignInAccount? googleSignInAccount = await googleSignIn.signIn();
+
+    if (googleSignInAccount != null) {
+      final GoogleSignInAuthentication googleSignInAuthentication =
+      await googleSignInAccount.authentication;
+
+      final AuthCredential credential = GoogleAuthProvider.credential(
+        accessToken: googleSignInAuthentication.accessToken,
+        idToken: googleSignInAuthentication.idToken,
+      );
+
+      try {
+
+        final UserCredential userCredential = await auth.signInWithCredential(credential);
+        user = userCredential.user;
+
+      } on FirebaseAuthException catch (e) {
+
+        final GlobalKey<ScaffoldMessengerState> scaffoldMessengerKey = GlobalKey<ScaffoldMessengerState>();
+        if (e.code == 'account-exists-with-different-credential') {
+          scaffoldMessengerKey.currentState!.showSnackBar(
+            SnackBar(
+              behavior: SnackBarBehavior.floating,
+              content: Text('The account already exists with a different credential.'),
+              action: SnackBarAction(
+                label: 'OK',
+                onPressed: () => scaffoldMessengerKey.currentState!.hideCurrentSnackBar(),
+              ),
+            )
+          );
+        } else if (e.code == 'invalid-credential') {
+          scaffoldMessengerKey.currentState!.showSnackBar(
+            SnackBar(
+              behavior: SnackBarBehavior.floating,
+              content: Text('Error occurred while accessing credentials. Try again.'),
+              action: SnackBarAction(
+                label: 'OK',
+                onPressed: () => scaffoldMessengerKey.currentState!.hideCurrentSnackBar(),
+              ),
+            )
+          );
+        }
+      } catch (e) {
+
+        final GlobalKey<ScaffoldMessengerState> scaffoldMessengerKey = GlobalKey<ScaffoldMessengerState>();
+        scaffoldMessengerKey.currentState!.showSnackBar(
+            SnackBar(
+              behavior: SnackBarBehavior.floating,
+              content: Text('Error occurred using Google Sign-In. Try again.'),
+              action: SnackBarAction(
+                label: 'OK',
+                onPressed: () => scaffoldMessengerKey.currentState!.hideCurrentSnackBar(),
+              ),
+            )
+        );
+      }
+    }
+    return user;
+  }
+
+  static Future<void> signOut({required BuildContext context}) async {
+    final GoogleSignIn googleSignIn = GoogleSignIn();
+
+    try {
+
+      await googleSignIn.signOut();
+      await FirebaseAuth.instance.signOut();
+
+    } catch (e) {
+
+      final GlobalKey<ScaffoldMessengerState> scaffoldMessengerKey = GlobalKey<ScaffoldMessengerState>();
+      scaffoldMessengerKey.currentState!.showSnackBar(
+        SnackBar(
+          behavior: SnackBarBehavior.floating,
+          content: Text('Error signing out. Try again.'),
+          action: SnackBarAction(
+            label: 'OK',
+            onPressed: () => scaffoldMessengerKey.currentState!.hideCurrentSnackBar(),
+          ),
+        )
+      );
+    }
   }
 }

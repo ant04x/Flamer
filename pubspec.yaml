@@ -34,6 +34,7 @@ dependencies:
   firebase_database: ^6.1.2
   firebase_auth: ^1.1.0
   google_sign_in: ^5.0.2
+  flutter_svg: ^0.21.0+1
 
 dev_dependencies:
   flutter_test:
@@ -53,7 +54,8 @@ flutter:
 
   # To add assets to your application, add an assets section, like this:
   assets:
-    - assets/profile.jpg
+    - assets/icon-flamer.png
+    - assets/todo-draw.svg
   #   - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see
