@@ -1,24 +1,33 @@
 import 'package:flamer/models/repetition_type.dart';
+import 'package:flamer/models/tag.dart';
 
 class Task {
 
-  String _name;
-  bool _done = false;
-  DateTime? _date = DateTime.now();
-  RepetitionType _repetition = RepetitionType.none;
+  int? _id;
+  String? _name;
+  bool _done;
+  Tag _tag;
+  DateTime? _date;
+  RepetitionType _repetition;
 
   Task({
-    required name,
-    done,
+    name,
+    done = false,
+    tag,
     date,
-    repetition
-  }) : _name = name, _done = done, _date = date, _repetition = repetition;
+    repetition = RepetitionType.none
+  }) : _name = name, _done = done, _tag = tag, _date = date, _repetition = repetition;
 
-  String get name => _name;
-  set name(String value) => _name = value;
+  int? get id => _id;
+
+  String? get name => _name;
+  set name(String? value) => _name = value;
 
   bool get done => _done;
   set done(bool value) => _done = value;
+
+  Tag get tag => _tag;
+  set tag(Tag value) => _tag = value;
 
   DateTime? get date => _date;
   set date(DateTime? value) => _date = value;

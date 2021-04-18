@@ -1,4 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flamer/models/task.dart';
 import 'package:flamer/screens/settings_screen.dart';
 import 'package:flamer/screens/sign_in_screen.dart';
 import 'package:flamer/screens/task_screen.dart';
@@ -81,7 +82,7 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
           ],
-          title: Text('Tareas'),
+          title: Text(widget.title == null ? 'Tareas' : widget.title!),
           automaticallyImplyLeading: false,
           backgroundColor: Colors.pink.shade900,
           bottom: TabBar(
@@ -332,7 +333,9 @@ class _HomeScreenState extends State<HomeScreen> {
           onPressed: () {
             Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => TaskScreen())
+                MaterialPageRoute(builder: (context) => TaskScreen(
+                  task: Task(),
+                ))
             );
           },
           icon: Icon(Icons.add),

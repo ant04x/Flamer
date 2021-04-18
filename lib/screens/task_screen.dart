@@ -1,7 +1,13 @@
+import 'package:flamer/models/task.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:flutter/material.dart';
 
 class TaskScreen extends StatefulWidget {
+
+  TaskScreen({Key? key, required task}) : _task = task, super(key: key);
+
+  final Task _task;
+
   @override
   _TaskScreenState createState() => _TaskScreenState();
 }
@@ -14,7 +20,7 @@ class _TaskScreenState extends State<TaskScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Tarea"),
+        title: Text(widget._task.name == null ? 'Nueva Tarea' : widget._task.name!),
         backgroundColor: Colors.pink.shade900,
       ),
       body: ListView(
@@ -25,6 +31,7 @@ class _TaskScreenState extends State<TaskScreen> {
               children: <Widget>[
                 Expanded(
                   child: TextFormField(
+                    initialValue: widget._task.name,
                     autofocus: true,
                     decoration: InputDecoration(
                       filled: true,

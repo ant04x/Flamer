@@ -61,27 +61,12 @@ class _SignInScreenState extends State<SignInScreen> {
             );
             return CircularProgressIndicator();
           } else if (snapshot.connectionState == ConnectionState.done) {
-            bool _isSigningIn = false;
             return FloatingActionButton.extended(
               backgroundColor: Colors.pink.shade900,
               foregroundColor: Colors.white,
               onPressed: () async {
-                setState(() => _isSigningIn = true);
-
-                User? user = await Authentication.signInWithGoogle(context: context);
-
-                setState(() => _isSigningIn = false);
-
-                if (user != null) {
-                  Navigator.of(context).pushReplacement(
-                    MaterialPageRoute(
-                      builder: (context) => HomeScreen(
-                        user: user,
-                        title: "Tareas",
-                      ),
-                    ),
-                  );
-                }
+                await Authentication.signInWithGoogle(context: context);
+                setState(() {});
               },
               icon: Icon(MdiIcons.google),
               label: Text('ACCEDER'),
