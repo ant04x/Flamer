@@ -1,6 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flamer/utils/materialize_icon.dart';
 import 'package:flutter/material.dart';
+import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 
 class CreateTagDialog extends StatefulWidget {
   CreateTagDialog({Key? key, required User user}) : _user = user, super(key: key);
@@ -13,12 +15,17 @@ class CreateTagDialog extends StatefulWidget {
 class _CreateTagDialogState extends State<CreateTagDialog> {
   int? _iconValue = 0;
   final myController = TextEditingController();
+
+  // late final List<String> listExample;
+  late final List<String> mapIcons;
+  
   late CollectionReference tags;
 
   @override
   void initState() {
     tags = FirebaseFirestore.instance.collection('tags/').doc('${widget._user.uid}').collection('tags/');
-
+    // listExample = List<String>.generate(100, (i) => "Item $i");
+    mapIcons = MdiIcons.getIconsName();
     super.initState();
   }
 
@@ -63,270 +70,41 @@ class _CreateTagDialogState extends State<CreateTagDialog> {
                       return  AlertDialog(
                         title: Text('Icono'),
                         titlePadding: EdgeInsets.all(20.0),
-                        insetPadding: EdgeInsets.symmetric(vertical: 200),
+                        insetPadding: EdgeInsets.symmetric(vertical: 4),
                         contentPadding: EdgeInsets.symmetric(horizontal: 0),
-                        content: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Divider(
-                              height: 1.0,
-                              color: Colors.grey,
-                            ),
-                            Expanded(
-                              child: SingleChildScrollView(
-                                child: Column(
-                                    mainAxisAlignment: MainAxisAlignment.start,
-                                    children: [
-                                      ListBody(
-                                        children: [
-                                          ListTile(
-                                            title: Text('List item 1'),
-                                            leading: Icon(Icons.label),
-                                            trailing: Radio(
-                                              value: 1,
-                                              groupValue: _iconValue,
-                                              onChanged: (dynamic value) {
-                                                setState() {
-                                                  _iconValue = value;
-                                                }
-                                              },
-                                            ),
-                                          ),
-                                          ListTile(
-                                            title: Text('List item 1'),
-                                            leading: Icon(Icons.label),
-                                            trailing: Radio(
-                                              value: 1,
-                                              groupValue: _iconValue,
-                                              onChanged: (dynamic value) {
-                                                setState() {
-                                                  _iconValue = value;
-                                                }
-                                              },
-                                            ),
-                                          ),
-                                          ListTile(
-                                            title: Text('List item 1'),
-                                            leading: Icon(Icons.label),
-                                            trailing: Radio(
-                                              value: 1,
-                                              groupValue: _iconValue,
-                                              onChanged: (dynamic value) {
-                                                setState() {
-                                                  _iconValue = value;
-                                                }
-                                              },
-                                            ),
-                                          ),
-                                          ListTile(
-                                            title: Text('List item 1'),
-                                            leading: Icon(Icons.label),
-                                            trailing: Radio(
-                                              value: 1,
-                                              groupValue: _iconValue,
-                                              onChanged: (dynamic value) {
-                                                setState() {
-                                                  _iconValue = value;
-                                                }
-                                              },
-                                            ),
-                                          ),
-                                          ListTile(
-                                            title: Text('List item 1'),
-                                            leading: Icon(Icons.label),
-                                            trailing: Radio(
-                                              value: 1,
-                                              groupValue: _iconValue,
-                                              onChanged: (dynamic value) {
-                                                setState() {
-                                                  _iconValue = value;
-                                                }
-                                              },
-                                            ),
-                                          ),
-                                          ListTile(
-                                            title: Text('List item 1'),
-                                            leading: Icon(Icons.label),
-                                            trailing: Radio(
-                                              value: 1,
-                                              groupValue: _iconValue,
-                                              onChanged: (dynamic value) {
-                                                setState() {
-                                                  _iconValue = value;
-                                                }
-                                              },
-                                            ),
-                                          ),
-                                          ListTile(
-                                            title: Text('List item 1'),
-                                            leading: Icon(Icons.label),
-                                            trailing: Radio(
-                                              value: 1,
-                                              groupValue: _iconValue,
-                                              onChanged: (dynamic value) {
-                                                setState() {
-                                                  _iconValue = value;
-                                                }
-                                              },
-                                            ),
-                                          ),
-                                          ListTile(
-                                            title: Text('List item 1'),
-                                            leading: Icon(Icons.label),
-                                            trailing: Radio(
-                                              value: 1,
-                                              groupValue: _iconValue,
-                                              onChanged: (dynamic value) {
-                                                setState() {
-                                                  _iconValue = value;
-                                                }
-                                              },
-                                            ),
-                                          ),
-                                          ListTile(
-                                            title: Text('List item 1'),
-                                            leading: Icon(Icons.label),
-                                            trailing: Radio(
-                                              value: 1,
-                                              groupValue: _iconValue,
-                                              onChanged: (dynamic value) {
-                                                setState() {
-                                                  _iconValue = value;
-                                                }
-                                              },
-                                            ),
-                                          ),
-                                          ListTile(
-                                            title: Text('List item 1'),
-                                            leading: Icon(Icons.label),
-                                            trailing: Radio(
-                                              value: 1,
-                                              groupValue: _iconValue,
-                                              onChanged: (dynamic value) {
-                                                setState() {
-                                                  _iconValue = value;
-                                                }
-                                              },
-                                            ),
-                                          ),
-                                          ListTile(
-                                            title: Text('List item 1'),
-                                            leading: Icon(Icons.label),
-                                            trailing: Radio(
-                                              value: 1,
-                                              groupValue: _iconValue,
-                                              onChanged: (dynamic value) {
-                                                setState() {
-                                                  _iconValue = value;
-                                                }
-                                              },
-                                            ),
-                                          ),
-                                          ListTile(
-                                            title: Text('List item 1'),
-                                            leading: Icon(Icons.label),
-                                            trailing: Radio(
-                                              value: 1,
-                                              groupValue: _iconValue,
-                                              onChanged: (dynamic value) {
-                                                setState() {
-                                                  _iconValue = value;
-                                                }
-                                              },
-                                            ),
-                                          ),
-                                          ListTile(
-                                            title: Text('List item 1'),
-                                            leading: Icon(Icons.label),
-                                            trailing: Radio(
-                                              value: 1,
-                                              groupValue: _iconValue,
-                                              onChanged: (dynamic value) {
-                                                setState() {
-                                                  _iconValue = value;
-                                                }
-                                              },
-                                            ),
-                                          ),
-                                          ListTile(
-                                            title: Text('List item 1'),
-                                            leading: Icon(Icons.label),
-                                            trailing: Radio(
-                                              value: 1,
-                                              groupValue: _iconValue,
-                                              onChanged: (dynamic value) {
-                                                setState() {
-                                                  _iconValue = value;
-                                                }
-                                              },
-                                            ),
-                                          ),
-                                          ListTile(
-                                            title: Text('List item 1'),
-                                            leading: Icon(Icons.label),
-                                            trailing: Radio(
-                                              value: 1,
-                                              groupValue: _iconValue,
-                                              onChanged: (dynamic value) {
-                                                setState() {
-                                                  _iconValue = value;
-                                                }
-                                              },
-                                            ),
-                                          ),
-                                          ListTile(
-                                            title: Text('List item 1'),
-                                            leading: Icon(Icons.label),
-                                            trailing: Radio(
-                                              value: 1,
-                                              groupValue: _iconValue,
-                                              onChanged: (dynamic value) {
-                                                setState() {
-                                                  _iconValue = value;
-                                                }
-                                              },
-                                            ),
-                                          ),
-                                          ListTile(
-                                            title: Text('List item 1'),
-                                            leading: Icon(Icons.label),
-                                            trailing: Radio(
-                                              value: 1,
-                                              groupValue: _iconValue,
-                                              onChanged: (dynamic value) {
-                                                setState() {
-                                                  _iconValue = value;
-                                                }
-                                              },
-                                            ),
-                                          ),
-                                          ListTile(
-                                            title: Text('List item 1'),
-                                            leading: Icon(Icons.label),
-                                            trailing: Radio(
-                                              value: 1,
-                                              groupValue: _iconValue,
-                                              onChanged: (dynamic value) {
-                                                setState() {
-                                                  _iconValue = value;
-                                                }
-                                              },
-                                            ),
-                                          ),
-                                        ],
-                                      )
-                                    ]
-                                ),
+                        content: StatefulBuilder(
+                            builder: (BuildContext context, StateSetter setState) {
+                              return SingleChildScrollView(
+                            child: Container(
+                              width: double.maxFinite * 0,
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  ConstrainedBox(
+                                    constraints: BoxConstraints(
+                                      maxHeight: MediaQuery.of(context).size.height * 0.4,
+                                    ),
+                                    child: ListView.builder(
+                                      itemCount: mapIcons.length,
+                                      itemBuilder: (context, index) => TagIconTile(
+                                        index: index,
+                                        doc: mapIcons[index],
+                                        onChanged: (dynamic value) {
+                                          setState(() {
+                                            _iconValue = value;
+                                          });
+                                        },
+                                        groupValue: _iconValue,
+                                      ),
+                                    ),
+                                  )
+                                ],
                               ),
                             ),
-                            Divider(
-                              color: Colors.grey,
-                              height: 1.0,
-                            ),
-                          ],
+                          );
+                            }
                         ),
                         actions: [
-                          Divider(),
                           TextButton(
                             onPressed: () { Navigator.of(context).pop(); },
                             child: Text('CANCELAR'),
@@ -368,5 +146,39 @@ class _CreateTagDialogState extends State<CreateTagDialog> {
       'icon': 'tag',
       'name': name
     });
+  }
+}
+
+class TagIconTile extends StatefulWidget {
+  TagIconTile({
+    Key? key,
+    required this.doc,
+    required this.index,
+    required this.groupValue,
+    this.onChanged,
+  }) : super(key: key);
+
+  final String doc;
+  final int index;
+  final Object? groupValue;
+  final void Function(Object?)? onChanged;
+
+  @override
+  _TagIconTileState createState() => _TagIconTileState();
+}
+
+class _TagIconTileState extends State<TagIconTile> {
+
+  @override
+  Widget build(BuildContext context) {
+    return ListTile(
+      title: Text(widget.doc),
+      leading: Icon(MdiIcons.fromString(widget.doc)),
+      trailing: Radio(
+        value: widget.index,
+        groupValue: widget.groupValue,
+        onChanged: widget.onChanged,
+      ),
+    );
   }
 }
