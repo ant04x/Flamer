@@ -1,6 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flamer/utils/materialize_icon.dart';
 import 'package:flutter/material.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 
@@ -13,12 +12,14 @@ class CreateTagDialog extends StatefulWidget {
 }
 
 class _CreateTagDialogState extends State<CreateTagDialog> {
-  int? _iconValue = 0;
+  int _iconValue = 5278;
+  int _iconValueBack = 5278;
+  late Icon tagIcon;
+
   final myController = TextEditingController();
 
   // late final List<String> listExample;
   late final List<String> mapIcons;
-  
   late CollectionReference tags;
 
   @override
@@ -26,6 +27,7 @@ class _CreateTagDialogState extends State<CreateTagDialog> {
     tags = FirebaseFirestore.instance.collection('tags/').doc('${widget._user.uid}').collection('tags/');
     // listExample = List<String>.generate(100, (i) => "Item $i");
     mapIcons = MdiIcons.getIconsName();
+    tagIcon = Icon(MdiIcons.fromString(mapIcons[5278]));
     super.initState();
   }
 
@@ -48,7 +50,7 @@ class _CreateTagDialogState extends State<CreateTagDialog> {
             child: TextButton(
               style: TextButton.styleFrom(primary: Colors.white),
               onPressed: () {
-                addTag(myController.text);
+                addTag(myController.text, mapIcons[_iconValueBack]);
                 Navigator.of(context).pop();
               },
               child: Text("GUARDAR"),
@@ -62,7 +64,7 @@ class _CreateTagDialogState extends State<CreateTagDialog> {
           children: <Widget>[
             IconButton(
               padding: EdgeInsets.only(left: 0),
-              icon: const Icon(Icons.tag_faces),
+              icon: tagIcon,
               onPressed: () {
                 showDialog(
                     context: context,
@@ -80,6 +82,10 @@ class _CreateTagDialogState extends State<CreateTagDialog> {
                               child: Column(
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
+                                  Divider(
+                                    height: 1.0,
+                                    color: Colors.grey,
+                                  ),
                                   ConstrainedBox(
                                     constraints: BoxConstraints(
                                       maxHeight: MediaQuery.of(context).size.height * 0.4,
@@ -97,7 +103,11 @@ class _CreateTagDialogState extends State<CreateTagDialog> {
                                         groupValue: _iconValue,
                                       ),
                                     ),
-                                  )
+                                  ),
+                                  Divider(
+                                    height: 1.0,
+                                    color: Colors.grey,
+                                  ),
                                 ],
                               ),
                             ),
@@ -106,11 +116,23 @@ class _CreateTagDialogState extends State<CreateTagDialog> {
                         ),
                         actions: [
                           TextButton(
-                            onPressed: () { Navigator.of(context).pop(); },
+                            onPressed: () {
+                              Navigator.of(context).pop();
+                              setState(() {
+                                _iconValue = _iconValueBack;
+                              });
+                            },
                             child: Text('CANCELAR'),
                           ),
                           TextButton(
-                            onPressed: () { Navigator.of(context).pop(); },
+                            onPressed: () {
+                              Navigator.of(context).pop();
+                              setState(() {
+                                _iconValueBack = _iconValue;
+                                print('VALUE => $_iconValueBack');
+                                tagIcon = Icon(MdiIcons.fromString(mapIcons[_iconValue]));
+                              });
+                            },
                             child: Text('ACEPTAR'),
                           ),
                         ],
@@ -141,9 +163,9 @@ class _CreateTagDialogState extends State<CreateTagDialog> {
     );
   }
 
-  Future<void> addTag(String name) {
+  Future<void> addTag(String name, String icon) {
     return tags.add({
-      'icon': 'tag',
+      'icon': icon,
       'name': name
     });
   }

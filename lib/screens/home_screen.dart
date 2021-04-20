@@ -373,7 +373,7 @@ class _TagWidgetState extends State<TagWidget> {
   @override
   Widget build(BuildContext context) {
     return ListTile(
-      leading: Icon(Icons.all_inbox),
+      leading: Icon(MdiIcons.fromString(widget.doc['icon'])),
       title: Text(widget.doc['name']),
       selected: widget.selected,
       onTap: widget.onTab,
