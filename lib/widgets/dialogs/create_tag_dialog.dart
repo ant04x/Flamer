@@ -1,13 +1,33 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 class CreateTagDialog extends StatefulWidget {
+  CreateTagDialog({Key? key, required User user}) : _user = user, super(key: key);
 
+  final User _user;
   @override
   _CreateTagDialogState createState() => _CreateTagDialogState();
 }
 
 class _CreateTagDialogState extends State<CreateTagDialog> {
   int? _iconValue = 0;
+  final myController = TextEditingController();
+  late CollectionReference tags;
+
+  @override
+  void initState() {
+    tags = FirebaseFirestore.instance.collection('tags/').doc('${widget._user.uid}').collection('tags/');
+
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    // Clean up the controller when the widget is disposed.
+    myController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -21,7 +41,8 @@ class _CreateTagDialogState extends State<CreateTagDialog> {
             child: TextButton(
               style: TextButton.styleFrom(primary: Colors.white),
               onPressed: () {
-                // Respond to button press
+                addTag(myController.text);
+                Navigator.of(context).pop();
               },
               child: Text("GUARDAR"),
             ),
@@ -323,6 +344,7 @@ class _CreateTagDialogState extends State<CreateTagDialog> {
             Expanded(
               child: TextFormField(
                 autofocus: true,
+                controller: myController,
                 decoration: InputDecoration(
                   filled: true,
                   labelText: 'Título',
@@ -339,5 +361,12 @@ class _CreateTagDialogState extends State<CreateTagDialog> {
         ),
       ),
     );
+  }
+
+  Future<void> addTag(String name) {
+    return tags.add({
+      'icon': 'tag',
+      'name': name
+    });
   }
 }

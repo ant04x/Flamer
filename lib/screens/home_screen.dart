@@ -1,4 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flamer/models/task.dart';
 import 'package:flamer/screens/settings_screen.dart';
 import 'package:flamer/screens/sign_in_screen.dart';
@@ -38,10 +39,14 @@ class _HomeScreenState extends State<HomeScreen> {
   bool? _task3 = false;
   int _selectedDestination = 0;
 
+  FirebaseFirestore firestore = FirebaseFirestore.instance;
+  late CollectionReference tags;
+  // Stream documentStream = FirebaseFirestore.instance.collection('users').doc('ABC123').snapshots();
+
   @override
   void initState() {
     _user = widget._user;
-
+    tags = FirebaseFirestore.instance.collection('tags/').doc('${widget._user.uid}').collection('tags/');
     super.initState();
   }
 
@@ -244,47 +249,21 @@ class _HomeScreenState extends State<HomeScreen> {
                     'Etiquetas',
                   ),
                 ),
-                ListTile(
-                  leading: Icon(Icons.all_inbox),
-                  title: Text('Tareas'),
-                  selected: _selectedDestination == 0,
-                  onTap: () => selectDestination(0),
-                ),
-                ListTile(
-                  leading: Icon(Icons.lightbulb),
-                  title: Text('PSP'),
-                  selected: _selectedDestination == 1,
-                  onTap: () => selectDestination(1),
-                ),
-                ListTile(
-                  leading: Icon(Icons.vpn_key),
-                  title: Text('ADA'),
-                  selected: _selectedDestination == 2,
-                  onTap: () => selectDestination(2),
-                ),
-                ListTile(
-                  leading: Icon(Icons.desktop_windows),
-                  title: Text('PMDM'),
-                  selected: _selectedDestination == 3,
-                  onTap: () => selectDestination(3),
-                ),
-                ListTile(
-                  leading: Icon(Icons.book),
-                  title: Text('SGE'),
-                  selected: _selectedDestination == 4,
-                  onTap: () => selectDestination(4),
-                ),
-                ListTile(
-                  leading: Icon(Icons.web_asset),
-                  title: Text('DIN'),
-                  selected: _selectedDestination == 5,
-                  onTap: () => selectDestination(5),
-                ),
-                ListTile(
-                  leading: Icon(Icons.location_city),
-                  title: Text('ING'),
-                  selected: _selectedDestination == 6,
-                  onTap: () => selectDestination(6),
+                StreamBuilder<QuerySnapshot>(
+                  stream: tags.snapshots(),
+                  builder: (context, snapshot) {
+                    if (!snapshot.hasData) return const CircularProgressIndicator();
+                    return ListView.builder(
+                      shrinkWrap: true,
+                      itemCount: snapshot.data!.docs.length,
+                      itemBuilder: (context, index) => TagWidget(
+                          context: context,
+                          doc: snapshot.data!.docs[index],
+                          onTab: () => selectDestination(index),
+                          selected: _selectedDestination == index,
+                      ),
+                    );
+                  },
                 ),
                 Divider(
                   height: 1,
@@ -305,7 +284,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     Navigator.push(
                       context,
                       MaterialPageRoute<void>(
-                        builder: (BuildContext context) => CreateTagDialog(),
+                        builder: (BuildContext context) => CreateTagDialog(user: widget._user,),
                         fullscreenDialog: true,
                       ),
                     );
@@ -358,5 +337,46 @@ class _HomeScreenState extends State<HomeScreen> {
     var result = '';
     names.forEach((element) { result += String.fromCharCode(element.runes.first); });
     return result.toUpperCase();
+  }
+}
+
+
+class TagWidget extends StatefulWidget {
+
+  TagWidget({
+    Key? key,
+    required this.context,
+    required this.doc,
+    this.selected = false,
+    this.onTab,
+  }) : super(key: key);
+
+  // This widget is the home page of your application. It is stateful, meaning
+  // that it has a State object (defined below) that contains fields that affect
+  // how it looks.
+
+  // This class is the configuration for the state. It holds the values (in this
+  // case the title) provided by the parent (in this case the App widget) and
+  // used by the build method of the State. Fields in a Widget subclass are
+  // always marked "final".
+
+  final BuildContext context;
+  final DocumentSnapshot doc;
+  final bool selected;
+  final void Function()? onTab;
+
+  @override
+  _TagWidgetState createState() => _TagWidgetState();
+}
+
+class _TagWidgetState extends State<TagWidget> {
+  @override
+  Widget build(BuildContext context) {
+    return ListTile(
+      leading: Icon(Icons.all_inbox),
+      title: Text(widget.doc['name']),
+      selected: widget.selected,
+      onTap: widget.onTab,
+    );
   }
 }
