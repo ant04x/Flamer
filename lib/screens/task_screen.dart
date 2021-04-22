@@ -1,12 +1,16 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flamer/models/task.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:flutter/material.dart';
 
 class TaskScreen extends StatefulWidget {
 
-  TaskScreen({Key? key, required task}) : _task = task, super(key: key);
+  TaskScreen({Key? key, required User user, DocumentSnapshot? doc, DocumentSnapshot? parent}) : _user = user, _doc = doc, _parent = parent, super(key: key);
 
-  final Task _task;
+  final User _user;
+  final DocumentSnapshot? _doc;
+  final DocumentSnapshot? _parent;
 
   @override
   _TaskScreenState createState() => _TaskScreenState();
@@ -14,13 +18,34 @@ class TaskScreen extends StatefulWidget {
 
 class _TaskScreenState extends State<TaskScreen> {
 
-  bool? done = false;
+  late bool done;
+  String tagName = 'Todo';
+  String repetitionTask = RepetitionType.none;
+  DateTime? remind;
+
+  late CollectionReference tasks;
+
+  late final myController;
+
+  @override
+  void initState() {
+    tasks = FirebaseFirestore.instance.collection('tasks/').doc('${widget._user.uid}').collection('tasks/');
+
+    if (widget._doc == null) {
+      done = false;
+      myController = TextEditingController();
+    } else {
+      done = widget._doc!['done'];
+      myController = TextEditingController(text: widget._doc!['name']);
+    }
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget._task.name == null ? 'Nueva Tarea' : widget._task.name!),
+        title: Text('Tarea'),
         backgroundColor: Colors.pink.shade900,
       ),
       body: ListView(
@@ -31,7 +56,7 @@ class _TaskScreenState extends State<TaskScreen> {
               children: <Widget>[
                 Expanded(
                   child: TextFormField(
-                    initialValue: widget._task.name,
+                    controller: myController,
                     autofocus: true,
                     decoration: InputDecoration(
                       filled: true,
@@ -50,7 +75,7 @@ class _TaskScreenState extends State<TaskScreen> {
                   child: Checkbox(
                     onChanged: (bool? value) {
                       setState(() {
-                        done = value;
+                        done = value == null ? false : value;
                       });
                     },
                     value: done,
@@ -62,19 +87,25 @@ class _TaskScreenState extends State<TaskScreen> {
           Divider(),
           ListTile(
             title: Text('Etiqueta'),
-            subtitle: Text('ADA'),
+            subtitle: widget._parent != null
+                ? Text(widget._parent!['name'])
+                : tagName != 'Todo' ? Text(tagName) : null ,
             leading: Icon(MdiIcons.tag),
           ),
           Divider(),
           ListTile(
             title: Text('Repetir'),
-            subtitle: Text('Diariamente'),
+            subtitle: widget._parent != null
+                ? Text(widget._parent!['repetition'])
+                : repetitionTask != RepetitionType.none ? Text(repetitionTask) : null ,
             leading: Icon(Icons.repeat),
           ),
           Divider(),
           ListTile(
             title: Text('Aviso'),
-            subtitle: Text('13 de Junio de 2021'),
+            subtitle: widget._parent != null
+                ? Text(widget._parent!['date'])
+                : remind != null ? Text(remind.toString()) : null,
             leading: Icon(Icons.calendar_today),
           ),
           Divider(),
@@ -85,10 +116,38 @@ class _TaskScreenState extends State<TaskScreen> {
         foregroundColor: Colors.white,
         onPressed: () {
           Navigator.pop(context);
+          addTask(
+            myController.text,
+            done,
+            remind == null
+                ? null
+                : Timestamp.fromDate(remind!),
+            repetitionTask,
+            widget._parent,
+          );
         },
         icon: Icon(Icons.cloud_upload),
         label: Text('GUARDAR'),
       ),
     );
   }
+
+  Future<void> addTask(String name, bool done, Timestamp? date, String repetition, DocumentSnapshot? tag) {
+    return tasks.add({
+      'name': name,
+      'done': done,
+      'date': date,
+      'repetition': repetitionTask,
+      'tag': tag?.reference
+    });
+  }
+}
+
+class RepetitionType {
+  static const String none = 'none';
+  static const String daily = 'daily';
+  static const String workdays = 'workdays';
+  static const String weekly = 'weekly';
+  static const String monthly = 'monthly';
+  static const String annually = 'annually';
 }

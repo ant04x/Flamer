@@ -3,16 +3,16 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 
-class CreateTagDialog extends StatefulWidget {
-  CreateTagDialog({Key? key, required User user, DocumentSnapshot? doc}) : _user = user, _doc = doc, super(key: key);
+class TagDialog extends StatefulWidget {
+  TagDialog({Key? key, required User user, DocumentSnapshot? doc}) : _user = user, _doc = doc, super(key: key);
 
   final User _user;
   final DocumentSnapshot? _doc;
   @override
-  _CreateTagDialogState createState() => _CreateTagDialogState();
+  _TagDialogState createState() => _TagDialogState();
 }
 
-class _CreateTagDialogState extends State<CreateTagDialog> {
+class _TagDialogState extends State<TagDialog> {
   late int _iconValue;
   late int _iconValueBack;
   late Icon tagIcon;

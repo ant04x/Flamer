@@ -5,7 +5,7 @@ import 'package:flamer/screens/settings_screen.dart';
 import 'package:flamer/screens/sign_in_screen.dart';
 import 'package:flamer/screens/task_screen.dart';
 import 'package:flamer/utils/authentication.dart';
-import 'package:flamer/widgets/dialogs/create_tag_dialog.dart';
+import 'package:flamer/widgets/dialogs/tag_dialog.dart';
 import 'package:flamer/widgets/dialogs/search_dialog.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:flutter/material.dart';
@@ -34,19 +34,19 @@ class _HomeScreenState extends State<HomeScreen> {
   bool _isSigningOut = false;
 
   int _counter = 0;
-  bool? _task1 = false;
-  bool? _task2 = false;
-  bool? _task3 = false;
+  // bool? _task1 = false;
   int _selectedDestination = 0;
 
   FirebaseFirestore firestore = FirebaseFirestore.instance;
   late CollectionReference tags;
+  late CollectionReference tasks;
   // Stream documentStream = FirebaseFirestore.instance.collection('users').doc('ABC123').snapshots();
 
   @override
   void initState() {
     _user = widget._user;
     tags = FirebaseFirestore.instance.collection('tags/').doc('${widget._user.uid}').collection('tags/');
+    tasks = FirebaseFirestore.instance.collection('tasks/').doc('${widget._user.uid}').collection('tasks/');
     super.initState();
   }
 
@@ -101,88 +101,33 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
         body: TabBarView(
           children: [
-            ListView(
+            StreamBuilder<QuerySnapshot>(
+              stream: tasks.snapshots(),
+              builder: (context, snapshot) {
+                if (!snapshot.hasData) return const CircularProgressIndicator();
+                return ListView.separated(
+                  shrinkWrap: true,
+                  key: PageStorageKey('TabAll'),
+                  itemCount: snapshot.data!.docs.length,
+                  itemBuilder: (context, index) => TaskWidget(
+                    context: context,
+                    col: tasks,
+                    doc: snapshot.data!.docs[index],
+                  ),
+                  separatorBuilder: (BuildContext context, int index) {
+                    return Divider();
+                  },
+                );
+              }
+            ),
+            Column(
               children: [
-                ListTile(
-                  title: Text('Tarea 1'),
-                  trailing: Checkbox(
-                    value: _task1,
-                    onChanged: (value) {
-                      setState(() {
-                        _task1 = value;
-                      });
-                    },
-                  ),
-                ),
-                Divider(),
-                ListTile(
-                  title: Text('Tarea 2'),
-                  trailing: Checkbox(
-                    value: _task2,
-                    onChanged: (value) {
-                      setState(() {
-                        _task2 = value;
-                      });
-                    },
-                  ),
-                ),
-                Divider(),
-                ListTile(
-                  title: Text('Tarea 3'),
-                  trailing: Checkbox(
-                    value: _task3,
-                    onChanged: (value) {
-                      setState(() {
-                        _task3 = value;
-                      });
-                    },
-                  ),
-                ),
-                Divider(),
+
               ],
             ),
-            ListView(
+            Column(
               children: [
-                ListTile(
-                  title: Text('Tarea 3'),
-                  trailing: Checkbox(
-                    value: _task3,
-                    onChanged: (value) {
-                      setState(() {
-                        _task3 = value;
-                      });
-                    },
-                  ),
-                ),
-                Divider(),
-              ],
-            ),
-            ListView(
-              children: [
-                ListTile(
-                  title: Text('Tarea 1'),
-                  trailing: Checkbox(
-                    value: _task1,
-                    onChanged: (value) {
-                      setState(() {
-                        _task1 = value;
-                      });
-                    },
-                  ),
-                ),
-                Divider(),
-                ListTile(
-                  title: Text('Tarea 2'),
-                  trailing: Checkbox(
-                    value: _task2,
-                    onChanged: (value) {
-                      setState(() {
-                        _task2 = value;
-                      });
-                    },
-                  ),
-                ),
-                Divider(),
+
               ],
             ),
           ],
@@ -266,7 +211,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             Navigator.push(
                               context,
                               MaterialPageRoute<void>(
-                                builder: (BuildContext context) => CreateTagDialog(
+                                builder: (BuildContext context) => TagDialog(
                                   user: widget._user,
                                   doc: snapshot.data!.docs[index]
                                 ),
@@ -302,7 +247,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     Navigator.push(
                       context,
                       MaterialPageRoute<void>(
-                        builder: (BuildContext context) => CreateTagDialog(user: widget._user,),
+                        builder: (BuildContext context) => TagDialog(user: widget._user,),
                         fullscreenDialog: true,
                       ),
                     );
@@ -330,9 +275,7 @@ class _HomeScreenState extends State<HomeScreen> {
           onPressed: () {
             Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => TaskScreen(
-                  task: Task(),
-                ))
+                MaterialPageRoute(builder: (context) => TaskScreen(user: _user,))
             );
           },
           icon: Icon(Icons.add),
@@ -355,6 +298,53 @@ class _HomeScreenState extends State<HomeScreen> {
     var result = '';
     names.forEach((element) { result += String.fromCharCode(element.runes.first); });
     return result.toUpperCase();
+  }
+}
+
+class TaskWidget extends StatefulWidget {
+  TaskWidget({
+    Key? key,
+    required this.context,
+    required this.col,
+    required this.doc,
+    this.onTab,
+    this.onEdit,
+    this.onDelete,
+  }) : super(key: key);
+
+  final BuildContext context;
+  final CollectionReference col;
+  final DocumentSnapshot doc;
+  final void Function()? onTab;
+  final void Function()? onEdit;
+  final void Function()? onDelete;
+
+  @override
+  _TaskWidgetState createState() => _TaskWidgetState();
+}
+
+class _TaskWidgetState extends State<TaskWidget> {
+  @override
+  Widget build(BuildContext context) {
+    return ListTile(
+      title: Text(widget.doc['name']),
+      trailing: Checkbox(
+        value: widget.doc['done'],
+        onChanged: (value) {
+          if (value == null) {
+            updateDoneTask(widget.col, widget.doc, false);
+          } else {
+            updateDoneTask(widget.col, widget.doc, value);
+          }
+        },
+      ),
+    );
+  }
+
+  Future<void> updateDoneTask(CollectionReference col, DocumentSnapshot doc, bool done) {
+    return col.doc(doc.id).update({
+      'done': done
+    });
   }
 }
 
