@@ -260,6 +260,24 @@ class _HomeScreenState extends State<HomeScreen> {
                           context: context,
                           doc: snapshot.data!.docs[index],
                           onTab: () => selectDestination(index),
+                          onEdit: () {
+                            Navigator.pop(context);
+                            Navigator.pop(context);
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute<void>(
+                                builder: (BuildContext context) => CreateTagDialog(
+                                  user: widget._user,
+                                  doc: snapshot.data!.docs[index]
+                                ),
+                                fullscreenDialog: true,
+                              ),
+                            );
+                          },
+                          onDelete: () {
+                            Navigator.pop(context);
+                            tags.doc(snapshot.data!.docs[index].id).delete();
+                          },
                           selected: _selectedDestination == index,
                       ),
                     );
@@ -276,7 +294,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                 ),
                 ListTile(
-                  leading: Icon(MdiIcons.tag),
+                  leading: Icon(MdiIcons.tagPlus),
                   title: Text('Crear Etiqueta'),
                   selected: false,
                   onTap: () {
@@ -349,6 +367,8 @@ class TagWidget extends StatefulWidget {
     required this.doc,
     this.selected = false,
     this.onTab,
+    this.onEdit,
+    this.onDelete,
   }) : super(key: key);
 
   // This widget is the home page of your application. It is stateful, meaning
@@ -364,6 +384,8 @@ class TagWidget extends StatefulWidget {
   final DocumentSnapshot doc;
   final bool selected;
   final void Function()? onTab;
+  final void Function()? onEdit;
+  final void Function()? onDelete;
 
   @override
   _TagWidgetState createState() => _TagWidgetState();
@@ -374,6 +396,25 @@ class _TagWidgetState extends State<TagWidget> {
   Widget build(BuildContext context) {
     return ListTile(
       leading: Icon(MdiIcons.fromString(widget.doc['icon'])),
+      trailing: PopupMenuButton(
+        icon: Icon(Icons.more_vert),
+        itemBuilder: (BuildContext context) => <PopupMenuEntry>[
+          PopupMenuItem(
+            child: ListTile(
+              leading: Icon(Icons.edit),
+              title: Text('Editar'),
+              onTap: widget.onEdit,
+            ),
+          ),
+          PopupMenuItem(
+            child: ListTile(
+              leading: Icon(Icons.delete),
+              title: Text('Eliminar'),
+              onTap: widget.onDelete,
+            ),
+          ),
+        ],
+      ),
       title: Text(widget.doc['name']),
       selected: widget.selected,
       onTap: widget.onTab,

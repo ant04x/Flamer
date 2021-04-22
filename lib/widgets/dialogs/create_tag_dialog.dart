@@ -4,16 +4,17 @@ import 'package:flutter/material.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 
 class CreateTagDialog extends StatefulWidget {
-  CreateTagDialog({Key? key, required User user}) : _user = user, super(key: key);
+  CreateTagDialog({Key? key, required User user, DocumentSnapshot? doc}) : _user = user, _doc = doc, super(key: key);
 
   final User _user;
+  final DocumentSnapshot? _doc;
   @override
   _CreateTagDialogState createState() => _CreateTagDialogState();
 }
 
 class _CreateTagDialogState extends State<CreateTagDialog> {
-  int _iconValue = 5278;
-  int _iconValueBack = 5278;
+  late int _iconValue;
+  late int _iconValueBack;
   late Icon tagIcon;
 
   final myController = TextEditingController();
@@ -27,7 +28,16 @@ class _CreateTagDialogState extends State<CreateTagDialog> {
     tags = FirebaseFirestore.instance.collection('tags/').doc('${widget._user.uid}').collection('tags/');
     // listExample = List<String>.generate(100, (i) => "Item $i");
     mapIcons = MdiIcons.getIconsName();
-    tagIcon = Icon(MdiIcons.fromString(mapIcons[5278]));
+    if (widget._doc == null) {
+      tagIcon = Icon(MdiIcons.fromString(mapIcons[5278]));
+      _iconValue = 5278;
+    } else {
+      tagIcon = Icon(MdiIcons.fromString(widget._doc!['icon']));
+      _iconValue = mapIcons.indexOf(widget._doc!['icon']);
+      myController.text = widget._doc!['name'];
+    }
+    _iconValueBack = _iconValue;
+
     super.initState();
   }
 
@@ -43,17 +53,15 @@ class _CreateTagDialogState extends State<CreateTagDialog> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.pink.shade900,
-        title: Text('Crear Etiqueta'),
+        title: Text('Etiqueta'),
         actions: [
           Padding(
             padding: EdgeInsets.symmetric(horizontal: 16),
-            child: TextButton(
-              style: TextButton.styleFrom(primary: Colors.white),
+            child: IconButton(
+              icon: const Icon(Icons.delete),
               onPressed: () {
-                addTag(myController.text, mapIcons[_iconValueBack]);
                 Navigator.of(context).pop();
               },
-              child: Text("GUARDAR"),
             ),
           ),
         ],
@@ -160,11 +168,35 @@ class _CreateTagDialogState extends State<CreateTagDialog> {
           ],
         ),
       ),
+      floatingActionButton: FloatingActionButton.extended(
+        backgroundColor: Colors.pink.shade900,
+        foregroundColor: Colors.white,
+        onPressed: () {
+          if (myController.text.isNotEmpty) {
+
+            if (widget._doc == null)
+              addTag(myController.text, mapIcons[_iconValueBack]);
+            else
+              editTag(myController.text, mapIcons[_iconValueBack]);
+
+            Navigator.of(context).pop();
+          }
+        },
+        icon: Icon(Icons.cloud_upload),
+        label: Text('GUARDAR'),
+      ),
     );
   }
 
   Future<void> addTag(String name, String icon) {
     return tags.add({
+      'icon': icon,
+      'name': name
+    });
+  }
+
+  Future<void> editTag(String name, String icon) {
+    return tags.doc(widget._doc!.id).update({
       'icon': icon,
       'name': name
     });
