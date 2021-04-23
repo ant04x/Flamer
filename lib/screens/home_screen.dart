@@ -84,7 +84,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 onPressed: () {
                   Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => SearchDialog())
+                      MaterialPageRoute(builder: (context) => SearchDialog(tasks: tasks,))
                   );
                 },
               ),
@@ -118,6 +118,10 @@ class _HomeScreenState extends State<HomeScreen> {
                     context: context,
                     col: tasks,
                     doc: snapshot.data!.docs[index],
+                    onDelete: () {
+                      Navigator.of(context).pop();
+                      tasks.doc(snapshot.data!.docs[index].id).delete();
+                    },
                   ),
                   separatorBuilder: (BuildContext context, int index) {
                     return Divider();
@@ -139,6 +143,10 @@ class _HomeScreenState extends State<HomeScreen> {
                       context: context,
                       col: tasks,
                       doc: snapshot.data!.docs[index],
+                      onDelete: () {
+                        Navigator.of(context).pop();
+                        tasks.doc(snapshot.data!.docs[index].id).delete();
+                      },
                     ),
                     separatorBuilder: (BuildContext context, int index) {
                       return Divider();
@@ -160,6 +168,10 @@ class _HomeScreenState extends State<HomeScreen> {
                       context: context,
                       col: tasks,
                       doc: snapshot.data!.docs[index],
+                      onDelete: () {
+                        Navigator.of(context).pop();
+                        tasks.doc(snapshot.data!.docs[index].id).delete();
+                      },
                     ),
                     separatorBuilder: (BuildContext context, int index) {
                       return Divider();
@@ -404,6 +416,27 @@ class _TaskWidgetState extends State<TaskWidget> {
           }
         },
       ),
+      onLongPress: () {
+        showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return  AlertDialog(
+                title: Text('¿Borrar ${widget.doc['name']}?'),
+                content: Text('Se eliminará permanentemente de tu lista de tareas y etiquetas.'),
+                actions: [
+                  TextButton(
+                    onPressed: () => Navigator.pop(context),
+                    child: Text('CANCELAR'),
+                  ),
+                  TextButton(
+                    onPressed: widget.onDelete,
+                    child: Text('ACEPTAR'),
+                  ),
+                ],
+              );
+            }
+        );
+      },
     );
   }
 
