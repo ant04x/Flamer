@@ -290,7 +290,31 @@ class _HomeScreenState extends State<HomeScreen> {
                           },
                           onDelete: () {
                             Navigator.pop(context);
-                            tags.doc(snapshot.data!.docs[index].id).delete();
+                            Navigator.pop(context);
+                            showDialog(
+                                context: context,
+                                builder: (BuildContext context) {
+                                  return  AlertDialog(
+                                    title: Text('¿Borrar ${snapshot.data!.docs[index]['name']}?'),
+                                    content: Text('Se eliminará permanentemente esta etiqueta y las tareas contenidas se desetiquetarán.'),
+                                    actions: [
+                                      TextButton(
+                                        onPressed: () {
+                                          Navigator.pop(context);
+                                        },
+                                        child: Text('CANCELAR'),
+                                      ),
+                                      TextButton(
+                                        onPressed: () {
+                                          Navigator.pop(context);
+                                          tags.doc(snapshot.data!.docs[index].id).delete();
+                                        },
+                                        child: Text('ACEPTAR'),
+                                      ),
+                                    ],
+                                  );
+                                }
+                            );
                           },
                           selected: _selectedDestination == index,
                       ),
