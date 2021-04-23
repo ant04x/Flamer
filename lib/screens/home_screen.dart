@@ -7,6 +7,7 @@ import 'package:flamer/screens/task_screen.dart';
 import 'package:flamer/utils/authentication.dart';
 import 'package:flamer/widgets/dialogs/tag_dialog.dart';
 import 'package:flamer/widgets/dialogs/search_dialog.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:flutter/material.dart';
 
@@ -35,9 +36,11 @@ class _HomeScreenState extends State<HomeScreen> {
 
   int _counter = 0;
   // bool? _task1 = false;
-  int _selectedDestination = 0;
+  int _selectedDestination = -1;
 
   FirebaseFirestore firestore = FirebaseFirestore.instance;
+
+  DocumentReference? selTag;
   late CollectionReference tags;
   late CollectionReference tasks;
   // Stream documentStream = FirebaseFirestore.instance.collection('users').doc('ABC123').snapshots();
@@ -102,7 +105,9 @@ class _HomeScreenState extends State<HomeScreen> {
         body: TabBarView(
           children: [
             StreamBuilder<QuerySnapshot>(
-              stream: tasks.snapshots(),
+              stream: _selectedDestination == -1
+                  ? tasks.snapshots()
+                  : tasks.where('tag', isEqualTo: selTag).snapshots(),
               builder: (context, snapshot) {
                 if (!snapshot.hasData) return const CircularProgressIndicator();
                 return ListView.separated(
@@ -120,15 +125,47 @@ class _HomeScreenState extends State<HomeScreen> {
                 );
               }
             ),
-            Column(
-              children: [
-
-              ],
+            StreamBuilder<QuerySnapshot>(
+                stream: _selectedDestination == -1
+                    ? tasks.where('done', isEqualTo: false).snapshots()
+                    : tasks.where('done', isEqualTo: false).where('tag', isEqualTo: selTag).snapshots(),
+                builder: (context, snapshot) {
+                  if (!snapshot.hasData) return const CircularProgressIndicator();
+                  return ListView.separated(
+                    shrinkWrap: true,
+                    key: PageStorageKey('TabPending'),
+                    itemCount: snapshot.data!.docs.length,
+                    itemBuilder: (context, index) => TaskWidget(
+                      context: context,
+                      col: tasks,
+                      doc: snapshot.data!.docs[index],
+                    ),
+                    separatorBuilder: (BuildContext context, int index) {
+                      return Divider();
+                    },
+                  );
+                }
             ),
-            Column(
-              children: [
-
-              ],
+            StreamBuilder<QuerySnapshot>(
+                stream: _selectedDestination == -1
+                    ? tasks.where('done', isEqualTo: true).snapshots()
+                    : tasks.where('done', isEqualTo: true).where('tag', isEqualTo: selTag).snapshots(),
+                builder: (context, snapshot) {
+                  if (!snapshot.hasData) return const CircularProgressIndicator();
+                  return ListView.separated(
+                    shrinkWrap: true,
+                    key: PageStorageKey('TabDone'),
+                    itemCount: snapshot.data!.docs.length,
+                    itemBuilder: (context, index) => TaskWidget(
+                      context: context,
+                      col: tasks,
+                      doc: snapshot.data!.docs[index],
+                    ),
+                    separatorBuilder: (BuildContext context, int index) {
+                      return Divider();
+                    },
+                  );
+                }
             ),
           ],
         ),
@@ -194,17 +231,37 @@ class _HomeScreenState extends State<HomeScreen> {
                     'Etiquetas',
                   ),
                 ),
+                ListTile(
+                  leading: Icon(Icons.all_inbox),
+                  title: Text('Todo'),
+                  selected: _selectedDestination == -1,
+                  // Al hacer tab establecer nuevo tag
+                  onTap: () {
+                    setState(() {
+                      _selectedDestination = -1;
+                      selTag = null;
+                    });
+                    Navigator.pop(context);
+                  },
+                ),
                 StreamBuilder<QuerySnapshot>(
                   stream: tags.snapshots(),
                   builder: (context, snapshot) {
                     if (!snapshot.hasData) return const CircularProgressIndicator();
+                    Future.delayed(Duration.zero, () async {
+                      updateDestination(snapshot.data!.docs.length);
+                    });
                     return ListView.builder(
                       shrinkWrap: true,
+                      physics: NeverScrollableScrollPhysics(),
                       itemCount: snapshot.data!.docs.length,
                       itemBuilder: (context, index) => TagWidget(
                           context: context,
                           doc: snapshot.data!.docs[index],
-                          onTab: () => selectDestination(index),
+                          onTab: () {
+                            Fluttertoast.showToast(msg: "Cambio $_selectedDestination");
+                            selectDestination(index, snapshot.data!.docs[index].reference);
+                          },
                           onEdit: () {
                             Navigator.pop(context);
                             Navigator.pop(context);
@@ -286,11 +343,20 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  void selectDestination(int index) {
+  void selectDestination(int index, DocumentReference ref) {
     setState(() {
       _selectedDestination = index;
+      selTag = ref;
     });
     Navigator.pop(context);
+  }
+
+  void updateDestination(int length) {
+    if (_selectedDestination >= length)
+      setState(() {
+        _selectedDestination = -1;
+        selTag = null;
+      });
   }
 
   String _nameToInitials(String displayName) {
@@ -407,6 +473,7 @@ class _TagWidgetState extends State<TagWidget> {
       ),
       title: Text(widget.doc['name']),
       selected: widget.selected,
+      // Al hacer tab establecer nuevo tag
       onTap: widget.onTab,
     );
   }
