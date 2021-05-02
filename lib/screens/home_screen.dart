@@ -43,7 +43,6 @@ class _HomeScreenState extends State<HomeScreen> {
   DocumentReference? selTag;
   late CollectionReference tags;
   late CollectionReference tasks;
-  // Stream documentStream = FirebaseFirestore.instance.collection('users').doc('ABC123').snapshots();
 
   @override
   void initState() {
@@ -84,7 +83,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 onPressed: () {
                   Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => SearchDialog(tasks: tasks,))
+                      MaterialPageRoute(builder: (context) => SearchDialog(user: _user, tasks: tasks,))
                   );
                 },
               ),
@@ -104,6 +103,7 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
         body: TabBarView(
           children: [
+            // PENDIENTE
             StreamBuilder<QuerySnapshot>(
               stream: _selectedDestination == -1
                   ? tasks.snapshots()
@@ -118,6 +118,12 @@ class _HomeScreenState extends State<HomeScreen> {
                     context: context,
                     col: tasks,
                     doc: snapshot.data!.docs[index],
+                    onEdit: () {
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => TaskScreen(user: _user, doc: snapshot.data!.docs[index]))
+                      );
+                    },
                     onDelete: () {
                       Navigator.of(context).pop();
                       tasks.doc(snapshot.data!.docs[index].id).delete();
@@ -129,6 +135,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 );
               }
             ),
+            // PENDIENTE
             StreamBuilder<QuerySnapshot>(
                 stream: _selectedDestination == -1
                     ? tasks.where('done', isEqualTo: false).snapshots()
@@ -143,6 +150,12 @@ class _HomeScreenState extends State<HomeScreen> {
                       context: context,
                       col: tasks,
                       doc: snapshot.data!.docs[index],
+                      onEdit: () {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => TaskScreen(user: _user, doc: snapshot.data!.docs[index]))
+                        );
+                      },
                       onDelete: () {
                         Navigator.of(context).pop();
                         tasks.doc(snapshot.data!.docs[index].id).delete();
@@ -154,6 +167,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   );
                 }
             ),
+            // HECHO
             StreamBuilder<QuerySnapshot>(
                 stream: _selectedDestination == -1
                     ? tasks.where('done', isEqualTo: true).snapshots()
@@ -168,6 +182,12 @@ class _HomeScreenState extends State<HomeScreen> {
                       context: context,
                       col: tasks,
                       doc: snapshot.data!.docs[index],
+                      onEdit: () {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => TaskScreen(user: _user, doc: snapshot.data!.docs[index]))
+                        );
+                      },
                       onDelete: () {
                         Navigator.of(context).pop();
                         tasks.doc(snapshot.data!.docs[index].id).delete();
@@ -440,6 +460,7 @@ class _TaskWidgetState extends State<TaskWidget> {
           }
         },
       ),
+      onTap: widget.onEdit,
       onLongPress: () {
         showDialog(
             context: context,

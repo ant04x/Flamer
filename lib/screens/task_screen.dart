@@ -6,11 +6,10 @@ import 'package:flutter/material.dart';
 
 class TaskScreen extends StatefulWidget {
 
-  TaskScreen({Key? key, required User user, DocumentSnapshot? doc, DocumentSnapshot? parent}) : _user = user, _doc = doc, _parent = parent, super(key: key);
+  TaskScreen({Key? key, required User user, DocumentSnapshot? doc}) : _user = user, _doc = doc, super(key: key);
 
   final User _user;
   final DocumentSnapshot? _doc;
-  final DocumentSnapshot? _parent;
 
   @override
   _TaskScreenState createState() => _TaskScreenState();
@@ -20,16 +19,20 @@ class _TaskScreenState extends State<TaskScreen> {
 
   late bool done;
   String tagName = 'Todo';
+  DocumentReference? tag;
+  DocumentSnapshot? tagSnapshot;
   String repetitionTask = RepetitionType.none;
   DateTime? remind;
 
   late CollectionReference tasks;
+  late CollectionReference tags;
 
   late final myController;
 
   @override
   void initState() {
     tasks = FirebaseFirestore.instance.collection('tasks/').doc('${widget._user.uid}').collection('tasks/');
+    tags = FirebaseFirestore.instance.collection('tags/').doc('${widget._user.uid}').collection('tags/');
 
     if (widget._doc == null) {
       done = false;
@@ -37,6 +40,16 @@ class _TaskScreenState extends State<TaskScreen> {
     } else {
       done = widget._doc!['done'];
       myController = TextEditingController(text: widget._doc!['name']);
+      tag = widget._doc!['tag'];
+      if (tag != null) {
+        getDocumentFromReference(tag!).then((value) {
+          setState(() {
+            tagSnapshot = value;
+          });
+        });
+      }
+      if (widget._doc!['repetition'] != null) repetitionTask = widget._doc!['repetition'];
+      remind = widget._doc!['date'] != null ? DateTime.fromMicrosecondsSinceEpoch(widget._doc!['date'].microsecondsSinceEpoch) : null;
     }
     super.initState();
   }
@@ -85,28 +98,113 @@ class _TaskScreenState extends State<TaskScreen> {
             ),
           ),
           Divider(),
-          ListTile(
-            title: Text('Etiqueta'),
-            subtitle: widget._parent != null
-                ? Text(widget._parent!['name'])
-                : tagName != 'Todo' ? Text(tagName) : null ,
-            leading: Icon(MdiIcons.tag),
+          StreamBuilder<QuerySnapshot>(
+              stream: tags.snapshots(),
+              builder: (context, snapshot) {
+                if (!snapshot.hasData) return Container();
+                return PopupMenuButton<DocumentSnapshot>(
+                  itemBuilder: (context) {
+                    return snapshot.data!.docs.map((item) => PopupMenuItem(
+                      value: item,
+                      child: ListTile(
+                        leading: Icon(MdiIcons.fromString(item['icon'])),
+                        title: Text(item['name']),
+                      ),
+                    )).toList();
+                  },
+                  child: ListTile(
+                    title: Text('Etiqueta'),
+                    subtitle: tagSnapshot != null
+                        ? Text(tagSnapshot!['name'])
+                        : null,
+                    leading: Icon(MdiIcons.tag),
+                    trailing: tagSnapshot != null
+                      ? IconButton(
+                        onPressed: () {
+                            setState(() => tagSnapshot = null);
+                        },
+                        icon: Icon(Icons.close),
+                      )
+                      : null,
+                    ),
+                  onSelected: (value) {
+                    setState(() {
+                      tagSnapshot = value;
+                    });
+                  },
+                );
+              },
           ),
           Divider(),
-          ListTile(
-            title: Text('Repetir'),
-            subtitle: widget._parent != null
-                ? Text(widget._parent!['repetition'])
-                : repetitionTask != RepetitionType.none ? Text(repetitionTask) : null ,
-            leading: Icon(Icons.repeat),
+          PopupMenuButton<String>(
+              child: ListTile(
+                title: Text('Repetir'),
+                subtitle: repetitionTask != RepetitionType.none ? Text(RepetitionType.visualList[repetitionTask]!) : null,
+                leading: Icon(Icons.repeat),
+                trailing: repetitionTask != RepetitionType.none
+                  ? IconButton(
+                    onPressed: () {
+                      setState(() => repetitionTask = RepetitionType.none);
+                    },
+                    icon: Icon(Icons.close),
+                  )
+                  : null,
+              ),
+              itemBuilder: (context) {
+                return RepetitionType.visualList.keys.map((type) => PopupMenuItem<String>(
+                    value: type,
+                    child: Text('${RepetitionType.visualList[type]}')
+                )).toList();
+              },
+              onSelected: (value) {
+                setState(() {
+                  repetitionTask = value;
+                });
+              },
           ),
           Divider(),
           ListTile(
             title: Text('Aviso'),
-            subtitle: widget._parent != null
-                ? Text(widget._parent!['date'])
-                : remind != null ? Text(remind.toString()) : null,
+            subtitle: remind != null
+                ? Text(remind.toString())
+                : null,
+            trailing: remind != null
+                ? IconButton(
+                  onPressed: () {
+                    setState(() => remind = null);
+                  },
+                  icon: Icon(Icons.close),
+                )
+                : null,
             leading: Icon(Icons.calendar_today),
+            onTap: () async {
+
+              DateTime? dateBase = await showDatePicker(
+                context: context,
+                initialDate: remind == null ? DateTime.now() : remind!,
+                firstDate: DateTime.now(),
+                lastDate: DateTime(2040, 12),
+                helpText: 'Día del aviso',
+              );
+              if (dateBase == null) return;
+
+              TimeOfDay? time = await showTimePicker(
+                context: context,
+                initialTime: remind == null ? TimeOfDay(hour: 7, minute: 0) : TimeOfDay(hour: remind!.hour, minute: remind!.minute),
+                helpText: 'Hora del aviso'
+              );
+              if (time == null) return;
+
+              setState(() {
+                remind = DateTime(
+                    dateBase.year,
+                    dateBase.month,
+                    dateBase.day,
+                    time.hour,
+                    time.minute
+                );
+              });
+            },
           ),
           Divider(),
         ],
@@ -116,15 +214,27 @@ class _TaskScreenState extends State<TaskScreen> {
         foregroundColor: Colors.white,
         onPressed: () {
           Navigator.pop(context);
-          addTask(
-            myController.text,
-            done,
-            remind == null
-                ? null
-                : Timestamp.fromDate(remind!),
-            repetitionTask,
-            widget._parent,
-          );
+          if (widget._doc == null) {
+            addTask(
+              myController.text,
+              done,
+              remind == null
+                  ? null
+                  : Timestamp.fromDate(remind!),
+              repetitionTask,
+              tagSnapshot,
+            );
+          } else {
+            updateTask(
+              myController.text,
+              done,
+              remind == null
+                  ? null
+                  : Timestamp.fromDate(remind!),
+              repetitionTask,
+              tagSnapshot,
+            );
+          }
         },
         icon: Icon(Icons.cloud_upload),
         label: Text('GUARDAR'),
@@ -141,6 +251,20 @@ class _TaskScreenState extends State<TaskScreen> {
       'tag': tag?.reference
     });
   }
+
+  Future<DocumentSnapshot> getDocumentFromReference(DocumentReference ref) async {
+    return await ref.get();
+  }
+
+  Future<void> updateTask(String name, bool done, Timestamp? date, String repetition, DocumentSnapshot? tag) {
+    return widget._doc!.reference.update({
+      'name': name,
+      'done': done,
+      'date': date,
+      'repetition': repetitionTask,
+      'tag': tag?.reference
+    });
+  }
 }
 
 class RepetitionType {
@@ -150,4 +274,11 @@ class RepetitionType {
   static const String weekly = 'weekly';
   static const String monthly = 'monthly';
   static const String annually = 'annually';
+  static const Map<String, String> visualList = {
+    'daily': 'A diario',
+    'workdays': 'Días laborales',
+    'weekly': 'Semanalmante',
+    'monthly': 'Mensualmente',
+    'annually': 'Anualmente',
+  };
 }

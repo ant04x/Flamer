@@ -1,11 +1,14 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flamer/screens/home_screen.dart';
+import 'package:flamer/screens/task_screen.dart';
 import 'package:flutter/material.dart';
 
 class SearchDialog extends StatefulWidget {
-  SearchDialog({Key? key, required CollectionReference tasks}) : _tasks = tasks, super(key: key);
+  SearchDialog({Key? key, required CollectionReference tasks, required User user}) : _tasks = tasks, _user = user, super(key: key);
 
   final CollectionReference _tasks;
+  final User _user;
 
   @override
   _SearchDialogState createState() => _SearchDialogState();
@@ -74,6 +77,16 @@ class _SearchDialogState extends State<SearchDialog> {
                 context: context,
                 col: widget._tasks,
                 doc: snapshot.data!.docs[index],
+                onEdit: () {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => TaskScreen(user: widget._user, doc: snapshot.data!.docs[index]))
+                  );
+                },
+                onDelete: () {
+                  Navigator.of(context).pop();
+                  widget._tasks.doc(snapshot.data!.docs[index].id).delete();
+                },
               ),
               separatorBuilder: (BuildContext context, int index) {
                 return Divider();
