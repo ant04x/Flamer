@@ -1,6 +1,7 @@
 {
   "project_info": {
     "project_number": "505657173480",
+    "firebase_url": "https://flamer-89f12-default-rtdb.firebaseio.com",
     "project_id": "flamer-89f12",
     "storage_bucket": "flamer-89f12.appspot.com"
   },
@@ -13,6 +14,14 @@
         }
       },
       "oauth_client": [
+        {
+          "client_id": "505657173480-1facp7ckf0sg6om9cnkdnmml6qpei9i2.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "io.ant04x.flamer",
+            "certificate_hash": "c7bcd963e8d74f25a079e708f74ecf498d399f8f"
+          }
+        },
         {
           "client_id": "505657173480-lm8snj1b1ple9r9qbp81fsav0pnfdrmi.apps.googleusercontent.com",
           "client_type": 3
