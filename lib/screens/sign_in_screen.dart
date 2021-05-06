@@ -1,5 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flamer/utils/authentication.dart';
+import 'package:flamer/utils/messaging.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:flutter/material.dart';
@@ -65,7 +67,9 @@ class _SignInScreenState extends State<SignInScreen> {
               backgroundColor: Colors.pink.shade900,
               foregroundColor: Colors.white,
               onPressed: () async {
-                await Authentication.signInWithGoogle(context: context);
+                User? user = await Authentication.signInWithGoogle(context: context);
+                await Messaging.subscribeNotifications(user);
+                print('Notificaciones inicializadas.');
                 setState(() {});
               },
               icon: Icon(MdiIcons.google),

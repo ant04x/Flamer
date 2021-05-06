@@ -5,6 +5,7 @@ import 'package:flamer/screens/settings_screen.dart';
 import 'package:flamer/screens/sign_in_screen.dart';
 import 'package:flamer/screens/task_screen.dart';
 import 'package:flamer/utils/authentication.dart';
+import 'package:flamer/utils/messaging.dart';
 import 'package:flamer/widgets/dialogs/tag_dialog.dart';
 import 'package:flamer/widgets/dialogs/search_dialog.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -242,6 +243,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                   setState(() {
                                     _isSigningOut = false;
                                   });
+                                  await Messaging.unsubscribeNotifications(_user);
+                                  print('Notificaciones cerradas');
                                   Navigator.of(context).pop();
                                   Navigator.of(context).pushReplacement(
                                       PageRouteBuilder(

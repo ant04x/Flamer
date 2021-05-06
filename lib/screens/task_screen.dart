@@ -159,6 +159,8 @@ class _TaskScreenState extends State<TaskScreen> {
               onSelected: (value) {
                 setState(() {
                   repetitionTask = value;
+                  if (remind == null)
+                    remind = DateTime.now().add(Duration(days: 1));
                 });
               },
           ),
@@ -171,7 +173,10 @@ class _TaskScreenState extends State<TaskScreen> {
             trailing: remind != null
                 ? IconButton(
                   onPressed: () {
-                    setState(() => remind = null);
+                    setState(() {
+                      remind = null;
+                      repetitionTask = RepetitionType.none;
+                    });
                   },
                   icon: Icon(Icons.close),
                 )
@@ -181,7 +186,7 @@ class _TaskScreenState extends State<TaskScreen> {
 
               DateTime? dateBase = await showDatePicker(
                 context: context,
-                initialDate: remind == null ? DateTime.now() : remind!,
+                initialDate: remind == null ? DateTime.now().add(Duration(days: 1)) : remind!,
                 firstDate: DateTime.now(),
                 lastDate: DateTime(2040, 12),
                 helpText: 'Día del aviso',
@@ -223,6 +228,9 @@ class _TaskScreenState extends State<TaskScreen> {
                   : Timestamp.fromDate(remind!),
               repetitionTask,
               tagSnapshot,
+              remind == null
+                  ? false
+                  : true,
             );
           } else {
             updateTask(
@@ -242,13 +250,14 @@ class _TaskScreenState extends State<TaskScreen> {
     );
   }
 
-  Future<void> addTask(String name, bool done, Timestamp? date, String repetition, DocumentSnapshot? tag) {
+  Future<void> addTask(String name, bool done, Timestamp? date, String repetition, DocumentSnapshot? tag, bool scheduled) {
     return tasks.add({
       'name': name,
       'done': done,
       'date': date,
       'repetition': repetitionTask,
-      'tag': tag?.reference
+      'tag': tag?.reference,
+      'scheduled': scheduled
     });
   }
 
@@ -257,12 +266,18 @@ class _TaskScreenState extends State<TaskScreen> {
   }
 
   Future<void> updateTask(String name, bool done, Timestamp? date, String repetition, DocumentSnapshot? tag) {
+
+    bool scheduled = false;
+    if (date != null && date.millisecondsSinceEpoch > Timestamp.now().millisecondsSinceEpoch)
+      scheduled = true;
+
     return widget._doc!.reference.update({
       'name': name,
       'done': done,
       'date': date,
       'repetition': repetitionTask,
-      'tag': tag?.reference
+      'tag': tag?.reference,
+      'scheduled': scheduled
     });
   }
 }
