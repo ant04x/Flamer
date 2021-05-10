@@ -50,3 +50,5 @@ información acerca de las funcionalidades de Flamer.
 Proyecto licenciado bajo los términos y condiciones de la licencia [MIT](LICENSE).
 
 Flamer, sus iconos y logotipos son marcas de [Antonio Izquierdo Álvarez](https://github.com/ant04x).
+
+Command for build => flutter build apk --split-per-abi --no-tree-shake-icons

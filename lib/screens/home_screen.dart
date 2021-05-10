@@ -331,6 +331,10 @@ class _HomeScreenState extends State<HomeScreen> {
                                         onPressed: () {
                                           Navigator.pop(context);
                                           tags.doc(snapshot.data!.docs[index].id).delete();
+                                          setState(() {
+                                            _selectedDestination = -1;
+                                            selTag = null;
+                                          });
                                         },
                                         child: Text('ACEPTAR'),
                                       ),
