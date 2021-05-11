@@ -32,6 +32,7 @@ dependencies:
   url_launcher: ^6.0.3
   firebase_core: ^1.0.3
   firebase_auth: ^1.1.0
+  firebase_auth_web: ^1.1.2
   google_sign_in: ^5.0.2 # Puede que falte
   flutter_svg: ^0.21.0+1 # Sin soporte web
   cloud_firestore: ^1.0.5

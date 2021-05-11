@@ -17,6 +17,9 @@
   <meta content="IE=Edge" http-equiv="X-UA-Compatible">
   <meta name="description" content="A new Flutter project.">
 
+  <script src="https://apis.google.com/js/platform.js" async defer></script>
+  <meta name="google-signin-client_id" content="505657173480-lm8snj1b1ple9r9qbp81fsav0pnfdrmi.apps.googleusercontent.com" />
+
   <!-- iOS meta tags & icons -->
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black">
@@ -30,10 +33,9 @@
   <link rel="manifest" href="manifest.json">
 </head>
 <body>
-  <script src="https://www.gstatic.com/firebasejs/8.4.1/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.4.1/firebase-auth.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.4.1/firebase-firestore.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.4.1/firebase-messaging.js"></script>
+
+  <!-- The core Firebase JS SDK is always required and must be listed first -->
+  <script src="https://www.gstatic.com/firebasejs/8.5.0/firebase-app.js"></script>
 
   <!-- This script installs service_worker.js to provide PWA functionality to
        application. For more information, see:
@@ -45,6 +47,32 @@
       });
     }
   </script>
+
+  <!-- Add SDKs for Firebase products that you want to use
+       https://firebase.google.com/docs/web/setup#available-libraries -->
+  <script src="https://www.gstatic.com/firebasejs/8.4.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.4.1/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.4.1/firebase-firestore.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.4.1/firebase-messaging.js"></script>
+
+  <script>
+    // Your web app's Firebase configuration
+    // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+    var firebaseConfig = {
+      apiKey: "AIzaSyAXHhbN1UukQ8krXPRbLcQlTe5sSy2D0H8",
+      authDomain: "flamer-89f12.firebaseapp.com",
+      databaseURL: "https://flamer-89f12-default-rtdb.firebaseio.com",
+      projectId: "flamer-89f12",
+      storageBucket: "flamer-89f12.appspot.com",
+      messagingSenderId: "505657173480",
+      appId: "1:505657173480:web:35ba35eab60fe3cd2db05d",
+      measurementId: "G-D5J4VP3BVQ"
+    };
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+    // firebase.analytics();
+  </script>
+
   <script src="main.dart.js" type="application/javascript"></script>
 </body>
 </html>
