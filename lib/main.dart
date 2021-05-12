@@ -1,8 +1,7 @@
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flamer/screens/splash_screen.dart';
 import 'package:flutter/material.dart';
 
-void main() async {
+main() async {
   WidgetsFlutterBinding.ensureInitialized();
   runApp(App());
 }
