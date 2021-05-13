@@ -8,7 +8,7 @@ import 'package:flamer/utils/authentication.dart';
 import 'package:flamer/utils/messaging.dart';
 import 'package:flamer/widgets/dialogs/tag_dialog.dart';
 import 'package:flamer/widgets/dialogs/search_dialog.dart';
-import 'package:fluttertoast/fluttertoast.dart';
+// import 'package:fluttertoast/fluttertoast.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:flutter/material.dart';
 
@@ -294,7 +294,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           context: context,
                           doc: snapshot.data!.docs[index],
                           onTab: () {
-                            Fluttertoast.showToast(msg: "Cambio $_selectedDestination");
+                            // Fluttertoast.showToast(msg: "Cambio $_selectedDestination");
                             selectDestination(index, snapshot.data!.docs[index].reference);
                           },
                           onEdit: () {
