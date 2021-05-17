@@ -11,13 +11,13 @@ class _SplashScreenState extends State<SplashScreen> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final textTheme = theme.textTheme;
-
+    final GlobalKey<ScaffoldMessengerState> scaffoldMessengerKey = GlobalKey<ScaffoldMessengerState>();
     return FutureBuilder(
+      key: scaffoldMessengerKey,
       future: Authentication.accessFirebase(context: context),
       builder: (context, snapshot) {
         if (snapshot.hasError) {
-          final GlobalKey<ScaffoldMessengerState> scaffoldMessengerKey = GlobalKey<ScaffoldMessengerState>();
-          scaffoldMessengerKey.currentState!.showSnackBar(
+          /*scaffoldMessengerKey.currentState!.showSnackBar(
               SnackBar(
                 behavior: SnackBarBehavior.floating,
                 content: Text('Error initializing Firebase'),
@@ -26,11 +26,13 @@ class _SplashScreenState extends State<SplashScreen> {
                   onPressed: () => scaffoldMessengerKey.currentState!.hideCurrentSnackBar(),
                 ),
               )
-          );
+          );*/
+          print('ERROR ACCEDIENDO A DISPOSITIVO REGISTRADO.');
           return CircularProgressIndicator();
         }
         // SplashScreen
         return Scaffold(
+          // key: scaffoldMessengerKey,
           body: Column(
             children: [
               Expanded(

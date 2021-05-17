@@ -5,9 +5,11 @@ import 'package:flamer/screens/settings_screen.dart';
 import 'package:flamer/screens/sign_in_screen.dart';
 import 'package:flamer/screens/task_screen.dart';
 import 'package:flamer/utils/authentication.dart';
+import 'package:flamer/utils/dark_theme_preference.dart';
 import 'package:flamer/utils/messaging.dart';
 import 'package:flamer/widgets/dialogs/tag_dialog.dart';
 import 'package:flamer/widgets/dialogs/search_dialog.dart';
+import 'package:flutter/services.dart';
 // import 'package:fluttertoast/fluttertoast.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:flutter/material.dart';
@@ -63,341 +65,373 @@ class _HomeScreenState extends State<HomeScreen> {
     // than having to individually change instances of widgets.
     final theme = Theme.of(context);
     final textTheme = theme.textTheme;
-    return DefaultTabController(
-      length: 3,
-      child: Scaffold(
-        appBar: AppBar(
-          leading: Builder(
-            builder: (BuildContext context) {
-              return IconButton(
-                icon: const Icon(Icons.menu),
-                onPressed: () { Scaffold.of(context).openDrawer(); },
-                tooltip: MaterialLocalizations.of(context).openAppDrawerTooltip,
-              );
-            },
-          ),
-          actions: [
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16),
-              child: IconButton(
-                icon: const Icon(Icons.search),
-                onPressed: () {
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => SearchDialog(user: _user, tasks: tasks,))
-                  );
-                },
-              ),
+    ThemeData currentTheme = Theme.of(context);
+    Brightness currentBrightness = currentTheme.brightness;
+    return Theme(
+      data: currentTheme.copyWith(
+        appBarTheme: currentBrightness == Brightness.light
+        ? currentTheme.appBarTheme.copyWith(
+            iconTheme: IconThemeData(
+                color: Colors.white
             ),
-          ],
-          title: Text(widget.title == null ? 'Tareas' : widget.title!),
-          automaticallyImplyLeading: false,
-          backgroundColor: Colors.pink.shade900,
-          bottom: TabBar(
-            indicatorColor: Colors.white,
-            tabs: [
-              Tab(text: 'TODO', icon: Icon(Icons.list_alt)),
-              Tab(text: 'PENDIENTE', icon: Icon(Icons.access_time)),
-              Tab(text: 'HECHO', icon: Icon(Icons.done_all)),
-            ],
-          ),
-        ),
-        body: TabBarView(
-          children: [
-            // PENDIENTE
-            StreamBuilder<QuerySnapshot>(
-              stream: _selectedDestination == -1
-                  ? tasks.snapshots()
-                  : tasks.where('tag', isEqualTo: selTag).snapshots(),
-              builder: (context, snapshot) {
-                if (!snapshot.hasData) return const Center(child: CircularProgressIndicator(),);
-                return ListView.separated(
-                  shrinkWrap: true,
-                  key: PageStorageKey('TabAll'),
-                  itemCount: snapshot.data!.docs.length,
-                  itemBuilder: (context, index) => TaskWidget(
-                    context: context,
-                    col: tasks,
-                    doc: snapshot.data!.docs[index],
-                    onEdit: () {
-                      Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => TaskScreen(user: _user, doc: snapshot.data!.docs[index]))
-                      );
-                    },
-                    onDelete: () {
-                      Navigator.of(context).pop();
-                      tasks.doc(snapshot.data!.docs[index].id).delete();
-                    },
-                  ),
-                  separatorBuilder: (BuildContext context, int index) {
-                    return Divider();
+            backgroundColor: Colors.pink.shade900,
+          )
+        : currentTheme.appBarTheme,
+      ),
+      child: DefaultTabController(
+        length: 3,
+        child: Scaffold(
+          onDrawerChanged: (open) {
+            if (open) {
+              SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
+                statusBarColor: Colors.black38,
+              ));
+            } else {
+              SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
+                statusBarColor: Colors.transparent,
+              ));
+            }
+          },
+          appBar: AppBar(
+            leading: Builder(
+              builder: (BuildContext context) {
+                return IconButton(
+                  icon: const Icon(Icons.menu),
+                  onPressed: () {
+                    Scaffold.of(context).openDrawer();
                   },
+                  tooltip: MaterialLocalizations.of(context).openAppDrawerTooltip,
                 );
-              }
+              },
             ),
-            // PENDIENTE
-            StreamBuilder<QuerySnapshot>(
-                stream: _selectedDestination == -1
-                    ? tasks.where('done', isEqualTo: false).snapshots()
-                    : tasks.where('done', isEqualTo: false).where('tag', isEqualTo: selTag).snapshots(),
-                builder: (context, snapshot) {
-                  if (!snapshot.hasData) return const Center(child: CircularProgressIndicator(),);
-                  return ListView.separated(
-                    shrinkWrap: true,
-                    key: PageStorageKey('TabPending'),
-                    itemCount: snapshot.data!.docs.length,
-                    itemBuilder: (context, index) => TaskWidget(
-                      context: context,
-                      col: tasks,
-                      doc: snapshot.data!.docs[index],
-                      onEdit: () {
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(builder: (context) => TaskScreen(user: _user, doc: snapshot.data!.docs[index]))
-                        );
-                      },
-                      onDelete: () {
-                        Navigator.of(context).pop();
-                        tasks.doc(snapshot.data!.docs[index].id).delete();
-                      },
-                    ),
-                    separatorBuilder: (BuildContext context, int index) {
-                      return Divider();
-                    },
-                  );
-                }
-            ),
-            // HECHO
-            StreamBuilder<QuerySnapshot>(
-                stream: _selectedDestination == -1
-                    ? tasks.where('done', isEqualTo: true).snapshots()
-                    : tasks.where('done', isEqualTo: true).where('tag', isEqualTo: selTag).snapshots(),
-                builder: (context, snapshot) {
-                  if (!snapshot.hasData) return const Center(child: CircularProgressIndicator(),);
-                  return ListView.separated(
-                    shrinkWrap: true,
-                    key: PageStorageKey('TabDone'),
-                    itemCount: snapshot.data!.docs.length,
-                    itemBuilder: (context, index) => TaskWidget(
-                      context: context,
-                      col: tasks,
-                      doc: snapshot.data!.docs[index],
-                      onEdit: () {
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(builder: (context) => TaskScreen(user: _user, doc: snapshot.data!.docs[index]))
-                        );
-                      },
-                      onDelete: () {
-                        Navigator.of(context).pop();
-                        tasks.doc(snapshot.data!.docs[index].id).delete();
-                      },
-                    ),
-                    separatorBuilder: (BuildContext context, int index) {
-                      return Divider();
-                    },
-                  );
-                }
-            ),
-          ],
-        ),
-        drawer: Drawer(
-          child: SafeArea(
-            child: ListView(
-              // Important: Remove any padding from the ListView.
-              padding: EdgeInsets.all(0.0),
-              children: <Widget>[
-                UserAccountsDrawerHeader(
-                  decoration: BoxDecoration(color: theme.scaffoldBackgroundColor),
-                  arrowColor: Colors.black,
-                  accountName: Text(_user.displayName!, style: textTheme.headline6),
-                  accountEmail: Text(_user.email!, style: textTheme.caption),
-                  currentAccountPicture: _user.photoURL != null
-                      ? CircleAvatar(
-                    backgroundImage: NetworkImage(_user.photoURL!),
-                  )
-                      : CircleAvatar(
-                    child: Text(_nameToInitials(_user.displayName!)),
-                    backgroundColor: Colors.deepOrange,
-                  ),
-                  onDetailsPressed: () {
-                    Navigator.pop(context);
-                    showDialog(
-                        context: context,
-                        builder: (BuildContext context) {
-                          return  AlertDialog(
-                            title: Text('Cerrar Sesión'),
-                            content: Text('Para administrar de nuevo tus tareas deberás iniciar sesión después con esta u otra cuenta. ¿Estás seguro de que quieres cerrar sesión?'),
-                            actions: [
-                              TextButton(
-                                onPressed: () => Navigator.pop(context),
-                                child: Text('CANCELAR'),
-                              ),
-                              TextButton(
-                                onPressed: () async {
-                                  setState(() {
-                                    _isSigningOut = true;
-                                  });
-                                  await Authentication.signOut(context: context);
-                                  setState(() {
-                                    _isSigningOut = false;
-                                  });
-                                  await Messaging.unsubscribeNotifications(_user);
-                                  print('Notificaciones cerradas');
-                                  Navigator.of(context).pop();
-                                  Navigator.of(context).pushReplacement(
-                                      PageRouteBuilder(
-                                          pageBuilder: (context, animation, secondaryAnimation) => SignInScreen()
-                                      )
-                                  );
-                                },
-                                child: Text('ACEPTAR'),
-                              ),
-                            ],
-                          );
-                        }
-                    );
-                  },
-                ),
-                Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Text(
-                    'Etiquetas',
-                  ),
-                ),
-                ListTile(
-                  leading: Icon(Icons.all_inbox),
-                  title: Text('Todo'),
-                  selected: _selectedDestination == -1,
-                  // Al hacer tab establecer nuevo tag
-                  onTap: () {
-                    setState(() {
-                      _selectedDestination = -1;
-                      selTag = null;
-                    });
-                    Navigator.pop(context);
-                  },
-                ),
-                StreamBuilder<QuerySnapshot>(
-                  stream: tags.snapshots(),
-                  builder: (context, snapshot) {
-                    if (!snapshot.hasData) return const Center(child: CircularProgressIndicator(),);
-                    Future.delayed(Duration.zero, () async {
-                      updateDestination(snapshot.data!.docs.length);
-                    });
-                    return ListView.builder(
-                      shrinkWrap: true,
-                      physics: NeverScrollableScrollPhysics(),
-                      itemCount: snapshot.data!.docs.length,
-                      itemBuilder: (context, index) => TagWidget(
-                          context: context,
-                          doc: snapshot.data!.docs[index],
-                          onTab: () {
-                            // Fluttertoast.showToast(msg: "Cambio $_selectedDestination");
-                            selectDestination(index, snapshot.data!.docs[index].reference);
-                          },
-                          onEdit: () {
-                            Navigator.pop(context);
-                            Navigator.pop(context);
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute<void>(
-                                builder: (BuildContext context) => TagDialog(
-                                  user: widget._user,
-                                  doc: snapshot.data!.docs[index]
-                                ),
-                                fullscreenDialog: true,
-                              ),
-                            );
-                          },
-                          onDelete: () {
-                            Navigator.pop(context);
-                            Navigator.pop(context);
-                            showDialog(
-                                context: context,
-                                builder: (BuildContext context) {
-                                  return  AlertDialog(
-                                    title: Text('¿Borrar ${snapshot.data!.docs[index]['name']}?'),
-                                    content: Text('Se eliminará permanentemente esta etiqueta y las tareas contenidas se desetiquetarán.'),
-                                    actions: [
-                                      TextButton(
-                                        onPressed: () {
-                                          Navigator.pop(context);
-                                        },
-                                        child: Text('CANCELAR'),
-                                      ),
-                                      TextButton(
-                                        onPressed: () {
-                                          Navigator.pop(context);
-                                          tags.doc(snapshot.data!.docs[index].id).delete();
-                                        },
-                                        child: Text('ACEPTAR'),
-                                      ),
-                                    ],
-                                  );
-                                }
-                            );
-                          },
-                          selected: _selectedDestination == index,
-                      ),
-                    );
-                  },
-                ),
-                Divider(
-                  height: 1,
-                  thickness: 1,
-                ),
-                Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Text(
-                    'Acciones',
-                  ),
-                ),
-                ListTile(
-                  leading: Icon(MdiIcons.tagPlus),
-                  title: Text('Crear Etiqueta'),
-                  selected: false,
-                  onTap: () {
-                    Navigator.pop(context);
+            actions: [
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: 16),
+                child: IconButton(
+                  icon: const Icon(Icons.search),
+                  onPressed: () {
                     Navigator.push(
-                      context,
-                      MaterialPageRoute<void>(
-                        builder: (BuildContext context) => TagDialog(user: widget._user,),
-                        fullscreenDialog: true,
-                      ),
+                        context,
+                        MaterialPageRoute(builder: (context) => SearchDialog(user: _user, tasks: tasks,))
                     );
                   },
                 ),
-                ListTile(
-                    leading: Icon(Icons.settings),
-                    title: Text('Ajustes'),
-                    selected: false,
-                    onTap: () {
-                      Navigator.pop(context);
-                      Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => SettingsScreen())
-                      );
-                    }
-                ),
+              ),
+            ],
+            title: Text(widget.title == null ? 'Tareas' : widget.title!),
+            automaticallyImplyLeading: false,
+            bottom: TabBar(
+              tabs: [
+                Tab(text: 'TODO', icon: Icon(Icons.list_alt)),
+                Tab(text: 'PENDIENTE', icon: Icon(Icons.access_time)),
+                Tab(text: 'HECHO', icon: Icon(Icons.done_all)),
               ],
             ),
           ),
+          body: TabBarView(
+            children: [
+              // ALL
+              StreamBuilder<QuerySnapshot>(
+                  stream: _selectedDestination == -1
+                      ? tasks.snapshots()
+                      : tasks.where('tag', isEqualTo: selTag).snapshots(),
+                  builder: (context, snapshot) {
+                    if (!snapshot.hasData) return const Center(child: CircularProgressIndicator(),);
+                    return ListView.separated(
+                      shrinkWrap: true,
+                      key: PageStorageKey('TabAll'),
+                      itemCount: snapshot.data!.docs.length,
+                      itemBuilder: (context, index) => TaskWidget(
+                        context: context,
+                        col: tasks,
+                        doc: snapshot.data!.docs[index],
+                        onEdit: () {
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (context) => TaskScreen(user: _user, doc: snapshot.data!.docs[index]))
+                          );
+                        },
+                        onDelete: () {
+                          Navigator.of(context).pop();
+                          tasks.doc(snapshot.data!.docs[index].id).delete();
+                        },
+                      ),
+                      separatorBuilder: (BuildContext context, int index) {
+                        return Divider();
+                      },
+                    );
+                  }
+              ),
+              // PENDIENTE
+              StreamBuilder<QuerySnapshot>(
+                  stream: _selectedDestination == -1
+                      ? tasks.where('done', isEqualTo: false).snapshots()
+                      : tasks.where('done', isEqualTo: false).where('tag', isEqualTo: selTag).snapshots(),
+                  builder: (context, snapshot) {
+                    if (!snapshot.hasData) return const Center(child: CircularProgressIndicator(),);
+                    return ListView.separated(
+                      shrinkWrap: true,
+                      key: PageStorageKey('TabPending'),
+                      itemCount: snapshot.data!.docs.length,
+                      itemBuilder: (context, index) => TaskWidget(
+                        context: context,
+                        col: tasks,
+                        doc: snapshot.data!.docs[index],
+                        onEdit: () {
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (context) => TaskScreen(user: _user, doc: snapshot.data!.docs[index]))
+                          );
+                        },
+                        onDelete: () {
+                          Navigator.of(context).pop();
+                          tasks.doc(snapshot.data!.docs[index].id).delete();
+                        },
+                      ),
+                      separatorBuilder: (BuildContext context, int index) {
+                        return Divider();
+                      },
+                    );
+                  }
+              ),
+              // HECHO
+              StreamBuilder<QuerySnapshot>(
+                  stream: _selectedDestination == -1
+                      ? tasks.where('done', isEqualTo: true).snapshots()
+                      : tasks.where('done', isEqualTo: true).where('tag', isEqualTo: selTag).snapshots(),
+                  builder: (context, snapshot) {
+                    if (!snapshot.hasData) return const Center(child: CircularProgressIndicator(),);
+                    return ListView.separated(
+                      shrinkWrap: true,
+                      key: PageStorageKey('TabDone'),
+                      itemCount: snapshot.data!.docs.length,
+                      itemBuilder: (context, index) => TaskWidget(
+                        context: context,
+                        col: tasks,
+                        doc: snapshot.data!.docs[index],
+                        onEdit: () {
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (context) => TaskScreen(user: _user, doc: snapshot.data!.docs[index]))
+                          );
+                        },
+                        onDelete: () {
+                          Navigator.of(context).pop();
+                          tasks.doc(snapshot.data!.docs[index].id).delete();
+                        },
+                      ),
+                      separatorBuilder: (BuildContext context, int index) {
+                        return Divider();
+                      },
+                    );
+                  }
+              ),
+            ],
+          ),
+          drawer: Drawer(
+            child: Container(
+              color: theme.brightness == Brightness.dark
+                  ? currentTheme.appBarTheme.backgroundColor
+                  : currentTheme.canvasColor,
+              child: SafeArea(
+                child: ListView(
+                  // Important: Remove any padding from the ListView.
+                  padding: EdgeInsets.all(0.0),
+                  children: <Widget>[
+                    UserAccountsDrawerHeader(
+                      decoration: BoxDecoration(
+                          color: theme.brightness == Brightness.dark
+                              ? currentTheme.appBarTheme.backgroundColor
+                              : currentTheme.canvasColor,
+                      ),
+                      arrowColor: theme.iconTheme.color != null ? theme.iconTheme.color! : Colors.white,
+                      accountName: Text(_user.displayName!, style: textTheme.headline6),
+                      accountEmail: Text(_user.email!, style: textTheme.caption),
+                      currentAccountPicture: _user.photoURL != null
+                          ? CircleAvatar(
+                        backgroundImage: NetworkImage(_user.photoURL!),
+                      )
+                          : CircleAvatar(
+                        child: Text(_nameToInitials(_user.displayName!)),
+                        backgroundColor: Colors.deepOrange,
+                      ),
+                      onDetailsPressed: () {
+                        Navigator.pop(context);
+                        showDialog(
+                            context: context,
+                            builder: (BuildContext context) {
+                              return  AlertDialog(
+                                title: Text('Cerrar Sesión'),
+                                content: Text('Para administrar de nuevo tus tareas deberás iniciar sesión después con esta u otra cuenta. ¿Estás seguro de que quieres cerrar sesión?'),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () => Navigator.pop(context),
+                                    child: Text('CANCELAR'),
+                                  ),
+                                  TextButton(
+                                    onPressed: () async {
+                                      setState(() {
+                                        _isSigningOut = true;
+                                      });
+                                      await Authentication.signOut(context: context);
+                                      setState(() {
+                                        _isSigningOut = false;
+                                      });
+                                      await Messaging.unsubscribeNotifications(_user);
+                                      print('Notificaciones cerradas');
+                                      Navigator.of(context).pop();
+                                      Navigator.of(context).pushReplacement(
+                                          PageRouteBuilder(
+                                              pageBuilder: (context, animation, secondaryAnimation) => SignInScreen()
+                                          )
+                                      );
+                                    },
+                                    child: Text('ACEPTAR'),
+                                  ),
+                                ],
+                              );
+                            }
+                        );
+                      },
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Text(
+                        'Etiquetas',
+                      ),
+                    ),
+                    ListTile(
+                      leading: Icon(Icons.all_inbox),
+                      title: Text('Todo'),
+                      selected: _selectedDestination == -1,
+                      // Al hacer tab establecer nuevo tag
+                      onTap: () {
+                        setState(() {
+                          _selectedDestination = -1;
+                          selTag = null;
+                        });
+                        Navigator.pop(context);
+                      },
+                    ),
+                    StreamBuilder<QuerySnapshot>(
+                      stream: tags.snapshots(),
+                      builder: (context, snapshot) {
+                        if (!snapshot.hasData) return const Center(child: CircularProgressIndicator(),);
+                        Future.delayed(Duration.zero, () async {
+                          updateDestination(snapshot.data!.docs.length);
+                        });
+                        return ListView.builder(
+                          shrinkWrap: true,
+                          physics: NeverScrollableScrollPhysics(),
+                          itemCount: snapshot.data!.docs.length,
+                          itemBuilder: (context, index) => TagWidget(
+                            context: context,
+                            doc: snapshot.data!.docs[index],
+                            onTab: () {
+                              // Fluttertoast.showToast(msg: "Cambio $_selectedDestination");
+                              selectDestination(index, snapshot.data!.docs[index].reference);
+                            },
+                            onEdit: () {
+                              Navigator.pop(context);
+                              Navigator.pop(context);
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute<void>(
+                                  builder: (BuildContext context) => TagDialog(
+                                      user: widget._user,
+                                      doc: snapshot.data!.docs[index]
+                                  ),
+                                  fullscreenDialog: true,
+                                ),
+                              );
+                            },
+                            onDelete: () {
+                              Navigator.pop(context);
+                              Navigator.pop(context);
+                              showDialog(
+                                  context: context,
+                                  builder: (BuildContext context) {
+                                    return  AlertDialog(
+                                      title: Text('¿Borrar ${snapshot.data!.docs[index]['name']}?'),
+                                      content: Text('Se eliminará permanentemente esta etiqueta y las tareas contenidas se desetiquetarán.'),
+                                      actions: [
+                                        TextButton(
+                                          onPressed: () {
+                                            Navigator.pop(context);
+                                          },
+                                          child: Text('CANCELAR'),
+                                        ),
+                                        TextButton(
+                                          onPressed: () {
+                                            Navigator.pop(context);
+                                            tags.doc(snapshot.data!.docs[index].id).delete();
+                                          },
+                                          child: Text('ACEPTAR'),
+                                        ),
+                                      ],
+                                    );
+                                  }
+                              );
+                            },
+                            selected: _selectedDestination == index,
+                          ),
+                        );
+                      },
+                    ),
+                    Divider(
+                      height: 1,
+                      thickness: 1,
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Text(
+                        'Acciones',
+                      ),
+                    ),
+                    ListTile(
+                      leading: Icon(MdiIcons.tagPlus),
+                      title: Text('Crear Etiqueta'),
+                      selected: false,
+                      onTap: () {
+                        Navigator.pop(context);
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute<void>(
+                            builder: (BuildContext context) => TagDialog(user: widget._user,),
+                            fullscreenDialog: true,
+                          ),
+                        );
+                      },
+                    ),
+                    ListTile(
+                        leading: Icon(Icons.settings),
+                        title: Text('Ajustes'),
+                        selected: false,
+                        onTap: () {
+                          Navigator.pop(context);
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (context) => SettingsScreen())
+                          );
+                        }
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+          floatingActionButton: FloatingActionButton.extended(
+            onPressed: () {
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => TaskScreen(user: _user,))
+              );
+            },
+            icon: Icon(Icons.add),
+            label: Text('TAREA'),
+          ),
+          floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
         ),
-        floatingActionButton: FloatingActionButton.extended(
-          backgroundColor: Colors.pink.shade900,
-          foregroundColor: Colors.white,
-          onPressed: () {
-            Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => TaskScreen(user: _user,))
-            );
-          },
-          icon: Icon(Icons.add),
-          label: Text('TAREA'),
-        ),
-        floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
       ),
     );
   }

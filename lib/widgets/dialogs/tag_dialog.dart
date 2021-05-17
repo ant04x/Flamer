@@ -52,7 +52,6 @@ class _TagDialogState extends State<TagDialog> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.pink.shade900,
         title: Text('Etiqueta'),
         actions: [
           Padding(
@@ -156,9 +155,6 @@ class _TagDialogState extends State<TagDialog> {
                 decoration: InputDecoration(
                   filled: true,
                   labelText: 'Título',
-                  labelStyle: TextStyle(
-                    color: Colors.deepOrange,
-                  ),
                   enabledBorder: UnderlineInputBorder(
                     borderSide: BorderSide(color: Colors.deepOrange),
                   ),
@@ -169,8 +165,6 @@ class _TagDialogState extends State<TagDialog> {
         ),
       ),
       floatingActionButton: FloatingActionButton.extended(
-        backgroundColor: Colors.pink.shade900,
-        foregroundColor: Colors.white,
         onPressed: () {
           if (myController.text.isNotEmpty) {
 

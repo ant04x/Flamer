@@ -10,12 +10,13 @@ class Authentication {
   // static Future<FirebaseApp> cached;
 
   static Future<FirebaseApp> accessFirebase({ required BuildContext context }) async {
-    FirebaseApp firebaseApp = await Firebase.initializeApp();
+    FirebaseApp firebaseApp = Firebase.app();
 
     User? user = FirebaseAuth.instance.currentUser;
 
     if (user != null) {
-      Navigator.of(context).pushReplacement(
+      Navigator.pushReplacement(
+        context,
         MaterialPageRoute(
           builder: (context) => HomeScreen(
             user: user,
@@ -23,7 +24,8 @@ class Authentication {
         ),
       );
     } else {
-      Navigator.of(context).pushReplacement(
+      Navigator.pushReplacement(
+        context,
         MaterialPageRoute(
             builder: (context) => SignInScreen()
         ),
@@ -34,12 +36,13 @@ class Authentication {
   }
 
   static Future<FirebaseApp> initializeFirebase({ required BuildContext context }) async {
-    FirebaseApp firebaseApp = await Firebase.initializeApp();
+    FirebaseApp firebaseApp = Firebase.app();
 
     User? user = FirebaseAuth.instance.currentUser;
 
     if (user != null) {
-      Navigator.of(context).pushReplacement(
+      Navigator.pushReplacement(
+        context,
         MaterialPageRoute(
           builder: (context) => HomeScreen(
             user: user,

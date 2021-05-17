@@ -56,10 +56,11 @@ class _TaskScreenState extends State<TaskScreen> {
 
   @override
   Widget build(BuildContext context) {
+    ThemeData currentTheme = Theme.of(context);
+    Brightness currentBrightness = currentTheme.brightness;
     return Scaffold(
       appBar: AppBar(
         title: Text('Tarea'),
-        backgroundColor: Colors.pink.shade900,
       ),
       body: ListView(
         children: [
@@ -74,9 +75,6 @@ class _TaskScreenState extends State<TaskScreen> {
                     decoration: InputDecoration(
                       filled: true,
                       labelText: 'Nombre de la Tarea',
-                      labelStyle: TextStyle(
-                        color: Colors.deepOrange,
-                      ),
                       enabledBorder: UnderlineInputBorder(
                         borderSide: BorderSide(color: Colors.deepOrange),
                       ),
@@ -99,70 +97,70 @@ class _TaskScreenState extends State<TaskScreen> {
           ),
           Divider(),
           StreamBuilder<QuerySnapshot>(
-              stream: tags.snapshots(),
-              builder: (context, snapshot) {
-                if (!snapshot.hasData) return Container();
-                return PopupMenuButton<DocumentSnapshot>(
-                  itemBuilder: (context) {
-                    return snapshot.data!.docs.map((item) => PopupMenuItem(
-                      value: item,
-                      child: ListTile(
-                        leading: Icon(MdiIcons.fromString(item['icon'])),
-                        title: Text(item['name']),
-                      ),
-                    )).toList();
-                  },
-                  child: ListTile(
-                    title: Text('Etiqueta'),
-                    subtitle: tagSnapshot != null
-                        ? Text(tagSnapshot!['name'])
-                        : null,
-                    leading: Icon(MdiIcons.tag),
-                    trailing: tagSnapshot != null
-                      ? IconButton(
-                        onPressed: () {
-                            setState(() => tagSnapshot = null);
-                        },
-                        icon: Icon(Icons.close),
-                      )
-                      : null,
+            stream: tags.snapshots(),
+            builder: (context, snapshot) {
+              if (!snapshot.hasData) return Container();
+              return PopupMenuButton<DocumentSnapshot>(
+                itemBuilder: (context) {
+                  return snapshot.data!.docs.map((item) => PopupMenuItem(
+                    value: item,
+                    child: ListTile(
+                      leading: Icon(MdiIcons.fromString(item['icon'])),
+                      title: Text(item['name']),
                     ),
-                  onSelected: (value) {
-                    setState(() {
-                      tagSnapshot = value;
-                    });
-                  },
-                );
-              },
-          ),
-          Divider(),
-          PopupMenuButton<String>(
-              child: ListTile(
-                title: Text('Repetir'),
-                subtitle: repetitionTask != RepetitionType.none ? Text(RepetitionType.visualList[repetitionTask]!) : null,
-                leading: Icon(Icons.repeat),
-                trailing: repetitionTask != RepetitionType.none
-                  ? IconButton(
+                  )).toList();
+                },
+                child: ListTile(
+                  title: Text('Etiqueta'),
+                  subtitle: tagSnapshot != null
+                      ? Text(tagSnapshot!['name'])
+                      : null,
+                  leading: Icon(MdiIcons.tag),
+                  trailing: tagSnapshot != null
+                      ? IconButton(
                     onPressed: () {
-                      setState(() => repetitionTask = RepetitionType.none);
+                      setState(() => tagSnapshot = null);
                     },
                     icon: Icon(Icons.close),
                   )
+                      : null,
+                ),
+                onSelected: (value) {
+                  setState(() {
+                    tagSnapshot = value;
+                  });
+                },
+              );
+            },
+          ),
+          Divider(),
+          PopupMenuButton<String>(
+            child: ListTile(
+              title: Text('Repetir'),
+              subtitle: repetitionTask != RepetitionType.none ? Text(RepetitionType.visualList[repetitionTask]!) : null,
+              leading: Icon(Icons.repeat),
+              trailing: repetitionTask != RepetitionType.none
+                  ? IconButton(
+                onPressed: () {
+                  setState(() => repetitionTask = RepetitionType.none);
+                },
+                icon: Icon(Icons.close),
+              )
                   : null,
-              ),
-              itemBuilder: (context) {
-                return RepetitionType.visualList.keys.map((type) => PopupMenuItem<String>(
-                    value: type,
-                    child: Text('${RepetitionType.visualList[type]}')
-                )).toList();
-              },
-              onSelected: (value) {
-                setState(() {
-                  repetitionTask = value;
-                  if (remind == null)
-                    remind = DateTime.now().add(Duration(days: 1));
-                });
-              },
+            ),
+            itemBuilder: (context) {
+              return RepetitionType.visualList.keys.map((type) => PopupMenuItem<String>(
+                  value: type,
+                  child: Text('${RepetitionType.visualList[type]}')
+              )).toList();
+            },
+            onSelected: (value) {
+              setState(() {
+                repetitionTask = value;
+                if (remind == null)
+                  remind = DateTime.now().add(Duration(days: 1));
+              });
+            },
           ),
           Divider(),
           ListTile(
@@ -172,14 +170,14 @@ class _TaskScreenState extends State<TaskScreen> {
                 : null,
             trailing: remind != null
                 ? IconButton(
-                  onPressed: () {
-                    setState(() {
-                      remind = null;
-                      repetitionTask = RepetitionType.none;
-                    });
-                  },
-                  icon: Icon(Icons.close),
-                )
+              onPressed: () {
+                setState(() {
+                  remind = null;
+                  repetitionTask = RepetitionType.none;
+                });
+              },
+              icon: Icon(Icons.close),
+            )
                 : null,
             leading: Icon(Icons.calendar_today),
             onTap: () async {
@@ -194,9 +192,9 @@ class _TaskScreenState extends State<TaskScreen> {
               if (dateBase == null) return;
 
               TimeOfDay? time = await showTimePicker(
-                context: context,
-                initialTime: remind == null ? TimeOfDay(hour: 7, minute: 0) : TimeOfDay(hour: remind!.hour, minute: remind!.minute),
-                helpText: 'Hora del aviso'
+                  context: context,
+                  initialTime: remind == null ? TimeOfDay(hour: 7, minute: 0) : TimeOfDay(hour: remind!.hour, minute: remind!.minute),
+                  helpText: 'Hora del aviso'
               );
               if (time == null) return;
 
@@ -215,8 +213,6 @@ class _TaskScreenState extends State<TaskScreen> {
         ],
       ),
       floatingActionButton: FloatingActionButton.extended(
-        backgroundColor: Colors.pink.shade900,
-        foregroundColor: Colors.white,
         onPressed: () {
           Navigator.pop(context);
           if (widget._doc == null) {

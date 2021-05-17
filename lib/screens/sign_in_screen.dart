@@ -19,7 +19,7 @@ class _SignInScreenState extends State<SignInScreen> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final textTheme = theme.textTheme;
-
+    final GlobalKey<ScaffoldMessengerState> scaffoldMessengerKey = GlobalKey<ScaffoldMessengerState>();
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
@@ -47,10 +47,11 @@ class _SignInScreenState extends State<SignInScreen> {
         ),
       ),
       floatingActionButton: FutureBuilder(
+        key: scaffoldMessengerKey,
         future: Authentication.initializeFirebase(context: context),
         builder: (context, snapshot) {
           if (snapshot.hasError) {
-            final GlobalKey<ScaffoldMessengerState> scaffoldMessengerKey = GlobalKey<ScaffoldMessengerState>();
+            /*
             scaffoldMessengerKey.currentState!.showSnackBar(
                 SnackBar(
                   behavior: SnackBarBehavior.floating,
@@ -61,6 +62,8 @@ class _SignInScreenState extends State<SignInScreen> {
                   ),
                 )
             );
+             */
+            print('ERROR REGISTRANDO NUEVO DISPOSITIVO!');
             return CircularProgressIndicator();
           } else if (snapshot.connectionState == ConnectionState.done) {
             return FloatingActionButton.extended(
