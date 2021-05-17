@@ -9,8 +9,7 @@ class Authentication {
 
   // static Future<FirebaseApp> cached;
 
-  static Future<FirebaseApp> accessFirebase({ required BuildContext context }) async {
-    FirebaseApp firebaseApp = Firebase.app();
+  static accessFirebase({ required BuildContext context }) {
 
     User? user = FirebaseAuth.instance.currentUser;
 
@@ -31,12 +30,9 @@ class Authentication {
         ),
       );
     }
-
-    return firebaseApp;
   }
 
-  static Future<FirebaseApp> initializeFirebase({ required BuildContext context }) async {
-    FirebaseApp firebaseApp = Firebase.app();
+  static initializeFirebase({ required BuildContext context }) async {
 
     User? user = FirebaseAuth.instance.currentUser;
 
@@ -50,8 +46,6 @@ class Authentication {
         ),
       );
     }
-
-    return firebaseApp;
   }
 
   static Future<User?> signInWithGoogle({required BuildContext context}) async {

@@ -16,10 +16,17 @@ class SignInScreen extends StatefulWidget {
 class _SignInScreenState extends State<SignInScreen> {
 
   @override
+  void initState() {
+    WidgetsBinding.instance!.addPostFrameCallback((_) {
+      Authentication.initializeFirebase(context: context);
+    });
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final textTheme = theme.textTheme;
-    final GlobalKey<ScaffoldMessengerState> scaffoldMessengerKey = GlobalKey<ScaffoldMessengerState>();
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
@@ -46,41 +53,27 @@ class _SignInScreenState extends State<SignInScreen> {
           ),
         ),
       ),
-      floatingActionButton: FutureBuilder(
-        key: scaffoldMessengerKey,
-        future: Authentication.initializeFirebase(context: context),
-        builder: (context, snapshot) {
-          if (snapshot.hasError) {
-            /*
-            scaffoldMessengerKey.currentState!.showSnackBar(
-                SnackBar(
-                  behavior: SnackBarBehavior.floating,
-                  content: Text('Error initializing Firebase'),
-                  action: SnackBarAction(
-                    label: 'OK',
-                    onPressed: () => scaffoldMessengerKey.currentState!.hideCurrentSnackBar(),
-                  ),
-                )
-            );
-             */
-            print('ERROR REGISTRANDO NUEVO DISPOSITIVO!');
-            return CircularProgressIndicator();
-          } else if (snapshot.connectionState == ConnectionState.done) {
-            return FloatingActionButton.extended(
-              backgroundColor: Colors.pink.shade900,
-              foregroundColor: Colors.white,
-              onPressed: () async {
-                User? user = await Authentication.signInWithGoogle(context: context);
-                await Messaging.subscribeNotifications(user);
-                print('Notificaciones inicializadas.');
-                setState(() {});
-              },
-              icon: Icon(MdiIcons.google),
-              label: Text('ACCEDER'),
+      floatingActionButton: FloatingActionButton.extended(
+        backgroundColor: Colors.pink.shade900,
+        foregroundColor: Colors.white,
+        onPressed: () async {
+          User? user = await Authentication.signInWithGoogle(context: context);
+          await Messaging.subscribeNotifications(user);
+          if (user != null) {
+            print('Notificaciones inicializadas.');
+            setState(() {});
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                builder: (context) => HomeScreen(
+                  user: user,
+                ),
+              ),
             );
           }
-          return CircularProgressIndicator();
         },
+        icon: Icon(MdiIcons.google),
+        label: Text('ACCEDER'),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
     );
