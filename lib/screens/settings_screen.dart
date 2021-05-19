@@ -19,6 +19,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
   ];
 
   @override
+  void initState() {
+    DarkThemeProvider themeChangeProvider = new DarkThemeProvider();
+    themeSet = themeChangeProvider.darkTheme + 1;
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final themeChange = Provider.of<DarkThemeProvider>(context);
     return Scaffold(

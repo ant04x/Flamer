@@ -214,30 +214,32 @@ class _TaskScreenState extends State<TaskScreen> {
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () {
-          Navigator.pop(context);
-          if (widget._doc == null) {
-            addTask(
-              myController.text,
-              done,
-              remind == null
-                  ? null
-                  : Timestamp.fromDate(remind!),
-              repetitionTask,
-              tagSnapshot,
-              remind == null
-                  ? false
-                  : true,
-            );
-          } else {
-            updateTask(
-              myController.text,
-              done,
-              remind == null
-                  ? null
-                  : Timestamp.fromDate(remind!),
-              repetitionTask,
-              tagSnapshot,
-            );
+          if (myController.text != '') {
+            Navigator.pop(context);
+            if (widget._doc == null) {
+              addTask(
+                myController.text,
+                done,
+                remind == null
+                    ? null
+                    : Timestamp.fromDate(remind!),
+                repetitionTask,
+                tagSnapshot,
+                remind == null
+                    ? false
+                    : true,
+              );
+            } else {
+              updateTask(
+                myController.text,
+                done,
+                remind == null
+                    ? null
+                    : Timestamp.fromDate(remind!),
+                repetitionTask,
+                tagSnapshot,
+              );
+            }
           }
         },
         icon: Icon(Icons.cloud_upload),

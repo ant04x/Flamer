@@ -23,8 +23,9 @@ class DarkThemePreference {
 }
 
 class DarkThemeProvider with ChangeNotifier {
-  DarkThemePreference darkThemePreference = DarkThemePreference();
-  int _darkTheme = 0;
+
+  static DarkThemePreference darkThemePreference = DarkThemePreference();
+  static int _darkTheme = 0;
 
   int get darkTheme => _darkTheme;
 

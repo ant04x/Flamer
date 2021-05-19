@@ -138,6 +138,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   builder: (context, snapshot) {
                     if (!snapshot.hasData) return const Center(child: CircularProgressIndicator(),);
                     return ListView.separated(
+                      padding: EdgeInsets.only(bottom: 88),
                       shrinkWrap: true,
                       key: PageStorageKey('TabAll'),
                       itemCount: snapshot.data!.docs.length,
@@ -170,6 +171,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   builder: (context, snapshot) {
                     if (!snapshot.hasData) return const Center(child: CircularProgressIndicator(),);
                     return ListView.separated(
+                      padding: EdgeInsets.only(bottom: 88),
                       shrinkWrap: true,
                       key: PageStorageKey('TabPending'),
                       itemCount: snapshot.data!.docs.length,
@@ -202,6 +204,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   builder: (context, snapshot) {
                     if (!snapshot.hasData) return const Center(child: CircularProgressIndicator(),);
                     return ListView.separated(
+                      padding: EdgeInsets.only(bottom: 88),
                       shrinkWrap: true,
                       key: PageStorageKey('TabDone'),
                       itemCount: snapshot.data!.docs.length,
@@ -363,7 +366,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                         ),
                                         TextButton(
                                           onPressed: () {
-                                            Navigator.pop(context);
+                                            // El pop lo hace ya selectDestination
+                                            selectDestination(index - 1, snapshot.data!.docs[index - 1].reference);
                                             tags.doc(snapshot.data!.docs[index].id).delete();
                                           },
                                           child: Text('ACEPTAR'),

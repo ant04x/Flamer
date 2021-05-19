@@ -33,7 +33,7 @@ class _AppState extends State<App> {
 
   void getCurrentAppTheme() async {
     themeChangeProvider.darkTheme =
-    await themeChangeProvider.darkThemePreference.getTheme();
+    await DarkThemeProvider.darkThemePreference.getTheme();
   }
 
   @override

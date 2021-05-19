@@ -53,17 +53,6 @@ class _TagDialogState extends State<TagDialog> {
     return Scaffold(
       appBar: AppBar(
         title: Text('Etiqueta'),
-        actions: [
-          Padding(
-            padding: EdgeInsets.symmetric(horizontal: 16),
-            child: IconButton(
-              icon: const Icon(Icons.delete),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-            ),
-          ),
-        ],
       ),
       body: Padding(
         padding: EdgeInsets.only(right: 16, left: 4, top: 16, bottom: 16),
