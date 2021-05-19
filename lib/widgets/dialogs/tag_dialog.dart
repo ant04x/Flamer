@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:draggable_scrollbar/draggable_scrollbar.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
@@ -22,9 +23,11 @@ class _TagDialogState extends State<TagDialog> {
   // late final List<String> listExample;
   late final List<String> mapIcons;
   late CollectionReference tags;
+  late ScrollController _controller;
 
   @override
   void initState() {
+    _controller = ScrollController();
     tags = FirebaseFirestore.instance.collection('tags/').doc('${widget._user.uid}').collection('tags/');
     // listExample = List<String>.generate(100, (i) => "Item $i");
     mapIcons = MdiIcons.getIconsName();
@@ -86,17 +89,23 @@ class _TagDialogState extends State<TagDialog> {
                                     constraints: BoxConstraints(
                                       maxHeight: MediaQuery.of(context).size.height * 0.4,
                                     ),
-                                    child: ListView.builder(
-                                      itemCount: mapIcons.length,
-                                      itemBuilder: (context, index) => TagIconTile(
-                                        index: index,
-                                        doc: mapIcons[index],
-                                        onChanged: (dynamic value) {
-                                          setState(() {
-                                            _iconValue = value;
-                                          });
-                                        },
-                                        groupValue: _iconValue,
+                                    child: DraggableScrollbar.rrect(
+                                      heightScrollThumb: 20.0,
+                                      controller: _controller,
+                                      child: ListView.builder(
+                                        controller: _controller,
+                                        itemExtent: 50.0,
+                                        itemCount: mapIcons.length,
+                                        itemBuilder: (context, index) => TagIconTile(
+                                          index: index,
+                                          doc: mapIcons[index],
+                                          onChanged: (dynamic value) {
+                                            setState(() {
+                                              _iconValue = value;
+                                            });
+                                          },
+                                          groupValue: _iconValue,
+                                        ),
                                       ),
                                     ),
                                   ),
