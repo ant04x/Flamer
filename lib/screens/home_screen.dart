@@ -428,7 +428,12 @@ class _HomeScreenState extends State<HomeScreen> {
             onPressed: () {
               Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => TaskScreen(user: _user,))
+                  MaterialPageRoute(builder: (context) {
+                    if (selTag != null)
+                      return TaskScreen(user: _user, tag: selTag,);
+                    else
+                      return TaskScreen(user: _user,);
+                  })
               );
             },
             icon: Icon(Icons.add),

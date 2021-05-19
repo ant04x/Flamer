@@ -6,10 +6,11 @@ import 'package:flutter/material.dart';
 
 class TaskScreen extends StatefulWidget {
 
-  TaskScreen({Key? key, required User user, DocumentSnapshot? doc}) : _user = user, _doc = doc, super(key: key);
+  TaskScreen({Key? key, required User user, DocumentSnapshot? doc, DocumentReference? tag}) : _user = user, _doc = doc, _tag = tag, super(key: key);
 
   final User _user;
   final DocumentSnapshot? _doc;
+  final DocumentReference? _tag;
 
   @override
   _TaskScreenState createState() => _TaskScreenState();
@@ -37,6 +38,14 @@ class _TaskScreenState extends State<TaskScreen> {
     if (widget._doc == null) {
       done = false;
       myController = TextEditingController();
+      tag = widget._tag;
+      if (tag != null) {
+        getDocumentFromReference(tag!).then((value) {
+          setState(() {
+            tagSnapshot = value;
+          });
+        });
+      }
     } else {
       done = widget._doc!['done'];
       myController = TextEditingController(text: widget._doc!['name']);
