@@ -58,7 +58,7 @@ class _SignInScreenState extends State<SignInScreen> {
         foregroundColor: Colors.white,
         onPressed: () async {
           User? user = await Authentication.signInWithGoogle(context: context);
-          await Messaging.subscribeNotifications(user);
+          // await Messaging.subscribeNotifications(user);
           if (user != null) {
             print('Notificaciones inicializadas.');
             setState(() {});
