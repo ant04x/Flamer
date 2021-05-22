@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flamer/models/task.dart';
 import 'package:flamer/screens/settings_screen.dart';
 import 'package:flamer/screens/sign_in_screen.dart';
@@ -280,12 +281,18 @@ class _HomeScreenState extends State<HomeScreen> {
                                       setState(() {
                                         _isSigningOut = false;
                                       });
-                                      await Messaging.unsubscribeNotifications(_user);
+                                      // await Messaging.unsubscribeNotifications(_user);
+                                      FirebaseMessaging.instance.getToken().then((token) {
+                                        if (token != null) {
+                                          Messaging.initMessagingManager(_user);
+                                          Messaging.removeDevice(token);
+                                        }
+                                      });
                                       print('Notificaciones cerradas');
                                       Navigator.of(context).pop();
                                       Navigator.of(context).pushReplacement(
                                           PageRouteBuilder(
-                                              pageBuilder: (context, animation, secondaryAnimation) => SignInScreen()
+                                              pageBuilder: (context, animation, secondaryAnimation) => SignInScreen(user: _user)
                                           )
                                       );
                                     },

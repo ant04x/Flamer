@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flamer/utils/authentication.dart';
@@ -9,6 +10,10 @@ import 'package:flutter/material.dart';
 import 'home_screen.dart';
 
 class SignInScreen extends StatefulWidget {
+  SignInScreen({Key? key, required User? user}) : _user = user, super(key: key);
+
+  final User? _user;
+
   @override
   _SignInScreenState createState() => _SignInScreenState();
 }
@@ -59,6 +64,12 @@ class _SignInScreenState extends State<SignInScreen> {
         onPressed: () async {
           User? user = await Authentication.signInWithGoogle(context: context);
           // await Messaging.subscribeNotifications(user);
+          FirebaseMessaging.instance.getToken().then((token) {
+            if (token != null) {
+              Messaging.initMessagingManager(user!);
+              Messaging.registerDevice(token);
+            }
+          });
           if (user != null) {
             print('Notificaciones inicializadas.');
             setState(() {});

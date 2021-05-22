@@ -26,7 +26,7 @@ class Authentication {
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
-            builder: (context) => SignInScreen()
+            builder: (context) => SignInScreen(user: user)
         ),
       );
     }
