@@ -26,10 +26,11 @@ messaging.onBackgroundMessage((message) => {
 messaging.setBackgroundMessageHandler(function(payload) {
   console.log('[firebase-messaging-sw.js] Received background message ', payload);
   // Customize notification here
-  const notificationTitle = "AVISO";
+  const notificationTitle = payload.data.title;
   const notificationOptions = {
-    icon: '/icons/Icon-512.png',
-    badge: '/images/demos/badge-128x128.png'
+    body: payload.data.body,
+    icon: payload.data.icon,
+    // badge: payload.data.badge,
   };
 
   return self.registration.showNotification(notificationTitle, notificationOptions);
