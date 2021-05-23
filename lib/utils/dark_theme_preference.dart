@@ -27,6 +27,15 @@ class DarkThemeProvider with ChangeNotifier {
   static DarkThemePreference darkThemePreference = DarkThemePreference();
   static int _darkTheme = 0;
 
+  static ThemeMode getCurrent() {
+    if (_darkTheme == 0)
+      return ThemeMode.system;
+    else if (_darkTheme == 1)
+      return ThemeMode.light;
+    else
+      return ThemeMode.dark;
+  }
+
   int get darkTheme => _darkTheme;
 
   set darkTheme(int value) {
