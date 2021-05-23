@@ -29,7 +29,7 @@ messaging.setBackgroundMessageHandler(function(payload) {
   const notificationTitle = payload.data.title;
   const notificationOptions = {
     body: payload.data.body,
-    icon: payload.data.icon,
+    icon: '/icons/Icon-512.png',
     // badge: payload.data.badge,
   };
 
