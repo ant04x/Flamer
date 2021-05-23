@@ -1,7 +1,8 @@
+import 'package:flamer/utils/title_updater_impl.dart';
+
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flamer/screens/splash_screen.dart';
 import 'package:flamer/utils/dark_theme_preference.dart';
-import 'package:flamer/widgets/dialogs/search_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
@@ -26,7 +27,6 @@ class _AppState extends State<App> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     getCurrentAppTheme();
   }
@@ -53,9 +53,11 @@ class _AppState extends State<App> {
             value: themeChangeProvider,
             child: Consumer<DarkThemeProvider>(
                 builder: (BuildContext context, value, Widget? child) {
+                  ThemeMode actualMode = DarkThemeProvider.themeMode(themeChangeProvider.darkTheme);
+                  TitleUpdater().updateTitleBar(actualMode);
                   return MaterialApp(
                       title: 'Flamer',
-                      themeMode: DarkThemeProvider.themeMode(themeChangeProvider.darkTheme),
+                      themeMode: actualMode,
                       theme: ThemeData(
                         primarySwatch: Colors.deepOrange,
                         floatingActionButtonTheme: FloatingActionButtonThemeData(
