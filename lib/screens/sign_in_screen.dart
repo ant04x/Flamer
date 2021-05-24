@@ -66,7 +66,7 @@ class _SignInScreenState extends State<SignInScreen> {
           // await Messaging.subscribeNotifications(user);
           FirebaseMessaging.instance.getToken().then((token) {
             if (token != null) {
-              Messaging.initMessagingManager(user!);
+              Messaging.initMessagingManager(user!.uid);
               Messaging.registerDevice(token);
             }
           });

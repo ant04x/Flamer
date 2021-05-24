@@ -6,22 +6,26 @@ class Messaging {
 
   static late CollectionReference devs;
 
-  static initMessagingManager(User user) {
-    devs = FirebaseFirestore.instance.collection('devices/').doc('${user.uid}').collection('devices/');
+  static initMessagingManager(String uid) {
+    devs = FirebaseFirestore.instance.collection('devices/').doc('$uid').collection('devices/');
   }
 
-  static Future<void> registerDevice(String token) {
+  static Future<DocumentReference<Object?>> registerDevice(String token) async {
     return devs.add({
-      'token': token
+      'token': token,
+      'created': Timestamp.now(),
     });
   }
 
-  static Future<void> removeDevice(String token) {
-    String? id;
-    devs.where('token', isEqualTo: token).snapshots().first.then((value) =>
-    id = value.docs.first.id
-    );
-    return devs.doc(id).delete();
+  static Future<void> removeDevice(String token) async {
+    WriteBatch batch = FirebaseFirestore.instance.batch();
+    print('==>> BORRANDO TOKEN <<== $token');
+    return devs.where('token', isEqualTo: token).get().then((querySnap) {
+      querySnap.docs.forEach((document) { 
+        batch.delete(document.reference);
+      });
+      return batch.commit();
+    });
   }
 
   /*

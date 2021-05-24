@@ -277,22 +277,22 @@ class _HomeScreenState extends State<HomeScreen> {
                                       setState(() {
                                         _isSigningOut = true;
                                       });
-                                      await Authentication.signOut(context: context);
+                                      await FirebaseMessaging.instance.getToken().then((token) async {
+                                        if (token != null) {
+                                          await Messaging.initMessagingManager(_user.uid);
+                                          await Messaging.removeDevice(token);
+                                        }
+                                      });
                                       setState(() {
                                         _isSigningOut = false;
                                       });
+                                      await Authentication.signOut(context: context);
                                       // await Messaging.unsubscribeNotifications(_user);
-                                      FirebaseMessaging.instance.getToken().then((token) {
-                                        if (token != null) {
-                                          Messaging.initMessagingManager(_user);
-                                          Messaging.removeDevice(token);
-                                        }
-                                      });
                                       print('Notificaciones cerradas');
                                       Navigator.of(context).pop();
                                       Navigator.of(context).pushReplacement(
                                           PageRouteBuilder(
-                                              pageBuilder: (context, animation, secondaryAnimation) => SignInScreen(user: _user)
+                                              pageBuilder: (context, animation, secondaryAnimation) => SignInScreen(user: null,)
                                           )
                                       );
                                     },
