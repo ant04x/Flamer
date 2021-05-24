@@ -237,6 +237,7 @@ class _TaskScreenState extends State<TaskScreen> {
                 remind == null
                     ? false
                     : true,
+                Timestamp.now()
               );
             } else {
               updateTask(
@@ -257,14 +258,15 @@ class _TaskScreenState extends State<TaskScreen> {
     );
   }
 
-  Future<void> addTask(String name, bool done, Timestamp? date, String repetition, DocumentSnapshot? tag, bool scheduled) {
+  Future<void> addTask(String name, bool done, Timestamp? date, String repetition, DocumentSnapshot? tag, bool scheduled, Timestamp? created) {
     return tasks.add({
       'name': name,
       'done': done,
       'date': date,
       'repetition': repetitionTask,
       'tag': tag?.reference,
-      'scheduled': scheduled
+      'scheduled': scheduled,
+      'created': created
     });
   }
 

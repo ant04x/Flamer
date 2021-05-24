@@ -134,8 +134,8 @@ class _HomeScreenState extends State<HomeScreen> {
               // ALL
               StreamBuilder<QuerySnapshot>(
                   stream: _selectedDestination == -1
-                      ? tasks.snapshots()
-                      : tasks.where('tag', isEqualTo: selTag).snapshots(),
+                      ? tasks.orderBy('created', descending: true).snapshots()
+                      : tasks.where('tag', isEqualTo: selTag).orderBy('created', descending: true).snapshots(),
                   builder: (context, snapshot) {
                     if (!snapshot.hasData) return const Center(child: CircularProgressIndicator(),);
                     return ListView.separated(
@@ -167,8 +167,8 @@ class _HomeScreenState extends State<HomeScreen> {
               // PENDIENTE
               StreamBuilder<QuerySnapshot>(
                   stream: _selectedDestination == -1
-                      ? tasks.where('done', isEqualTo: false).snapshots()
-                      : tasks.where('done', isEqualTo: false).where('tag', isEqualTo: selTag).snapshots(),
+                      ? tasks.where('done', isEqualTo: false).orderBy('created', descending: true).snapshots()
+                      : tasks.where('done', isEqualTo: false).where('tag', isEqualTo: selTag).orderBy('created', descending: true).snapshots(),
                   builder: (context, snapshot) {
                     if (!snapshot.hasData) return const Center(child: CircularProgressIndicator(),);
                     return ListView.separated(
@@ -200,8 +200,8 @@ class _HomeScreenState extends State<HomeScreen> {
               // HECHO
               StreamBuilder<QuerySnapshot>(
                   stream: _selectedDestination == -1
-                      ? tasks.where('done', isEqualTo: true).snapshots()
-                      : tasks.where('done', isEqualTo: true).where('tag', isEqualTo: selTag).snapshots(),
+                      ? tasks.where('done', isEqualTo: true).orderBy('created', descending: true).snapshots()
+                      : tasks.where('done', isEqualTo: true).where('tag', isEqualTo: selTag).orderBy('created', descending: true).snapshots(),
                   builder: (context, snapshot) {
                     if (!snapshot.hasData) return const Center(child: CircularProgressIndicator(),);
                     return ListView.separated(
@@ -324,7 +324,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       },
                     ),
                     StreamBuilder<QuerySnapshot>(
-                      stream: tags.snapshots(),
+                      stream: tags.orderBy('name', descending: false).snapshots(),
                       builder: (context, snapshot) {
                         if (!snapshot.hasData) return const Center(child: CircularProgressIndicator(),);
                         Future.delayed(Duration.zero, () async {

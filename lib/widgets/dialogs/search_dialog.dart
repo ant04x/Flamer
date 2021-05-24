@@ -22,7 +22,7 @@ class _SearchDialogState extends State<SearchDialog> {
 
   @override
   void initState() {
-    _searchedTasks = widget._tasks.snapshots();
+    _searchedTasks = widget._tasks.orderBy('created', descending: false).snapshots();
     super.initState();
   }
 
@@ -52,7 +52,7 @@ class _SearchDialogState extends State<SearchDialog> {
                           autofocus: true,
                           onChanged: (value) {
                             setState(() {
-                              _searchedTasks = widget._tasks.where('name', isEqualTo: value).snapshots();
+                              _searchedTasks = widget._tasks.where('name', isEqualTo: value).orderBy('created', descending: true).snapshots();
                             });
                           },
                           decoration: InputDecoration(
