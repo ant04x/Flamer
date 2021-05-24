@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flamer/utils/authentication.dart';
 import 'package:flamer/utils/messaging.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:flutter/material.dart';
@@ -64,12 +65,18 @@ class _SignInScreenState extends State<SignInScreen> {
         onPressed: () async {
           User? user = await Authentication.signInWithGoogle(context: context);
           // await Messaging.subscribeNotifications(user);
-          FirebaseMessaging.instance.getToken().then((token) {
-            if (token != null) {
-              Messaging.initMessagingManager(user!.uid);
-              Messaging.registerDevice(token);
-            }
-          });
+          NotificationSettings settings = await FirebaseMessaging.instance.getNotificationSettings();
+          if (settings.authorizationStatus != AuthorizationStatus.authorized) {
+            await FirebaseMessaging.instance.requestPermission();
+          }
+          if (settings.authorizationStatus == AuthorizationStatus.authorized) {
+            await FirebaseMessaging.instance.getToken().then((token) {
+              if (token != null) {
+                Messaging.initMessagingManager(user!.uid);
+                Messaging.registerDevice(token);
+              }
+            });
+          }
           if (user != null) {
             print('Notificaciones inicializadas.');
             setState(() {});
