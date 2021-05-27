@@ -191,27 +191,34 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
-  google_sign_in:
+  flutter_webview_plugin:
+    dependency: transitive
+    description:
+      name: flutter_webview_plugin
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.3.11"
+  github_sign_in:
     dependency: "direct main"
     description:
-      name: google_sign_in
+      name: github_sign_in
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "5.0.3"
-  google_sign_in_platform_interface:
+    version: "0.0.4"
+  google_api_availability:
+    dependency: "direct main"
+    description:
+      name: google_api_availability
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "3.0.1"
+  http:
     dependency: transitive
     description:
-      name: google_sign_in_platform_interface
+      name: http
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "2.0.1"
-  google_sign_in_web:
-    dependency: transitive
-    description:
-      name: google_sign_in_web
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "0.10.0"
+    version: "0.13.3"
   http_parser:
     dependency: transitive
     description:
@@ -303,6 +310,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "2.0.1"
+  pedantic:
+    dependency: transitive
+    description:
+      name: pedantic
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "1.11.0"
   petitparser:
     dependency: transitive
     description:
@@ -338,13 +352,6 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "5.0.0"
-  quiver:
-    dependency: transitive
-    description:
-      name: quiver
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "3.0.1"
   shared_preferences:
     dependency: "direct main"
     description:

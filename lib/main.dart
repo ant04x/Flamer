@@ -1,4 +1,4 @@
-import 'package:flamer/utils/title_updater_impl.dart';
+import 'package:flamer/utils/title_updater/title_updater_impl.dart';
 
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flamer/screens/splash_screen.dart';

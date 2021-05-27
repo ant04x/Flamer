@@ -2,7 +2,7 @@
 import 'dart:html';
 
 import 'package:flamer/utils/dark_theme_preference.dart';
-import 'package:flamer/utils/title_updater_impl.dart';
+import 'package:flamer/utils/title_updater/title_updater_impl.dart';
 import 'package:flutter/material.dart';
 
 class TitleUpdaterWeb implements TitleUpdater {

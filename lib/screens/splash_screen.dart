@@ -1,4 +1,5 @@
-import 'package:flamer/utils/authentication.dart';
+import 'package:flamer/utils/auth/auth_impl.dart';
+// import 'package:flamer/utils/auth/authentication.dart';
 import 'package:flutter/material.dart';
 
 
@@ -12,7 +13,7 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     WidgetsBinding.instance!.addPostFrameCallback((_) {
-      Authentication.accessFirebase(context: context);
+      Auth.accessFirebase(context: context);
     });
     super.initState();
   }

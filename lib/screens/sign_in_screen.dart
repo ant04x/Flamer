@@ -1,12 +1,16 @@
+import 'dart:io';
+
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:flamer/utils/authentication.dart';
+import 'package:flamer/utils/auth/auth_impl.dart';
+// import 'package:flamer/utils/auth/authentication.dart';
 import 'package:flamer/utils/messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:google_api_availability/google_api_availability.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:flutter/material.dart';
 
@@ -26,7 +30,7 @@ class _SignInScreenState extends State<SignInScreen> {
   @override
   void initState() {
     WidgetsBinding.instance!.addPostFrameCallback((_) {
-      Authentication.initializeFirebase(context: context);
+      Auth.initializeFirebase(context: context);
     });
     super.initState();
   }
@@ -73,13 +77,18 @@ class _SignInScreenState extends State<SignInScreen> {
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () async {
-          User? user = await Authentication.signInWithGoogle(context: context);
+          User? user;
+
+          await Auth().signInWithGitHub(context: context).then((value) {
+            if (value != null) {
+              user = value.user;
+            }
+          });
           // await Messaging.subscribeNotifications(user);
           NotificationSettings settings = await FirebaseMessaging.instance.getNotificationSettings();
           if (settings.authorizationStatus != AuthorizationStatus.authorized) {
             await FirebaseMessaging.instance.requestPermission();
-          }
-          if (settings.authorizationStatus == AuthorizationStatus.authorized) {
+          } else {
             await FirebaseMessaging.instance.getToken().then((token) {
               if (token != null) {
                 Messaging.initMessagingManager(user!.uid);
@@ -94,13 +103,13 @@ class _SignInScreenState extends State<SignInScreen> {
               context,
               MaterialPageRoute(
                 builder: (context) => HomeScreen(
-                  user: user,
+                  user: user!,
                 ),
               ),
             );
           }
         },
-        icon: Icon(MdiIcons.google),
+        icon: Icon(MdiIcons.github),
         label: Text('ACCEDER'),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,

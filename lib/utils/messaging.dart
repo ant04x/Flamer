@@ -27,18 +27,4 @@ class Messaging {
       return batch.commit();
     });
   }
-
-  /*
-  static Future<void>? subscribeNotifications(User? user)
-    => user != null
-      ? FirebaseMessaging.instance.subscribeToTopic(user.uid)
-      : null;
-  */
-
-  /*
-  static Future<void>? unsubscribeNotifications(User? user)
-    => user != null
-      ? FirebaseMessaging.instance.unsubscribeFromTopic(user.uid)
-      : null;
-  */
 }
