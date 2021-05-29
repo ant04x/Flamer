@@ -55,12 +55,7 @@ class _SignInScreenState extends State<SignInScreen> {
               children: [
                 Flexible(
                   flex: 4,
-                  child: SvgPicture.asset(
-                    "assets/todo-draw.svg",
-                    fit: BoxFit.scaleDown,
-                    placeholderBuilder: (context) => Container(width: 400, child: Center(child: CircularProgressIndicator(),),),
-                    width: 400,
-                  ),
+                  child: Image(image: AssetImage('assets/todo-draw.png')),
                 ),
                 Flexible(
                   child: AutoSizeText(
