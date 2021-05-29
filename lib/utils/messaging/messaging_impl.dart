@@ -1,8 +1,12 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
 
-class Messaging {
+import 'messaging_stub.dart'
+if (dart.library.io) 'messaging.dart'
+if (dart.library.html) 'messaging_web.dart';
+
+abstract class Messaging {
+
+  factory Messaging() => getMessaging();
 
   static late CollectionReference devs;
 
@@ -21,10 +25,14 @@ class Messaging {
     WriteBatch batch = FirebaseFirestore.instance.batch();
     print('==>> BORRANDO TOKEN <<== $token');
     return devs.where('token', isEqualTo: token).get().then((querySnap) {
-      querySnap.docs.forEach((document) { 
+      querySnap.docs.forEach((document) {
         batch.delete(document.reference);
       });
       return batch.commit();
     });
   }
+
+  Future<void> start(String uid) async {}
+
+  Future<void> stop(String uid) async {}
 }

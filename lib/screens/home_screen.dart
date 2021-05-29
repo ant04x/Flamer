@@ -1,19 +1,14 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:flamer/models/task.dart';
 import 'package:flamer/screens/settings_screen.dart';
 import 'package:flamer/screens/sign_in_screen.dart';
 import 'package:flamer/screens/task_screen.dart';
 import 'package:flamer/utils/auth/auth_impl.dart';
-// import 'package:flamer/utils/auth/authentication.dart';
-import 'package:flamer/utils/dark_theme_preference.dart';
-import 'package:flamer/utils/messaging.dart';
+import 'package:flamer/utils/messaging/messaging_impl.dart';
 import 'package:flamer/widgets/dialogs/tag_dialog.dart';
 import 'package:flamer/widgets/dialogs/search_dialog.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
-// import 'package:fluttertoast/fluttertoast.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:flutter/material.dart';
 
@@ -279,15 +274,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                       setState(() {
                                         _isSigningOut = true;
                                       });
-                                      NotificationSettings settings = await FirebaseMessaging.instance.getNotificationSettings();
-                                      if (!kIsWeb || settings.authorizationStatus == AuthorizationStatus.authorized) {
-                                        await FirebaseMessaging.instance.getToken().then((token) async {
-                                          if (token != null) {
-                                            await Messaging.initMessagingManager(_user.uid);
-                                            await Messaging.removeDevice(token);
-                                          }
-                                        });
-                                      }
+                                      await Messaging().stop(_user.uid);
                                       setState(() {
                                         _isSigningOut = false;
                                       });

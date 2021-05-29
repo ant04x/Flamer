@@ -1,16 +1,9 @@
-import 'dart:io';
-
 import 'package:auto_size_text/auto_size_text.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flamer/utils/auth/auth_impl.dart';
-// import 'package:flamer/utils/auth/authentication.dart';
-import 'package:flamer/utils/messaging.dart';
+import 'package:flamer/utils/messaging/messaging_impl.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
-import 'package:flutter_svg/flutter_svg.dart';
-import 'package:google_api_availability/google_api_availability.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:flutter/material.dart';
 
@@ -80,17 +73,7 @@ class _SignInScreenState extends State<SignInScreen> {
             }
           });
           // await Messaging.subscribeNotifications(user);
-          NotificationSettings settings = await FirebaseMessaging.instance.getNotificationSettings();
-          if (settings.authorizationStatus != AuthorizationStatus.authorized) {
-            await FirebaseMessaging.instance.requestPermission();
-          } else {
-            await FirebaseMessaging.instance.getToken().then((token) {
-              if (token != null) {
-                Messaging.initMessagingManager(user!.uid);
-                Messaging.registerDevice(token);
-              }
-            });
-          }
+          await Messaging().start(user!.uid);
           if (user != null) {
             print('Notificaciones inicializadas.');
             setState(() {});

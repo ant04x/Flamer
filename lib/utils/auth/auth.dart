@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flamer/utils/flamer_credentials.dart';
+// ignore: import_of_legacy_library_into_null_safe
 import 'package:github_sign_in/github_sign_in.dart';
 
 import 'auth_impl.dart';
