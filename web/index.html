@@ -80,7 +80,7 @@
         navigator.serviceWorker.register('/flutter_service_worker.js');
         navigator.serviceWorker.getRegistration()
           .then(function(registration) {
-            if (registration.pushManager) {
+            if (registration.pushManager || typeof registration.pushManager !== 'undefined') {
               console.log('SOPORTADO');
               navigator.serviceWorker.register('/firebase-messaging-sw.js');
             } else {
