@@ -1,5 +1,6 @@
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 
 import 'messaging_impl.dart';
 
@@ -32,6 +33,9 @@ class MessagingAndroid implements Messaging {
       });
     }
   }
+
+  @override
+  Future<T?>? showDialogIfNotSupported<T>(BuildContext context, WidgetBuilder builder) {}
 }
 
 Messaging getMessaging() => MessagingAndroid();

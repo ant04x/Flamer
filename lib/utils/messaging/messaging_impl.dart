@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/cupertino.dart';
 
 import 'messaging_stub.dart'
 if (dart.library.io) 'messaging.dart'
@@ -35,4 +36,6 @@ abstract class Messaging {
   Future<void> start(String uid) async {}
 
   Future<void> stop(String uid) async {}
+
+  Future<T?>? showDialogIfNotSupported<T>(BuildContext context, WidgetBuilder builder) {}
 }

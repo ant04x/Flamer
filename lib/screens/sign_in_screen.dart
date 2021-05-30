@@ -34,6 +34,23 @@ class _SignInScreenState extends State<SignInScreen> {
     final textTheme = theme.textTheme;
     ThemeData currentTheme = Theme.of(context);
     Brightness currentBrightness = currentTheme.brightness;
+    Messaging().showDialogIfNotSupported(
+        context,
+        (BuildContext context) {
+          return  AlertDialog(
+            title: Text('Notifiaciones no soportadas'),
+            content: Text('Tu navegador no soporta el estándar notificaciones usado por Flamer. Si quieres diponer de estas, busca en tu tienda de apps la aplicación Flamer.'),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                child: Text('ACEPTAR'),
+              ),
+            ],
+          );
+        }
+    );
     return Scaffold(
       backgroundColor: currentBrightness == Brightness.light
           ? Colors.white
