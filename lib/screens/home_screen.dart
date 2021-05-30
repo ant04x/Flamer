@@ -38,7 +38,8 @@ class _HomeScreenState extends State<HomeScreen> {
 
   int _counter = 0;
   // bool? _task1 = false;
-  int _selectedDestination = -1;
+  // int _selectedDestination = -1;
+  Key? _selectedKey;
 
   FirebaseFirestore firestore = FirebaseFirestore.instance;
 
@@ -131,11 +132,14 @@ class _HomeScreenState extends State<HomeScreen> {
             children: [
               // ALL
               StreamBuilder<QuerySnapshot>(
-                  stream: _selectedDestination == -1
+                  stream: _selectedKey == null
                       ? tasks.orderBy('created', descending: true).snapshots()
                       : tasks.where('tag', isEqualTo: selTag).orderBy('created', descending: true).snapshots(),
                   builder: (context, snapshot) {
                     if (!snapshot.hasData) return const Center(child: CircularProgressIndicator(),);
+                    Future.delayed(Duration.zero, () async {
+                      updateDestination();
+                    });
                     return ListView.separated(
                       padding: EdgeInsets.only(bottom: 88),
                       shrinkWrap: true,
@@ -164,11 +168,14 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
               // PENDIENTE
               StreamBuilder<QuerySnapshot>(
-                  stream: _selectedDestination == -1
+                  stream: _selectedKey == null
                       ? tasks.where('done', isEqualTo: false).orderBy('created', descending: true).snapshots()
                       : tasks.where('done', isEqualTo: false).where('tag', isEqualTo: selTag).orderBy('created', descending: true).snapshots(),
                   builder: (context, snapshot) {
                     if (!snapshot.hasData) return const Center(child: CircularProgressIndicator(),);
+                    Future.delayed(Duration.zero, () async {
+                      updateDestination();
+                    });
                     return ListView.separated(
                       padding: EdgeInsets.only(bottom: 88),
                       shrinkWrap: true,
@@ -197,11 +204,14 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
               // HECHO
               StreamBuilder<QuerySnapshot>(
-                  stream: _selectedDestination == -1
+                  stream: _selectedKey == null
                       ? tasks.where('done', isEqualTo: true).orderBy('created', descending: true).snapshots()
                       : tasks.where('done', isEqualTo: true).where('tag', isEqualTo: selTag).orderBy('created', descending: true).snapshots(),
                   builder: (context, snapshot) {
                     if (!snapshot.hasData) return const Center(child: CircularProgressIndicator(),);
+                    Future.delayed(Duration.zero, () async {
+                      updateDestination();
+                    });
                     return ListView.separated(
                       padding: EdgeInsets.only(bottom: 88),
                       shrinkWrap: true,
@@ -322,11 +332,11 @@ class _HomeScreenState extends State<HomeScreen> {
                     ListTile(
                       leading: Icon(Icons.all_inbox),
                       title: Text('Todo'),
-                      selected: _selectedDestination == -1,
+                      selected: _selectedKey == null,
                       // Al hacer tab establecer nuevo tag
                       onTap: () {
                         setState(() {
-                          _selectedDestination = -1;
+                          _selectedKey = null;
                           selTag = null;
                         });
                         Navigator.pop(context);
@@ -337,18 +347,19 @@ class _HomeScreenState extends State<HomeScreen> {
                       builder: (context, snapshot) {
                         if (!snapshot.hasData) return const Center(child: CircularProgressIndicator(),);
                         Future.delayed(Duration.zero, () async {
-                          updateDestination(snapshot.data!.docs.length);
+                          updateDestination();
                         });
                         return ListView.builder(
                           shrinkWrap: true,
                           physics: NeverScrollableScrollPhysics(),
                           itemCount: snapshot.data!.docs.length,
                           itemBuilder: (context, index) => TagWidget(
+                            key: Key(snapshot.data!.docs[index].id),
                             context: context,
                             doc: snapshot.data!.docs[index],
                             onTab: () {
                               // Fluttertoast.showToast(msg: "Cambio $_selectedDestination");
-                              selectDestination(index, snapshot.data!.docs[index].reference);
+                              selectDestination(Key(snapshot.data!.docs[index].id), snapshot.data!.docs[index].reference);
                             },
                             onEdit: () {
                               Navigator.pop(context);
@@ -383,7 +394,11 @@ class _HomeScreenState extends State<HomeScreen> {
                                         TextButton(
                                           onPressed: () {
                                             // El pop lo hace ya selectDestination
-                                            selectDestination(index - 1, snapshot.data!.docs[index - 1].reference);
+                                            setState(() {
+                                              _selectedKey = null;
+                                              selTag = null;
+                                            });
+                                            Navigator.pop(context);
                                             tags.doc(snapshot.data!.docs[index].id).delete();
                                           },
                                           child: Text('ACEPTAR'),
@@ -393,7 +408,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                   }
                               );
                             },
-                            selected: _selectedDestination == index,
+                            selected: _selectedKey == Key(snapshot.data!.docs[index].id),
                           ),
                         );
                       },
@@ -461,20 +476,24 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  void selectDestination(int index, DocumentReference ref) {
+  void selectDestination(Key key, DocumentReference? ref) {
     setState(() {
-      _selectedDestination = index;
+      _selectedKey = key;
       selTag = ref;
     });
     Navigator.pop(context);
   }
 
-  void updateDestination(int length) {
-    if (_selectedDestination >= length)
-      setState(() {
-        _selectedDestination = -1;
-        selTag = null;
+  void updateDestination() {
+    if (selTag != null) {
+      tags.doc(selTag!.id).get().then((doc) {
+        if (!doc.exists)
+          setState(() {
+            _selectedKey = null;
+            selTag = null;
+          });
       });
+    }
   }
 
   String _nameToInitials(String displayName) {
