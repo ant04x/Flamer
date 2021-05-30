@@ -38,8 +38,8 @@ class _SignInScreenState extends State<SignInScreen> {
         context,
         (BuildContext context) {
           return  AlertDialog(
-            title: Text('Notifiaciones no soportadas'),
-            content: Text('Tu navegador no soporta el estándar notificaciones usado por Flamer. Si quieres diponer de estas, busca en tu tienda de apps la aplicación Flamer.'),
+            title: Text('Navegador no soportado'),
+            content: Text('Tu navegador no soporta el estándar notificaciones usado por Flamer ni el método de inicio de sesión. Puedes usar la aplicación web desde el navegador sin recibir notificaciones o si quieres diponer de estas, busca en tu tienda de apps la aplicación Flamer.'),
             actions: [
               TextButton(
                 onPressed: () {

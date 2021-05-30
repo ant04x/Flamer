@@ -43,6 +43,7 @@ dependencies:
   github_sign_in: ^0.0.4
   google_api_availability: ^3.0.1
   platform_detect: ^2.0.0
+  connectivity: ^3.0.6
 
 
 dev_dependencies:

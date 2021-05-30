@@ -4,6 +4,7 @@ import 'package:flamer/screens/settings_screen.dart';
 import 'package:flamer/screens/sign_in_screen.dart';
 import 'package:flamer/screens/task_screen.dart';
 import 'package:flamer/utils/auth/auth_impl.dart';
+import 'package:flamer/utils/connection.dart';
 import 'package:flamer/utils/messaging/messaging_impl.dart';
 import 'package:flamer/widgets/dialogs/tag_dialog.dart';
 import 'package:flamer/widgets/dialogs/search_dialog.dart';
@@ -256,42 +257,58 @@ class _HomeScreenState extends State<HomeScreen> {
                         child: Text(_nameToInitials(_user.displayName!)),
                         backgroundColor: Colors.deepOrange,
                       ),
-                      onDetailsPressed: () {
+                      onDetailsPressed: () async {
                         Navigator.pop(context);
+                        late AlertDialog alert;
+                        await check().then((connected) {
+                          if (connected)
+                            alert = AlertDialog(
+                              title: Text('Cerrar Sesión'),
+                              content: Text('Para administrar de nuevo tus tareas deberás iniciar sesión después con esta u otra cuenta. ¿Estás seguro de que quieres cerrar sesión?'),
+                              actions: [
+                                TextButton(
+                                  onPressed: () => Navigator.pop(context),
+                                  child: Text('CANCELAR'),
+                                ),
+                                TextButton(
+                                  onPressed: () async {
+                                    setState(() {
+                                      _isSigningOut = true;
+                                    });
+                                    await Messaging().stop(_user.uid);
+                                    setState(() {
+                                      _isSigningOut = false;
+                                    });
+                                    await Auth.signOut(context: context);
+                                    // await Messaging.unsubscribeNotifications(_user);
+                                    print('Notificaciones cerradas');
+                                    Navigator.of(context).pop();
+                                    Navigator.of(context).pushReplacement(
+                                        PageRouteBuilder(
+                                            pageBuilder: (context, animation, secondaryAnimation) => SignInScreen(user: null,)
+                                        )
+                                    );
+                                  },
+                                  child: Text('ACEPTAR'),
+                                ),
+                              ],
+                            );
+                          else
+                            alert = AlertDialog(
+                              title: Text('Sin Conexión'),
+                              content: Text('Para poder cerrar sesión es necesario que te conectes a Internet.'),
+                              actions: [
+                                TextButton(
+                                  onPressed: () => Navigator.pop(context),
+                                  child: Text('ACEPTAR'),
+                                ),
+                              ],
+                            );
+                        });
                         showDialog(
                             context: context,
                             builder: (BuildContext context) {
-                              return  AlertDialog(
-                                title: Text('Cerrar Sesión'),
-                                content: Text('Para administrar de nuevo tus tareas deberás iniciar sesión después con esta u otra cuenta. ¿Estás seguro de que quieres cerrar sesión?'),
-                                actions: [
-                                  TextButton(
-                                    onPressed: () => Navigator.pop(context),
-                                    child: Text('CANCELAR'),
-                                  ),
-                                  TextButton(
-                                    onPressed: () async {
-                                      setState(() {
-                                        _isSigningOut = true;
-                                      });
-                                      await Messaging().stop(_user.uid);
-                                      setState(() {
-                                        _isSigningOut = false;
-                                      });
-                                      await Auth.signOut(context: context);
-                                      // await Messaging.unsubscribeNotifications(_user);
-                                      print('Notificaciones cerradas');
-                                      Navigator.of(context).pop();
-                                      Navigator.of(context).pushReplacement(
-                                          PageRouteBuilder(
-                                              pageBuilder: (context, animation, secondaryAnimation) => SignInScreen(user: null,)
-                                          )
-                                      );
-                                    },
-                                    child: Text('ACEPTAR'),
-                                  ),
-                                ],
-                              );
+                              return alert;
                             }
                         );
                       },
