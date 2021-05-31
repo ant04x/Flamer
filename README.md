@@ -11,7 +11,7 @@ y usa componentes [Material](https://material.io/).
 Puedes descargar la aplicación oficial para tu sistema operativo desde:
 
 - [Play Store](https://play.google.com/store/apps/details?id=io.ant04x.flamer)
-- [APK](https://central.github.com/deployments/ant04x/Flamer/latest/android)
+- [APK](https://github.com/ant04x/Flamer/releases/download/release-1.0.4-beta4/flamer-android-release-1.0.4-beta4.apk)
 - [PWA](https://flamer-89f12.firebaseapp.com/)
 
 Para usar directamente la version PWA puedes crear un acceso directo
@@ -19,7 +19,7 @@ desde el navegador en Android, Windows y MacOS (se recomienda Chrome).
 
 **NOTA**: En algunos navegadores no está soportada la función de añadir al 
 inicio. Esto depende de la combinación del navegador en cuestión y el
-sistema operativo en el cual se este usando (Versión de iOS no soportada).
+sistema operativo en el cual se este usando (versión de iOS no soportada).
 
 ## Tengo un problema para reportar 
 
