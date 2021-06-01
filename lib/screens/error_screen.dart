@@ -1,30 +1,28 @@
 import 'package:flutter/material.dart';
 
+/// Pantalla de error para mostrar en caso de por ejemplo tener un [error].
 class ErrorScreen extends StatefulWidget {
   ErrorScreen({Key? key, this.error}) : super(key: key);
 
-  // This widget is the home page of your application. It is stateful, meaning
-  // that it has a State object (defined below) that contains fields that affect
-  // how it looks.
-
-  // This class is the configuration for the state. It holds the values (in this
-  // case the title) provided by the parent (in this case the App widget) and
-  // used by the build method of the State. Fields in a Widget subclass are
-  // always marked "final".
-
+  /// Objeto contenedor del error a mostrar.
   final Object? error;
 
+  /// Crea el estado del widget.
   @override
   _ErrorScreenState createState() => _ErrorScreenState();
 }
 
+/// Estado de [ErrorScreen].
 class _ErrorScreenState extends State<ErrorScreen> {
+
+  /// Construye el widget [ErrorScreen] para el [context] seleccionado.
   @override
   Widget build(BuildContext context) {
     return Center(
       child: Column(
         children: [
-          Icon(Icons.error, color: Colors.red,)
+          Icon(Icons.error, color: Colors.red,),
+          Text(widget.error.toString()),
         ],
       ),
     );

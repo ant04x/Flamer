@@ -3,21 +3,29 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+/// Pantalla de configuración e información de la aplicación.
 class SettingsScreen extends StatefulWidget {
+
+  /// Crea el estado del widget.
   @override
   _SettingsScreenState createState() => _SettingsScreenState();
 }
 
+/// Estado de [SettingsScreen].
 class _SettingsScreenState extends State<SettingsScreen> {
-  int? _themeValue = 1;
-  int themeSet = 1;
 
+  /// Indice del tema seleccionado.
+  int? _themeValue = 1;
+  /// Indice del tema establecido.
+  int themeSet = 1;
+  /// Selección de temas por defecto.
   List<String> themes = [
     'Auto',
     'Claro',
     'Oscuro'
   ];
 
+  /// Inicializa los valores del estado de [SettingsScreen].
   @override
   void initState() {
     DarkThemeProvider themeChangeProvider = new DarkThemeProvider();
@@ -25,6 +33,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     super.initState();
   }
 
+  /// Construye el widget [SettingsScreen] para el [context] actual.
   @override
   Widget build(BuildContext context) {
     final themeChange = Provider.of<DarkThemeProvider>(context);
@@ -39,6 +48,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             subtitle: Text(themes[themeSet - 1]),
             leading: Icon(Icons.brightness_6),
             onTap: () {
+              /// Abre un diálogo para establecer el tema de la app.
               setState(() {
                 _themeValue = themeSet;
               });
@@ -115,10 +125,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       actions: [
                         Divider(),
                         TextButton(
+                          /// Si no se acepta, el valor actual se mantiene.
                           onPressed: () { Navigator.of(context).pop(); },
                           child: Text('CANCELAR'),
                         ),
                         TextButton(
+                          /// Si se acepta el valor cambia por el seleccionado.
                           onPressed: () {
                             setState(() {
                               themeSet = _themeValue!;
@@ -139,6 +151,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             title: Text('Acerca de'),
             leading: Icon(Icons.info),
             onTap: () async {
+              /// Abrir el repositorio de GitHub.
               await launch("https://github.com/ant04x/Flamer");
             },
           ),

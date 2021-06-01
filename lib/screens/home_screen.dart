@@ -6,6 +6,8 @@ import 'package:flamer/screens/task_screen.dart';
 import 'package:flamer/utils/auth/auth_impl.dart';
 import 'package:flamer/utils/connection.dart';
 import 'package:flamer/utils/messaging/messaging_impl.dart';
+import 'package:flamer/widgets/components/tag_widget.dart';
+import 'package:flamer/widgets/components/task_widget.dart';
 import 'package:flamer/widgets/dialogs/tag_dialog.dart';
 import 'package:flamer/widgets/dialogs/search_dialog.dart';
 import 'package:flutter/foundation.dart';
@@ -13,40 +15,40 @@ import 'package:flutter/services.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:flutter/material.dart';
 
+/// Pantalla de menú inical con un [title] para
+/// mostrar en la barra de tareas y un [_user] para administrar [Task]s.
 class HomeScreen extends StatefulWidget {
   HomeScreen({Key? key, this.title, required User user}) : _user = user, super(key: key);
 
-  // This widget is the home page of your application. It is stateful, meaning
-  // that it has a State object (defined below) that contains fields that affect
-  // how it looks.
-
-  // This class is the configuration for the state. It holds the values (in this
-  // case the title) provided by the parent (in this case the App widget) and
-  // used by the build method of the State. Fields in a Widget subclass are
-  // always marked "final".
-
+  /// Usuario para administrar las tareas.
   final User _user;
+  /// Título de la pantalla.
   final String? title;
 
+  /// Crea el estado del widget.
   @override
   _HomeScreenState createState() => _HomeScreenState();
 }
 
+/// Estado de [HomeScreen].
 class _HomeScreenState extends State<HomeScreen> {
+
+  /// [User] actual de la applicación.
   late User _user;
+  /// Variable refrescante de estado, indica si el usuario [_isSigningOut].
   bool _isSigningOut = false;
-
-  int _counter = 0;
-  // bool? _task1 = false;
-  // int _selectedDestination = -1;
+  /// [Key] del [Tag] seleccionado.
   Key? _selectedKey;
-
+  /// Instancia de Firestore.
   FirebaseFirestore firestore = FirebaseFirestore.instance;
-
+  /// Referencia de Firestore al [Tag] seleccionado.
   DocumentReference? selTag;
+  /// Referencia de Firebase a la colección de [Tag]s del [user] actual.
   late CollectionReference tags;
+  /// Referencia de Firebase a la colección de [Task]s del [user] actual.
   late CollectionReference tasks;
 
+  /// Inicializa los valores del estado de [HomeScreen].
   @override
   void initState() {
     _user = widget._user;
@@ -55,14 +57,9 @@ class _HomeScreenState extends State<HomeScreen> {
     super.initState();
   }
 
+  /// Construye el widget [HomeScreen] para el [context] actual.
   @override
   Widget build(BuildContext context) {
-    // This method is rerun every time setState is called, for instance as done
-    // by the _incrementCounter method above.
-    //
-    // The Flutter framework has been optimized to make rerunning build methods
-    // fast, so that you can just rebuild anything that needs updating rather
-    // than having to individually change instances of widgets.
     final theme = Theme.of(context);
     final textTheme = theme.textTheme;
     ThemeData currentTheme = Theme.of(context);
@@ -82,6 +79,8 @@ class _HomeScreenState extends State<HomeScreen> {
         length: 3,
         child: Scaffold(
           onDrawerChanged: (open) {
+            /// Al abrirse el cajón, oscurecer la barra de estado para no perder
+            /// visibilidad.
             if (open) {
               SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
                 statusBarColor: Colors.black38,
@@ -98,6 +97,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 return IconButton(
                   icon: const Icon(Icons.menu),
                   onPressed: () {
+                    /// Abre el cajón al presionarse.
                     Scaffold.of(context).openDrawer();
                   },
                   tooltip: MaterialLocalizations.of(context).openAppDrawerTooltip,
@@ -110,6 +110,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 child: IconButton(
                   icon: const Icon(Icons.search),
                   onPressed: () {
+                    /// Al presionarse abre el diálogo de búsqueda.
                     Navigator.push(
                         context,
                         MaterialPageRoute(builder: (context) => SearchDialog(user: _user, tasks: tasks,))
@@ -130,7 +131,7 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
           body: TabBarView(
             children: [
-              // ALL
+              /// Pestaña de TODOS
               StreamBuilder<QuerySnapshot>(
                   stream: _selectedKey == null
                       ? tasks.orderBy('created', descending: true).snapshots()
@@ -150,12 +151,15 @@ class _HomeScreenState extends State<HomeScreen> {
                         col: tasks,
                         doc: snapshot.data!.docs[index],
                         onEdit: () {
+                          /// Al abrir una tarea lanzar la pantalla de tareas.
                           Navigator.push(
                               context,
                               MaterialPageRoute(builder: (context) => TaskScreen(user: _user, doc: snapshot.data!.docs[index]))
                           );
                         },
                         onDelete: () {
+                          /// Al mantener presionado y dar en "aceptar",
+                          /// eliminar la tarea.
                           Navigator.of(context).pop();
                           tasks.doc(snapshot.data!.docs[index].id).delete();
                         },
@@ -186,12 +190,15 @@ class _HomeScreenState extends State<HomeScreen> {
                         col: tasks,
                         doc: snapshot.data!.docs[index],
                         onEdit: () {
+                          /// Al abrir una tarea lanzar la pantalla de tareas.
                           Navigator.push(
                               context,
                               MaterialPageRoute(builder: (context) => TaskScreen(user: _user, doc: snapshot.data!.docs[index]))
                           );
                         },
                         onDelete: () {
+                          /// Al mantener presionado y dar en "aceptar",
+                          /// eliminar la tarea.
                           Navigator.of(context).pop();
                           tasks.doc(snapshot.data!.docs[index].id).delete();
                         },
@@ -222,12 +229,15 @@ class _HomeScreenState extends State<HomeScreen> {
                         col: tasks,
                         doc: snapshot.data!.docs[index],
                         onEdit: () {
+                          /// Al abrir una tarea lanzar la pantalla de tareas.
                           Navigator.push(
                               context,
                               MaterialPageRoute(builder: (context) => TaskScreen(user: _user, doc: snapshot.data!.docs[index]))
                           );
                         },
                         onDelete: () {
+                          /// Al mantener presionado y dar en "aceptar",
+                          /// eliminar la tarea.
                           Navigator.of(context).pop();
                           tasks.doc(snapshot.data!.docs[index].id).delete();
                         },
@@ -271,6 +281,8 @@ class _HomeScreenState extends State<HomeScreen> {
                         Navigator.pop(context);
                         late AlertDialog alert;
                         await check().then((connected) {
+                          /// Si está conectado a Internet preguntar por cerrar
+                          /// sesión, si no, informar de que es necesario.
                           if (connected)
                             alert = AlertDialog(
                               title: Text('Cerrar Sesión'),
@@ -335,6 +347,8 @@ class _HomeScreenState extends State<HomeScreen> {
                       selected: _selectedKey == null,
                       // Al hacer tab establecer nuevo tag
                       onTap: () {
+                        /// Al dar en la etiqueta automática quita los filtros
+                        /// de la consulta.
                         setState(() {
                           _selectedKey = null;
                           selTag = null;
@@ -358,10 +372,13 @@ class _HomeScreenState extends State<HomeScreen> {
                             context: context,
                             doc: snapshot.data!.docs[index],
                             onTab: () {
-                              // Fluttertoast.showToast(msg: "Cambio $_selectedDestination");
+                              /// Al dar en una etiqueta mostrar el tareas del
+                              /// filtro seleccionado.
                               selectDestination(Key(snapshot.data!.docs[index].id), snapshot.data!.docs[index].reference);
                             },
                             onEdit: () {
+                              /// Al dar en el deplegable en "editar", abrir la
+                              /// pantalla de edición.
                               Navigator.pop(context);
                               Navigator.pop(context);
                               Navigator.push(
@@ -375,6 +392,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                 ),
                               );
                             },
+                            /// Al dar en el desplegable en "eliminar", abrir
+                            /// diálogo de confirmación y eliminar.
                             onDelete: () {
                               Navigator.pop(context);
                               Navigator.pop(context);
@@ -387,13 +406,14 @@ class _HomeScreenState extends State<HomeScreen> {
                                       actions: [
                                         TextButton(
                                           onPressed: () {
+                                            /// Cancela la eliminación.
                                             Navigator.pop(context);
                                           },
                                           child: Text('CANCELAR'),
                                         ),
                                         TextButton(
                                           onPressed: () {
-                                            // El pop lo hace ya selectDestination
+                                            /// Ejecuta la eliminación.
                                             setState(() {
                                               _selectedKey = null;
                                               selTag = null;
@@ -428,6 +448,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       title: Text('Crear Etiqueta'),
                       selected: false,
                       onTap: () {
+                        /// Abre la pantalla para crear una tarea.
                         Navigator.pop(context);
                         Navigator.push(
                           context,
@@ -443,6 +464,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         title: Text('Ajustes'),
                         selected: false,
                         onTap: () {
+                          /// Abre la pantalla de configuración de la aplicación.
                           Navigator.pop(context);
                           Navigator.push(
                               context,
@@ -457,6 +479,7 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
           floatingActionButton: FloatingActionButton.extended(
             onPressed: () {
+              /// Al presionar crear una tarea.
               Navigator.push(
                   context,
                   MaterialPageRoute(builder: (context) {
@@ -476,6 +499,8 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
+  /// Cambia la selección de los Tag según la [key] y la [ref] del [Tag] a
+  /// seleccionar.
   void selectDestination(Key key, DocumentReference? ref) {
     setState(() {
       _selectedKey = key;
@@ -484,6 +509,8 @@ class _HomeScreenState extends State<HomeScreen> {
     Navigator.pop(context);
   }
 
+  /// Actualiza el Tag seleccionado de no existir x haber sido eliminado en otro
+  /// dispositivo.
   void updateDestination() {
     if (selTag != null) {
       tags.doc(selTag!.id).get().then((doc) {
@@ -496,144 +523,11 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
+  /// Obtiene las iniciales de un [displayName].
   String _nameToInitials(String displayName) {
     var names = displayName.split(' ').getRange(0, 2);
     var result = '';
     names.forEach((element) { result += String.fromCharCode(element.runes.first); });
     return result.toUpperCase();
-  }
-}
-
-class TaskWidget extends StatefulWidget {
-  TaskWidget({
-    Key? key,
-    required this.context,
-    required this.col,
-    required this.doc,
-    this.onTab,
-    this.onEdit,
-    this.onDelete,
-  }) : super(key: key);
-
-  final BuildContext context;
-  final CollectionReference col;
-  final DocumentSnapshot doc;
-  final void Function()? onTab;
-  final void Function()? onEdit;
-  final void Function()? onDelete;
-
-  @override
-  _TaskWidgetState createState() => _TaskWidgetState();
-}
-
-class _TaskWidgetState extends State<TaskWidget> {
-  @override
-  Widget build(BuildContext context) {
-    return ListTile(
-      title: Text(widget.doc['name']),
-      trailing: Checkbox(
-        value: widget.doc['done'],
-        onChanged: (value) {
-          if (value == null) {
-            updateDoneTask(widget.col, widget.doc, false);
-          } else {
-            updateDoneTask(widget.col, widget.doc, value);
-          }
-        },
-      ),
-      onTap: widget.onEdit,
-      onLongPress: () {
-        showDialog(
-            context: context,
-            builder: (BuildContext context) {
-              return  AlertDialog(
-                title: Text('¿Borrar ${widget.doc['name']}?'),
-                content: Text('Se eliminará permanentemente de tu lista de tareas y etiquetas.'),
-                actions: [
-                  TextButton(
-                    onPressed: () => Navigator.pop(context),
-                    child: Text('CANCELAR'),
-                  ),
-                  TextButton(
-                    onPressed: widget.onDelete,
-                    child: Text('ACEPTAR'),
-                  ),
-                ],
-              );
-            }
-        );
-      },
-    );
-  }
-
-  Future<void> updateDoneTask(CollectionReference col, DocumentSnapshot doc, bool done) {
-    return col.doc(doc.id).update({
-      'done': done
-    });
-  }
-}
-
-
-class TagWidget extends StatefulWidget {
-
-  TagWidget({
-    Key? key,
-    required this.context,
-    required this.doc,
-    this.selected = false,
-    this.onTab,
-    this.onEdit,
-    this.onDelete,
-  }) : super(key: key);
-
-  // This widget is the home page of your application. It is stateful, meaning
-  // that it has a State object (defined below) that contains fields that affect
-  // how it looks.
-
-  // This class is the configuration for the state. It holds the values (in this
-  // case the title) provided by the parent (in this case the App widget) and
-  // used by the build method of the State. Fields in a Widget subclass are
-  // always marked "final".
-
-  final BuildContext context;
-  final DocumentSnapshot doc;
-  final bool selected;
-  final void Function()? onTab;
-  final void Function()? onEdit;
-  final void Function()? onDelete;
-
-  @override
-  _TagWidgetState createState() => _TagWidgetState();
-}
-
-class _TagWidgetState extends State<TagWidget> {
-  @override
-  Widget build(BuildContext context) {
-    return ListTile(
-      leading: Icon(MdiIcons.fromString(widget.doc['icon'])),
-      trailing: PopupMenuButton(
-        icon: Icon(Icons.more_vert),
-        itemBuilder: (BuildContext context) => <PopupMenuEntry>[
-          PopupMenuItem(
-            child: ListTile(
-              leading: Icon(Icons.edit),
-              title: Text('Editar'),
-              onTap: widget.onEdit,
-            ),
-          ),
-          PopupMenuItem(
-            child: ListTile(
-              leading: Icon(Icons.delete),
-              title: Text('Eliminar'),
-              onTap: widget.onDelete,
-            ),
-          ),
-        ],
-      ),
-      title: Text(widget.doc['name']),
-      selected: widget.selected,
-      // Al hacer tab establecer nuevo tag
-      onTap: widget.onTab,
-    );
   }
 }

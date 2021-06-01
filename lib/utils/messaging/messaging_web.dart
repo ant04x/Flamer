@@ -9,8 +9,11 @@ import 'package:platform_detect/platform_detect.dart';
 
 import 'messaging_impl.dart';
 
+/// Implementación de la clase [Messaging] para Web.
 class MessagingWeb implements Messaging {
 
+  /// Registra el dispositivo actual en el canal de notificaciones del usuario
+  /// correspondiente al [uid] en Web.
   @override
   Future<void> start(String uid) async {
     if (html.Notification.supported) {
@@ -31,6 +34,8 @@ class MessagingWeb implements Messaging {
     }
   }
 
+  /// Elimina el registro del dispositivo actual de las notificaciones del
+  /// usuario correspondiente al [uid] en Web.
   @override
   Future<void> stop(String uid) async {
     if (html.Notification.supported) {
@@ -49,6 +54,8 @@ class MessagingWeb implements Messaging {
     }
   }
 
+  /// Muestra un diálogo si la plataforma no está soportada en el [context] y
+  /// mediante un [builder].
   @override
   Future<T?>? showDialogIfNotSupported<T>(BuildContext context, WidgetBuilder builder) {
     if (browser.isSafari || browser.isInternetExplorer || browser.isWKWebView)
@@ -59,4 +66,5 @@ class MessagingWeb implements Messaging {
   }
 }
 
+/// Función para la implementación del Factory de [Messaging].
 Messaging getMessaging() => MessagingWeb();

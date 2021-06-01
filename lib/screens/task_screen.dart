@@ -3,40 +3,53 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:flutter/material.dart';
 
+/// Pantalla de edición de [Task]s.
 class TaskScreen extends StatefulWidget {
-
+  
   TaskScreen({Key? key, required User user, DocumentSnapshot? doc, DocumentReference? tag}) : _user = user, _doc = doc, _tag = tag, super(key: key);
 
   final User _user;
   final DocumentSnapshot? _doc;
   final DocumentReference? _tag;
 
+  /// Crea el estado del widget.
   @override
   _TaskScreenState createState() => _TaskScreenState();
 }
 
+/// Estado de [TaskScreen].
 class _TaskScreenState extends State<TaskScreen> {
 
+  /// Si la tarea esta hecha.
   late bool done;
+  /// Nombre de la etiqueta.
   String tagName = 'Todo';
+  /// Referencia de la etiqueta a la que pertenece.
   DocumentReference? tag;
+  /// Instantanea de la etiqueta a la que pertenece.
   DocumentSnapshot? tagSnapshot;
-  String repetitionTask = RepetitionType.none;
+  /// Tipo de repetición.
+  String repetitionTask = RepetitionTypeMapper.none;
+  /// Fecha para el recordatorio.
   DateTime? remind;
 
+  /// Referencia a la coleccion de tareas.
   late CollectionReference tasks;
+  /// Referencia a la colección de etiquetas.
   late CollectionReference tags;
+  /// Controlador del campo de texto de nombre.
+  late final nameController;
 
-  late final myController;
-
+  /// Inicializa los valores del estado de [TaskScreen].
   @override
   void initState() {
     tasks = FirebaseFirestore.instance.collection('tasks/').doc('${widget._user.uid}').collection('tasks/');
     tags = FirebaseFirestore.instance.collection('tags/').doc('${widget._user.uid}').collection('tags/');
-
+    
+    /// Dependiendo si es una edición o una creación.
     if (widget._doc == null) {
       done = false;
-      myController = TextEditingController();
+      nameController = TextEditingController();
       tag = widget._tag;
       if (tag != null) {
         getDocumentFromReference(tag!).then((value) {
@@ -47,7 +60,7 @@ class _TaskScreenState extends State<TaskScreen> {
       }
     } else {
       done = widget._doc!['done'];
-      myController = TextEditingController(text: widget._doc!['name']);
+      nameController = TextEditingController(text: widget._doc!['name']);
       tag = widget._doc!['tag'];
       if (tag != null) {
         getDocumentFromReference(tag!).then((value) {
@@ -62,10 +75,9 @@ class _TaskScreenState extends State<TaskScreen> {
     super.initState();
   }
 
+  /// Construye el widget [TaskScreen] para el [context] actual.
   @override
   Widget build(BuildContext context) {
-    ThemeData currentTheme = Theme.of(context);
-    Brightness currentBrightness = currentTheme.brightness;
     return Scaffold(
       appBar: AppBar(
         title: Text('Tarea'),
@@ -78,7 +90,7 @@ class _TaskScreenState extends State<TaskScreen> {
               children: <Widget>[
                 Expanded(
                   child: TextFormField(
-                    controller: myController,
+                    controller: nameController,
                     autofocus: true,
                     decoration: InputDecoration(
                       filled: true,
@@ -93,6 +105,7 @@ class _TaskScreenState extends State<TaskScreen> {
                   padding: EdgeInsets.only(left: 15),
                   child: Checkbox(
                     onChanged: (bool? value) {
+                      /// Actualizar el valor de si esta hecho.
                       setState(() {
                         done = value == null ? false : value;
                       });
@@ -110,6 +123,7 @@ class _TaskScreenState extends State<TaskScreen> {
               if (!snapshot.hasData) return Container();
               return PopupMenuButton<DocumentSnapshot>(
                 itemBuilder: (context) {
+                  /// Generar desplegable en base a las etiquetas existentes.
                   return snapshot.data!.docs.map((item) => PopupMenuItem(
                     value: item,
                     child: ListTile(
@@ -127,6 +141,7 @@ class _TaskScreenState extends State<TaskScreen> {
                   trailing: tagSnapshot != null
                       ? IconButton(
                     onPressed: () {
+                      /// Limpiar la selección.
                       setState(() => tagSnapshot = null);
                     },
                     icon: Icon(Icons.close),
@@ -135,6 +150,7 @@ class _TaskScreenState extends State<TaskScreen> {
                 ),
                 onSelected: (value) {
                   setState(() {
+                    /// Establecer nuevo valor para la etiqueta.
                     tagSnapshot = value;
                   });
                 },
@@ -145,24 +161,26 @@ class _TaskScreenState extends State<TaskScreen> {
           PopupMenuButton<String>(
             child: ListTile(
               title: Text('Repetir'),
-              subtitle: repetitionTask != RepetitionType.none ? Text(RepetitionType.visualList[repetitionTask]!) : null,
+              subtitle: repetitionTask != RepetitionTypeMapper.none ? Text(RepetitionTypeMapper.visualList[repetitionTask]!) : null,
               leading: Icon(Icons.repeat),
-              trailing: repetitionTask != RepetitionType.none
+              trailing: repetitionTask != RepetitionTypeMapper.none
                   ? IconButton(
                 onPressed: () {
-                  setState(() => repetitionTask = RepetitionType.none);
+                  /// Establecer nuevo valor para la etiqueta.
+                  setState(() => repetitionTask = RepetitionTypeMapper.none);
                 },
                 icon: Icon(Icons.close),
               )
                   : null,
             ),
             itemBuilder: (context) {
-              return RepetitionType.visualList.keys.map((type) => PopupMenuItem<String>(
+              return RepetitionTypeMapper.visualList.keys.map((type) => PopupMenuItem<String>(
                   value: type,
-                  child: Text('${RepetitionType.visualList[type]}')
+                  child: Text('${RepetitionTypeMapper.visualList[type]}')
               )).toList();
             },
             onSelected: (value) {
+              /// Actualizar el valor de repetición y configurar tarea.
               setState(() {
                 repetitionTask = value;
                 if (remind == null)
@@ -179,9 +197,10 @@ class _TaskScreenState extends State<TaskScreen> {
             trailing: remind != null
                 ? IconButton(
               onPressed: () {
+                /// Actualizar el valor de aviso y configurar tarea.
                 setState(() {
                   remind = null;
-                  repetitionTask = RepetitionType.none;
+                  repetitionTask = RepetitionTypeMapper.none;
                 });
               },
               icon: Icon(Icons.close),
@@ -222,11 +241,12 @@ class _TaskScreenState extends State<TaskScreen> {
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () {
-          if (myController.text != '') {
+          /// Al presionar guardar valores en la tarea.
+          if (nameController.text != '') {
             Navigator.pop(context);
             if (widget._doc == null) {
               addTask(
-                myController.text,
+                nameController.text,
                 done,
                 remind == null
                     ? null
@@ -240,7 +260,7 @@ class _TaskScreenState extends State<TaskScreen> {
               );
             } else {
               updateTask(
-                myController.text,
+                nameController.text,
                 done,
                 remind == null
                     ? null
@@ -257,6 +277,9 @@ class _TaskScreenState extends State<TaskScreen> {
     );
   }
 
+  /// Añade una tarea con su [name] o título, si se está [done],
+  /// la [date] de completado, tipo de [repetition], el [tag] al que pertenece,
+  /// si está [scheduled] y la fecha cuando fueron [created]. 
   Future<void> addTask(String name, bool done, Timestamp? date, String repetition, DocumentSnapshot? tag, bool scheduled, Timestamp? created) {
     return tasks.add({
       'name': name,
@@ -269,10 +292,13 @@ class _TaskScreenState extends State<TaskScreen> {
     });
   }
 
+  /// Obtiene el documento de la [ref] de forma asíncrona.
   Future<DocumentSnapshot> getDocumentFromReference(DocumentReference ref) async {
     return await ref.get();
   }
 
+  /// Actualiza la tarea con su [name] o título, si se está [done], la [date] de
+  /// completado, tipo de [repetition], el [tag] al que pertenece. 
   Future<void> updateTask(String name, bool done, Timestamp? date, String repetition, DocumentSnapshot? tag) {
 
     bool scheduled = false;
@@ -290,7 +316,8 @@ class _TaskScreenState extends State<TaskScreen> {
   }
 }
 
-class RepetitionType {
+/// Clase de mapeo estático para mostrar en pantalla los valores bien.
+class RepetitionTypeMapper {
   static const String none = 'none';
   static const String daily = 'daily';
   static const String workdays = 'workdays';

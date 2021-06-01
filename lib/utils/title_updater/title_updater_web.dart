@@ -1,12 +1,14 @@
 // ignore: avoid_web_libraries_in_flutter
 import 'dart:html';
-
 import 'package:flamer/utils/dark_theme_preference.dart';
 import 'package:flamer/utils/title_updater/title_updater_impl.dart';
 import 'package:flutter/material.dart';
 
+/// Implementación de la clase [TitleUpdater] para Web.
 class TitleUpdaterWeb implements TitleUpdater {
 
+  /// Actualiza el tema HTML visible en la barra de título en base a un
+  /// [actualThemeMode] en Web.
   void updateTitleBar(ThemeMode actualThemeMode) {
     // Actualizar según el tema de la aplicación
     var element = document.querySelector('meta[name="theme-color"]');
@@ -35,4 +37,5 @@ class TitleUpdaterWeb implements TitleUpdater {
   }
 }
 
+/// Función para la implementación del Factory de [TitleUpdater].
 TitleUpdater getTitleUpdater() => TitleUpdaterWeb();

@@ -1,4 +1,6 @@
 import 'package:flamer/utils/messaging/messaging_impl.dart';
 
+/// Función puente para generar el contructor de modo multiplataforma.
 Messaging getMessaging() => throw UnsupportedError(
-    'Cannot create a keyfinder without the packages dart:html or package:shared_preferences');
+    'Conflicto de paquetes no resueltos debido a la plataforma.'
+);

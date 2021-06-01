@@ -1,4 +1,6 @@
 import 'auth_impl.dart';
 
+/// Función puente para generar el contructor de modo multiplataforma.
 Auth getAuth() => throw UnsupportedError(
-    'Cannot create a keyfinder without the packages dart:html or package:shared_preferences');
+    'Conflicto de paquetes no resueltos debido a la plataforma.'
+);

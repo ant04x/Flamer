@@ -9,17 +9,22 @@ import 'package:flutter/material.dart';
 
 import 'home_screen.dart';
 
+/// Pantalla de inicio de sesión para obtener un [_user].
 class SignInScreen extends StatefulWidget {
   SignInScreen({Key? key, required User? user}) : _user = user, super(key: key);
 
+  /// Usuario con el que acceder a la aplicación.
   final User? _user;
 
+  /// Crea el estado del widget.
   @override
   _SignInScreenState createState() => _SignInScreenState();
 }
 
+/// Estado de [SignInScreen].
 class _SignInScreenState extends State<SignInScreen> {
 
+  /// Inicializa los valores del  estado de [SignInScreen].
   @override
   void initState() {
     WidgetsBinding.instance!.addPostFrameCallback((_) {
@@ -28,6 +33,7 @@ class _SignInScreenState extends State<SignInScreen> {
     super.initState();
   }
 
+  /// Construye el widget [SignInScreen] para el [context] actual.
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -37,12 +43,19 @@ class _SignInScreenState extends State<SignInScreen> {
     Messaging().showDialogIfNotSupported(
         context,
         (BuildContext context) {
-          return  AlertDialog(
+          return AlertDialog(
             title: Text('Navegador no soportado'),
-            content: Text('Tu navegador no soporta el estándar notificaciones usado por Flamer ni el método de inicio de sesión. Puedes usar la aplicación web desde el navegador sin recibir notificaciones o si quieres diponer de estas, busca en tu tienda de apps la aplicación Flamer.'),
+            content: Text(
+                'Tu navegador no soporta el estándar notificaciones usado por '
+                'Flamer ni el método de inicio de sesión.\nPuedes usar la '
+                'aplicación web desde el navegador sin recibir notificaciones o'
+                ' si quieres diponer de estas, busca en tu tienda de apps la '
+                'aplicación Flamer.'
+            ),
             actions: [
               TextButton(
                 onPressed: () {
+                  /// Cerrar aviso
                   Navigator.pop(context);
                 },
                 child: Text('ACEPTAR'),
@@ -82,14 +95,13 @@ class _SignInScreenState extends State<SignInScreen> {
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () async {
+          /// Iniciar sesión con Github dependiendo si es Web o Nativo.
           User? user;
-
           await Auth().signInWithGitHub(context: context).then((value) {
             if (value != null) {
               user = value.user;
             }
           });
-          // await Messaging.subscribeNotifications(user);
           await Messaging().start(user!.uid);
           if (user != null) {
             print('Notificaciones inicializadas.');

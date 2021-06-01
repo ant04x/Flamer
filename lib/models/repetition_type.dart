@@ -1,3 +1,4 @@
+/// Tipos de repetición de calendario.
 enum RepetitionType {
   none,
   daily,

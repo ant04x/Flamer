@@ -8,53 +8,68 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
+/// Empieza el programa lanzando la app.
 main() async {
   // WidgetsFlutterBinding.ensureInitialized();
   runApp(App());
 }
 
+/// Widget que engloba el estado de toda la aplicación.
 class App extends StatefulWidget {
-  // Create the initialization Future outside of `build`:
+
+  /// Crea el estado para el Widget de la app.
   @override
   _AppState createState() => _AppState();
-
 }
 
+/// Estado del widget [App]
 class _AppState extends State<App> {
-  /// The future is part of the state of our widget. We should not call `initializeApp`
-  /// directly inside [build].
+
+  /// Prooveedor del tema actual de la aplicación
   DarkThemeProvider themeChangeProvider = new DarkThemeProvider();
 
+  /// Establece los valores iniciales del estado.
   @override
   void initState() {
     super.initState();
+    /// Obtiene el tema seleccionado de la aplicación sea automática o no.
     getCurrentAppTheme();
   }
 
+  /// Inicializa el proveedor de temas y lo establece en [DarkThemeProvider.darkThemePreference]
   void getCurrentAppTheme() async {
     themeChangeProvider.darkTheme =
-    await DarkThemeProvider.darkThemePreference.getTheme();
+      await DarkThemeProvider.darkThemePreference.getTheme();
   }
 
+  /// Constructor del widget [App] para el [context] seleccionado.
   @override
   Widget build(BuildContext context) {
+    /// Constructor en base a la promesa de inicializar el acceso a la instancia
+    /// de Firebase.
     return FutureBuilder(
-      // Initialize FlutterFire:
+      /// Se inicializa Firebase
       future: Firebase.initializeApp(),
       builder: (context, snapshot) {
-        // Check for errors
+        /// Se devuelve un contenedor con el error al no conectar con Firebase.
         if (snapshot.hasError) {
           return Container();
         }
 
-        // Once complete, show your application
+        /// Una vez completada la conexión, mostrar el contenido de la
+        /// aplicación.
         if (snapshot.connectionState == ConnectionState.done) {
+          /// Se consultan cambios en el proveedor de temas para establecerlo
+          /// conforme al perfil seleccionado.
           return ChangeNotifierProvider.value(
             value: themeChangeProvider,
             child: Consumer<DarkThemeProvider>(
+                /// Constructor de la aplicación en base al tema.
                 builder: (BuildContext context, value, Widget? child) {
+                  /// Actualización del tema seleccionado al renderizar.
                   ThemeMode actualMode = DarkThemeProvider.themeMode(themeChangeProvider.darkTheme);
                   TitleUpdater().updateTitleBar(actualMode);
+                  /// Devuelve la App estilo Material.
                   return MaterialApp(
                       title: 'Flamer',
                       themeMode: actualMode,
@@ -118,8 +133,8 @@ class _AppState extends State<App> {
             ),
           );
         }
+        /// Si no hay conexión dejar un contenedor vacío mientras carga.
         return Container();
-        // Otherwise, show something whilst waiting for initialization to complete
       },
     );
   }
