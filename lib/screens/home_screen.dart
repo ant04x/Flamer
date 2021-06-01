@@ -257,8 +257,8 @@ class _HomeScreenState extends State<HomeScreen> {
                               : currentTheme.canvasColor,
                       ),
                       arrowColor: theme.iconTheme.color != null ? theme.iconTheme.color! : Colors.white,
-                      accountName: Text(_user.displayName!, style: textTheme.headline6),
-                      accountEmail: Text(_user.email!, style: textTheme.caption),
+                      accountName: Text(_user.displayName != null ? _user.displayName! : _user.email!, style: textTheme.headline6),
+                      accountEmail: _user.displayName != null ? Text(_user.email!, style: textTheme.caption) : null,
                       currentAccountPicture: _user.photoURL != null
                           ? CircleAvatar(
                         backgroundImage: NetworkImage(_user.photoURL!),
